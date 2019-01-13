@@ -31,7 +31,7 @@ def get_post_friendlist(request):
     if request.method == 'GET':
         network = friendlist.objects.all()
         serializer = FriendlistSerializer(network, many=True)
-        return HttpResponse(serializer.data)
+        return Response(serializer.data)
 
     elif request.method == 'POST':
         serializer = FriendlistSerializer(data=request.data)

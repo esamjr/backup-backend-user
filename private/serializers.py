@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Typetime
+from .models import Private
 from django.contrib.auth.models import User
 
-class TypetimeSerializer(serializers.ModelSerializer):
+class PrivateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Typetime
+        model = Private
         fields = '__all__'

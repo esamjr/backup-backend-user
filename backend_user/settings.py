@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'type_time',
     'role_type',
     'contact',
+    'private',
 ]
 
 SITE_ID = 1

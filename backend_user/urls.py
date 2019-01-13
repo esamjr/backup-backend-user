@@ -45,4 +45,5 @@ urlpatterns = [
     url(r'^time_contract/', include('time_contract.urls')),
     url(r'^type_time/', include('type_time.urls')),
     url(r'^role_type/', include('role_type.urls')),
+    url(r'^private/', include('private.urls')),
 ]
