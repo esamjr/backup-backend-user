@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include, url
 from registrations import views as lihat
+
 urlpatterns = [
     
     url(r'^registrations/', include('registrations.urls')),
