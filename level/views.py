@@ -10,18 +10,18 @@ from .serializers import LevelSerializer
 def get_delete_update_level(request, pk):
     try:
         Level = Level_models.objects.get(pk=pk)
-    except Level.DoesNotExist:
+    except Level_models.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = LevelSerializer(Level)
+        serializer = LevelSerializer(Level_models)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if(request.user == Level):
+        if(request.user == Level_models):
             Level.delete()
             content = {
                 'status' : 'NO CONTENT'
@@ -33,8 +33,8 @@ def get_delete_update_level(request, pk):
             }
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
-        if(request.user == Level):
-            serializer = LevelSerializer(Level, data=request.data)
+        if(request.user == Level_models):
+            serializer = LevelSerializer(Level_models, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

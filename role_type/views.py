@@ -10,7 +10,7 @@ from .serializers import RoletypeSerializer
 def get_delete_update_roletype(request, pk):
     try:
         Roletype = Role_type.object.get(pk=pk)
-    except Roletype.DoesNotExist:
+    except Role_type.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
@@ -34,7 +34,7 @@ def get_delete_update_roletype(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == Roletype):
-            serializer = RoletypeSerializer(user_type, data=request.data)
+            serializer = RoletypeSerializer(Roletype, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

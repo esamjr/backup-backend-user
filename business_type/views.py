@@ -34,7 +34,7 @@ def get_delete_update_businesstype(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == Businesstype):
-            serializer = BusinesstypeSerializer(Businessaccount, data=request.data)
+            serializer = BusinesstypeSerializer(Businesstype, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -65,7 +65,7 @@ def get_all_businesstype(request,pk):
         network = Bussiness_type.objects.all().filter(id_company=pk)
         serializer = BusinesstypeSerializer(network, many=True)
         return Response(serializer.data)
-    except Businesstype.DoesNotExist:
+    except Bussiness_type.DoesNotExist:
         content = {
             'status': 'Not Found'
         }

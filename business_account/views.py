@@ -11,7 +11,7 @@ from .serializers import BusinessSerializer
 def get_delete_update_businessaccount(request, pk):
     try:
         Businessaccount = Business.objects.get(pk=pk)
-    except Businessaccount.DoesNotExist:
+    except Business.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
@@ -35,7 +35,7 @@ def get_delete_update_businessaccount(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == Businessaccount):
-            serializer = BusinessSerializer(Business, data=request.data)
+            serializer = BusinessSerializer(Businessaccount, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -66,7 +66,7 @@ def get_all_businessaccount(request, pk):
         network = Business.objects.all().filter(id_user = pk)
         serializer = BusinessSerializer(network, many=True)
         return Response(serializer.data)
-    except Businessaccount.DoesNotExist:
+    except Business.DoesNotExist:
         content = {
             'status': 'Not Found'
         }

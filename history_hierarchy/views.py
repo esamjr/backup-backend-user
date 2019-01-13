@@ -34,7 +34,7 @@ def get_delete_update_historyhierarchy(request, pk):
             return Response(content, status=status.HTTP_404_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == history_hierarchy):
-            serializer = HistoryhierarchySerializer(Joincompany, data=request.data)
+            serializer = HistoryhierarchySerializer(history_hierarchy, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

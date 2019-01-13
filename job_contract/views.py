@@ -10,7 +10,7 @@ from .serializers import JobcontractSerializer
 def get_delete_update_jobcontract(request, pk):
     try:
         Jobcontract = Job_contract.objects.get(pk=pk)
-    except Jobcontract.DoesNotExist:
+    except Job_contract.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
@@ -65,7 +65,7 @@ def get_all_jobcontract(request, pk1,pk2):
         network = Job_contract.objects.all().filter(id_company = pk1, id_user = pk2)
         serializer = JobcontractSerializer(network, many=True)
         return Response(serializer.data)
-    except Jobcontract.DoesNotExist:
+    except Job_contract.DoesNotExist:
         content = {
             'status': 'Not Found'
         }

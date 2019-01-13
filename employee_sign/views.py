@@ -14,7 +14,7 @@ def get_delete_update_employeesign(request, pk):
         content = {
             'status': 'Not Found'
         }
-        return Response(content, status=status.HTTP_401_NOT_FOUND)
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = EmployeesignSerializer(employee_sign)
@@ -34,7 +34,7 @@ def get_delete_update_employeesign(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == employee_sign):
-            serializer = EmployeesignSerializer(Employeesign, data=request.data)
+            serializer = EmployeesignSerializer(employee_sign, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -45,13 +45,11 @@ def get_delete_update_employeesign(request, pk):
             }
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-
-
 @api_view(['GET', 'POST'])
 def get_post_employeesign(request):
     if request.method == 'GET':
         network = Employeesign.objects.all()
-        serializer = EmployeesignSerializer(Employeesign, many=True)
+        serializer = EmployeesignSerializer(network, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
@@ -65,7 +63,7 @@ def get_post_employeesign(request):
 def get_all_employeesign(request, pk1, pk2):
     try:
         network = Employeesign.objects.all().filter(id_company=pk1 , id_user=pk2)
-        serializer = EmployeesignSerializer(Employeesign, many=True)
+        serializer = EmployeesignSerializer(network, many=True)
         return Response(serializer.data)
     except Employeesign.DoesNotExist:
         content = {

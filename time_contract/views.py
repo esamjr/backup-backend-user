@@ -10,7 +10,7 @@ from .serializers import TimecontractSerializer
 def get_delete_update_timecontract(request, pk):
     try:
         Timecontract = Time_contract.objects.get(pk=pk)
-    except Timecontract.DoesNotExist:
+    except Time_contract.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
@@ -65,7 +65,7 @@ def get_all_timecontract(request, pk):
         network = Time_contract.objects.all().filter(id_company=pk)
         serializer = TimecontractSerializer(network, many=True)
         return Response(serializer.data)
-    except Timecontract.DoesNotExist:
+    except Time_contract.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
