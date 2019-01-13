@@ -64,7 +64,7 @@ def get_all_hierarchy(request, pk1):
     try:
         network = Hierarchy_models.objects.all().filter(id_company=pk1)
         serializer = HierarchySerializer(network, many=True)
-        return network(serializer.data)
+        return Response(serializer.data)
     except Hierarchy_models.DoesNotExist:
         content = {
             'status': 'Not Found'
