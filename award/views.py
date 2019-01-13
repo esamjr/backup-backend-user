@@ -43,7 +43,7 @@ def get_delete_update_award(request, pk):
                 }
                 return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-    except Award.DoesNotExist:
+    except award.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
