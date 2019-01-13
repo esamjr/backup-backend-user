@@ -86,19 +86,17 @@ def get_post_registrations(request):
 
 @api_view(['POST'])
 def get_login(request):
-    # if request.method == 'POST':
-    #     payload = request.POST
-    #     email = payload['email']
-    #     key = payload['password']
-    #     salt_password = 'mindzzle'
-    #     password = key + salt_password
+    if request.method == 'POST':
+        email = request.data['email']
+        key = request.data['password']
+        salt_password = 'mindzzle'
+        password = str(key) + str(salt_password)
 
-    #     get_login = Register.objects.get(email=email)
-    #     #is_password_usable(get_login.password)
-    #     if (check_password(password, get_login.password)):
-    #         response = {'status' : 'SUCCESSFULLY LOGIN'}
-    #         return Response(response, status=status.HTTP_201_CREATED)
-    #     else:
-    #         response = {'status' : 'ERROR LOGIN'}
-    #         return Response(response, status=status.HTTP_400_BAD_REQUEST)
-    return Response(request.POST['email'], status=status.HTTP_400_BAD_REQUEST)
+        get_login = Register.objects.get(email=email)
+        #is_password_usable(get_login.password)
+        if (check_password(password, get_login.password)):
+            response = {'status' : 'SUCCESSFULLY LOGIN'}
+            return Response(response, status=status.HTTP_201_CREATED)
+        else:
+            response = {'status' : 'ERROR LOGIN'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
