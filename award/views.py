@@ -72,7 +72,7 @@ def get_post_award_user(request,pk):
             network = award.objects.all().filter(id_user=pk)
             serializer = AwardSerializer(network, many=True)
             return Response(serializer.data)
-     except award.DoesNotExist:
+    except award.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
