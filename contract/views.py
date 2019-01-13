@@ -3,13 +3,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from .models import Contract as Contract_models
+from .models import Contract
 from .serializers import contractSerializer
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_contract(request, pk):
     try:
-        contract = Contract_models.objects.get(pk=pk)
+        contract = Contract.objects.get(pk=pk)
     except Contract.DoesNotExist:
         content = {
             'status': 'Not Found'
@@ -48,7 +48,7 @@ def get_delete_update_contract(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_contract(request):
     if request.method == 'GET':
-        network = Contract_models.objects.all()
+        network = Contract.objects.all()
         serializer = ContractSerializer(network, many=True)
         return Response(serializer.data)
 
@@ -62,7 +62,7 @@ def get_post_contract(request):
 @api_view(['GET', 'POST'])
 def get_all_contract(request,pk):
     try:
-        network = Contract_models.objects.all().filter(id_company=pk)
+        network = Contract.objects.all().filter(id_company=pk)
         serializer = ContractSerializer(network, many=True)
         return Response(serializer.data)
     except Contract.DoesNotExist:
