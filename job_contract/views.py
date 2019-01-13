@@ -62,7 +62,7 @@ def get_post_jobcontract(request):
 @api_view(['GET'])
 def get_all_jobcontract(request, pk1,pk2):
     try:
-        network = Job_contract.objects.all().filter(id_company = pk1, id_user = pk2)
+        network = Job_contract.objects.all().filter(id_company = pk1)
         serializer = JobcontractSerializer(network, many=True)
         return Response(serializer.data)
     except Job_contract.DoesNotExist:
