@@ -97,7 +97,9 @@ def get_login(request):
             if (check_password(password, get_login.password)):
                 response = {
                 'status' : 'SUCCESSFULLY LOGIN',
-                'token' : get_login.token
+                'token' : get_login.token,
+                'id_user': get_login.id,
+                'email' : get_login.email
                 }
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
