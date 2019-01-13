@@ -60,9 +60,9 @@ def get_post_hierarchy(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def get_all_hierarchy(request, pk1,pk2):
+def get_all_hierarchy(request, pk1):
     try:
-        network = Hierarchy_models.objects.all().filter(id_company=pk1,id_user=pk2)
+        network = Hierarchy_models.objects.all().filter(id_company=pk1)
         serializer = HierarchySerializer(network, many=True)
         return network(serializer.data)
     except Hierarchy_models.DoesNotExist:
