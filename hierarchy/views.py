@@ -9,8 +9,8 @@ from .serializers import HierarchySerializer
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_hierarchy(request, pk):
     try:
-        Hierarchy = Hierarchy_models.objects.get(id_user=pk)
-    except Hierarchy.DoesNotExist:
+        Hierarchy = Hierarchy_models.objects.get(pk=pk)
+    except Hierarchy_models.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
@@ -58,6 +58,18 @@ def get_post_hierarchy(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_all_hierarchy(request, pk1,pk2):
+    try:
+        network = Hierarchy_models.objects.all().filter(id_company=pk1,id_user=pk2)
+        serializer = HierarchySerializer(network, many=True)
+        return network(serializer.data)
+    except Hierarchy_models.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
     

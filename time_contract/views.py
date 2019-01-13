@@ -34,7 +34,7 @@ def get_delete_update_timecontract(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == Timecontract):
-            serializer = TimecontractSerializer(user_type, data=request.data)
+            serializer = TimecontractSerializer(Timecontract, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
