@@ -10,7 +10,7 @@ from .permissions import IsOwnerOrReadOnly
 @api_view(['GET', 'DELETE', 'PUT'])
 #@permission_classes ((IsAuthenticated, IsOwnerOrReadOnly,))
 def get_delete_update_award(request, pk):
-    Award = award.objects.get(id_user=pk)
+    Award = award.objects.get(pk=pk)
 
     try:       
 
@@ -18,8 +18,20 @@ def get_delete_update_award(request, pk):
             serializer = AwardSerializer(Award)
             return Response(serializer.data)
 
+        elif request.method == 'DELETE':
+            if(request.user == Award.name_institution):
+                Award.delete()
+                content = {
+                    'status' : 'NO CONTENT'
+                }
+                return Response(content, status=status.HTTP_202_NO_CONTENT)
+            else:
+                content = {
+                    'status' : 'UNAUTHORIZED'
+                }
+                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
         elif request.method == 'PUT':
-            if(request.data['id_user'] == Award.id_user):
+            if(request.user == Award.name_institution):
                 serializer = AwardSerializer(Award, data=request.data)
                 if serializer.is_valid():
                     serializer.save()
@@ -51,4 +63,13 @@ def get_post_award(request):
             serializer.save()                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-               
+
+@api_view(['GET'])
+#@permission_classes((IsAuthenticated, ))
+def get_post_award_user(request,pk):
+    if request.method == 'GET':
+        network = award.objects.all().filter(id_user=pk)
+        serializer = AwardSerializer(network, many=True)
+        return Response(serializer.data)
+
+  

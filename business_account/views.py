@@ -6,6 +6,7 @@ from rest_framework.parsers import JSONParser
 from .models import Business
 from .serializers import BusinessSerializer
 
+
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
     try:
@@ -58,3 +59,15 @@ def get_post_businessaccount(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_all_businessaccount(request, pk):
+    try:
+        network = Business.objects.all().filter(id_user = pk)
+        serializer = BusinessSerializer(network, many=True)
+        return Response(serializer.data)
+    except Businessaccount.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
