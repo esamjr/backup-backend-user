@@ -1,0 +1,22 @@
+from django.db import models
+
+class Register(models.Model):
+  email = models.CharField (max_length=255, unique=True)
+  password = models.CharField (max_length=255)
+  token = models.CharField (max_length=255)
+  salt_password = models.CharField(max_length=255)
+  full_name = models.CharField (max_length=255)
+  birth_day = models.DateField()
+  primary_phone = models.CharField(max_length=255)
+  primary_address = models.TextField(null=True, blank=True)
+  id_country = models.IntegerField()
+  id_regions = models.IntegerField()
+  id_city = models.IntegerField()
+  tax_num = models.IntegerField()
+  url_photo = models.CharField(max_length=255,null=True, blank=True)
+  description = models.TextField(null=True, blank=True)
+  id_type = models.IntegerField()
+  banned_type = models.CharField(max_length=255,null=True, blank=True)
+  create_at = models.DateTimeField(auto_now_add=True)
+  update_at = models.DateTimeField(auto_now=True)
+  delete_at = models.DateTimeField(auto_now=True)
