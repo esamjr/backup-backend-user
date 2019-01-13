@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+class Level(models.Model):
+  id_job_contract = models.IntegerField()
+  level = models.CharField(max_length=255)
+  status_parent = models.CharField(max_length=255)
+  status_child = models.CharField(max_length=255)
