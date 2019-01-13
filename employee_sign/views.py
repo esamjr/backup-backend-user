@@ -69,4 +69,4 @@ def get_all_employeesign(request, pk1, pk2):
         content = {
             'status': 'Not Found'
         }
-        return Response(content, status=status.HTTP_401_NOT_FOUND)
+        return Response(content, status=status.HTTP_404_NOT_FOUND)

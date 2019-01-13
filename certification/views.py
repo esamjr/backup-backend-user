@@ -65,7 +65,13 @@ def get_post_certification(request):
 api_view(['GET', 'POST'])
 
 def get_post_certification_user(request,pk):
-    if request.method == 'GET':
-        network = certificate.objects.all().filter(id_user=pk)
-        serializer = CertificationSerializer(network, many=True)
-        return Response(serializer.data)
+    try:
+        if request.method == 'GET':
+            network = certificate.objects.all().filter(id_user=pk)
+            serializer = CertificationSerializer(network, many=True)
+            return Response(serializer.data)
+    except certificate.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)

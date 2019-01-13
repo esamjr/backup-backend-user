@@ -3,21 +3,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from .models import Contract as Contract_models
-from .serializers import contractSerializer
+from .models import Contact
+from .serializers import ContactSerializer
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_contract(request, pk):
     try:
-        contract = Contract_models.objects.get(pk=pk)
-    except Contract_models.DoesNotExist:
+        contract = Contact.objects.get(pk=pk)
+    except Contact.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = ContractSerializer(contract)
+        serializer = ContactSerializer(contract)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
@@ -34,7 +34,7 @@ def get_delete_update_contract(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == contract):
-            serializer = ContractSerializer(contract, data=request.data)
+            serializer = ContactSerializer(contract, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -48,7 +48,7 @@ def get_delete_update_contract(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_contract(request):
     if request.method == 'GET':
-        network = Contract_models.objects.all()
+        network = Contact.objects.all()
         serializer = ContractSerializer(network, many=True)
         return Response(serializer.data)
 
@@ -62,10 +62,10 @@ def get_post_contract(request):
 @api_view(['GET', 'POST'])
 def get_all_contract(request,pk):
     try:
-        network = Contract_models.objects.all().filter(id_company=pk)
+        network = Contact.objects.all().filter(id_company=pk)
         serializer = ContractSerializer(network, many=True)
         return Response(serializer.data)
-    except Contract_models.DoesNotExist:
+    except Contact.DoesNotExist:
         content = {
             'status': 'Not Found'
         }

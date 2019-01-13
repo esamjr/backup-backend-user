@@ -62,7 +62,15 @@ def get_post_joincompany(request):
 
 @api_view(['GET'])
 def get_post_joincompany_user(request,pk):
-    if request.method == 'GET':
-        network = Joincompany.objects.all().filter(id_user=pk)
-        serializer = JoincompanySerializer(network, many=True)
-        return Response(serializer.data)
+  
+    try:
+        if request.method == 'GET':
+            network = Joincompany.objects.all().filter(id_user=pk)
+            serializer = JoincompanySerializer(network, many=True)
+            return Response(serializer.data)
+   
+    except Joincompany.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)

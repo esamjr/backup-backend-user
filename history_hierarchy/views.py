@@ -14,7 +14,7 @@ def get_delete_update_historyhierarchy(request, pk):
         content = {
             'status': 'Not Found'
         }
-        return Response(content, status=status.HTTP_401_NOT_FOUND)
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = HistoryhierarchySerializer(history_hierarchy)
@@ -69,4 +69,4 @@ def get_all_historyhierarchy(request, pk):
         content = {
             'status': 'Not Found'
         }
-        return Response(content, status=status.HTTP_401_NOT_FOUND)
+        return Response(content, status=status.HTTP_404_NOT_FOUND)

@@ -64,10 +64,17 @@ def get_post_experiences(request):
 
 @api_view(['GET'])
 def get_post_experiences_user(request,pk):
-    if request.method == 'GET':
-        network = pengalaman.objects.all().filter(id_user=pk)
-        serializer = ExperiencesSerializer(network, many=True)
-        return Response(serializer.data)
+   
+    try:
+        if request.method == 'GET':
+            network = pengalaman.objects.all().filter(id_user=pk)
+            serializer = ExperiencesSerializer(network, many=True)
+            return Response(serializer.data)
+    except pengalaman.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
 

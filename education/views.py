@@ -64,7 +64,14 @@ def get_post_education(request):
 
 @api_view(['GET'])
 def get_post_education_user(request,pk):
-    if request.method == 'GET':
-        network = pendidikan.objects.all().filter(id_user=pk)
-        serializer = EducationSerializer(network, many=True)
-        return Response(serializer.data)
+    try:
+        if request.method == 'GET':
+            network = pendidikan.objects.all().filter(id_user=pk)
+            serializer = EducationSerializer(network, many=True)
+            return Response(serializer.data)
+    except pendidikan.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    

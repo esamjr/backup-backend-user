@@ -63,7 +63,14 @@ def get_post_city(request):
 @api_view(['GET', 'POST'])
 #@permission_classes((IsAuthenticated, ))
 def get_post_region(request,pk1,pk2):
-    if request.method == 'GET':
-        network = kontak.objects.all().filter(id_country=pk1,id_region=pk2)
-        serializer = ContactSerializer(network, many=True)
-        return Response(serializer.data)
+    try:
+        if request.method == 'GET':
+            network = kota.objects.all().filter(id_country=pk1,id_region=pk2)
+            serializer = ContactSerializer(network, many=True)
+            return Response(serializer.data)
+    except kota.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    

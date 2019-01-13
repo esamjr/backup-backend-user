@@ -62,7 +62,14 @@ def get_post_region(request):
 
 @api_view(['GET'])
 def get_post_region_country(request,pk):
-    if request.method == 'GET':
-        network = Regional.objects.all().filter(id_country=pk)
-        serializer = RegionSerializer(network, many=True)
-        return Response(serializer.data)
+
+    try:
+        if request.method == 'GET':
+            network = Regional.objects.all().filter(id_country=pk)
+            serializer = RegionSerializer(network, many=True)
+            return Response(serializer.data)
+    except Joincompany.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
