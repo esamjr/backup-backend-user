@@ -62,7 +62,7 @@ def get_post_employeesign(request):
 @api_view(['GET', 'POST'])
 def get_all_employeesign(request, pk1, pk2):
     try:
-        network = Employeesign.objects.all().filter(id_company=pk1 , id_user=pk2)
+        network = Employeesign.objects.all().filter(id_company=pk1 )
         serializer = EmployeesignSerializer(network, many=True)
         return Response(serializer.data)
     except Employeesign.DoesNotExist:
