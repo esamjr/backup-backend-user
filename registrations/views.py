@@ -95,7 +95,10 @@ def get_login(request):
             get_login = Register.objects.get(email=email)
             #is_password_usable(get_login.password)
             if (check_password(password, get_login.password)):
-                response = {'status' : 'SUCCESSFULLY LOGIN'}
+                response = {
+                'status' : 'SUCCESSFULLY LOGIN',
+                'token' : get_login.token
+                }
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 response = {'status' : 'ERROR LOGIN'}
