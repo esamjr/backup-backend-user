@@ -90,7 +90,7 @@ def get_login(request):
         email = request.data['email']
         key = request.data['password']
         salt_password = 'mindzzle'
-        password = str(key) + str(salt_password)
+        password = key + salt_password
 
         get_login = Register.objects.get(email=email)
         #is_password_usable(get_login.password)
