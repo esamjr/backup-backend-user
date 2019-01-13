@@ -91,12 +91,15 @@ def get_login(request):
         key = request.data['password']
         salt_password = 'mindzzle'
         password = key + salt_password
-
-        get_login = Register.objects.get(email=email)
-        #is_password_usable(get_login.password)
-        if (check_password(password, get_login.password)):
-            response = {'status' : 'SUCCESSFULLY LOGIN'}
-            return Response(response, status=status.HTTP_201_CREATED)
-        else:
-            response = {'status' : 'ERROR LOGIN'}
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            get_login = Register.objects.get(email=email)
+            #is_password_usable(get_login.password)
+            if (check_password(password, get_login.password)):
+                response = {'status' : 'SUCCESSFULLY LOGIN'}
+                return Response(response, status=status.HTTP_201_CREATED)
+            else:
+                response = {'status' : 'ERROR LOGIN'}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        except Register.DoesNotExist:
+                response = {'status' : 'NOT Found'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)

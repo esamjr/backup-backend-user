@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     'time_contract',
     'type_time',
     'role_type',
-    'contract',
+    'contact',
 ]
 
 SITE_ID = 1
