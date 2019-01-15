@@ -62,8 +62,7 @@ def get_post_certification(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-api_view(['GET', 'POST'])
-
+@api_view(['GET', 'POST'])
 def get_post_certification_user(request,pk):
     if request.method == 'GET':
         try:
