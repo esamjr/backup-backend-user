@@ -15,21 +15,21 @@ def get_delete_update_education(request, pk):
         try:
             token = request.META.get('HTTP_AUTHORIZATION','')
             get_token = Register.objects.get(token = token)
-            if (get_token.id == Experiences.id):
+            if (get_token.id == Education.id):
                 if request.method == 'GET':
-                    serializer = ExperiencesSerializer(Experiences)
+                    serializer = EducationSerializer(Education)
                     return Response(serializer.data)
 
                 elif request.method == 'DELETE':
                     
-                        Experiences.delete()
+                        Education.delete()
                         content = {
                             'status' : 'NO CONTENT'
                         }
                         return Response(content, status=status.HTTP_202_NO_CONTENT)
                     
                 elif request.method == 'PUT':                
-                        serializer = ExperiencesSerializer(experiences, data=request.data)
+                        serializer = EducationSerializer(Education, data=request.data)
                         if serializer.is_valid():
                             serializer.save()
                             return Response(serializer.data, status=status.HTTP_201_CREATED)
