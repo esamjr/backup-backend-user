@@ -23,9 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+EMAIL_HOST = 'mail.mindzzle.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@mindzzle.com'
+EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
+EMAIL_USE_TLS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
@@ -73,6 +79,7 @@ INSTALLED_APPS = [
     'role_type',
     'contact',
     'private',
+    'email_app',
 ]
 
 SITE_ID = 1
@@ -113,23 +120,23 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-     'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '10.124.64.3',
-     'PORT': '5432',
-     'NAME': 'user',
-     'USER': 'user',
-     'PASSWORD': 'U53rDB2016'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '10.124.64.3',
+#      'PORT': '5432',
+#      'NAME': 'user',
+#      'USER': 'user',
+#      'PASSWORD': 'U53rDB2016'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
