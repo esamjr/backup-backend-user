@@ -31,7 +31,7 @@ def get_delete_update_certification(request, pk):
                     
                 elif request.method == 'PUT':
                    
-                        serializer = CertificationSerializer(education, data=request.data)
+                        serializer = CertificationSerializer(Certification, data=request.data)
                         if serializer.is_valid():
                             serializer.save()
                             return Response(serializer.data, status=status.HTTP_201_CREATED)
