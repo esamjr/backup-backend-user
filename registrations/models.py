@@ -3,7 +3,7 @@ from django.db import models
 class Register(models.Model):
   email = models.CharField (max_length=255, unique=True)
   password = models.CharField (max_length=255)
-  token = models.CharField (max_length=255)
+  token = models.CharField (max_length=255, null=True, blank=True)
   salt_password = models.CharField(max_length=255)
   full_name = models.CharField (max_length=255)
   birth_day = models.DateField()
@@ -17,9 +17,6 @@ class Register(models.Model):
   description = models.TextField(null=True, blank=True)
   id_type = models.IntegerField()
   banned_type = models.CharField(max_length=255,null=True, blank=True)
-  url_fb = models.CharField(max_length=255,null=True, blank=True)
-  url_linkedin = models.CharField(max_length=255,null=True, blank=True)
-  url_instagram = models.CharField(max_length=255,null=True, blank=True)
   create_at = models.DateTimeField(auto_now_add=True)
   update_at = models.DateTimeField(auto_now=True)
   delete_at = models.DateTimeField(auto_now=True)

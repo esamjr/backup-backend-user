@@ -8,45 +8,49 @@ from registrations.models import Register
 from .serializers import CertificationSerializer
 from .permissions import IsOwnerOrReadOnly
 
-@api_view(['GET', 'DELETE', 'PUT'])
+@api_view(['GET', 'PUT'])
 
 def get_delete_update_certification(request, pk):
     try:
         Certification = certificate.objects.get(pk=pk)
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION','')
-            get_token = Register.objects.get(token = token)
-            if (get_token.id == Certification.id):
-                if request.method == 'GET':
-                    serializer = CertificationSerializer(Certification)
-                    return Response(serializer.data)
+        if (registrations.token == 'xxx'):
+            response = {'status':'LOGIN FIRST, YOU MUST...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        else:    
+            try:
+                token = request.META.get('HTTP_AUTHORIZATION','')
+                get_token = Register.objects.get(token = token)
+                if (get_token.id == Certification.id):
+                    if request.method == 'GET':
+                        serializer = CertificationSerializer(Certification)
+                        return Response(serializer.data)
 
-                elif request.method == 'DELETE':
-                    if(request.user == Certification):
-                        Certification.delete()
-                        content = {
-                            'status' : 'NO CONTENT'
-                        }
-                        return Response(content, status=status.HTTP_201_CREATED)
-                    
-                elif request.method == 'PUT':
-                   
-                        serializer = CertificationSerializer(Certification, data=request.data)
-                        if serializer.is_valid():
-                            serializer.save()
-                            return Response(serializer.data, status=status.HTTP_201_CREATED)
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
+                    elif request.method == 'DELETE':
+                        if(request.user == Certification):
+                            Certification.delete()
+                            content = {
+                                'status' : 'NO CONTENT'
+                            }
+                            return Response(content, status=status.HTTP_201_CREATED)
+                        
+                    elif request.method == 'PUT':
+                       
+                            serializer = CertificationSerializer(Certification, data=request.data)
+                            if serializer.is_valid():
+                                serializer.save()
+                                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    content = {
+                    'status': 'UNAUTHORIZED'
+                    }
+                    return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        
+            except Register.DoesNotExist:
                 content = {
-                'status': 'UNAUTHORIZED'
+                    'status': 'UNAUTHORIZED'
                 }
                 return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-    
-        except Register.DoesNotExist:
-            content = {
-                'status': 'UNAUTHORIZED'
-            }
-            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
     except certificate.DoesNotExist:
         content = {

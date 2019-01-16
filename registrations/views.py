@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Register
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, LoginSerializer
 from email_app.views import send_email
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
@@ -13,32 +13,37 @@ import time
 def get_delete_update_registrations(request, pk):
     try:
         registrations = Register.objects.get(pk=pk)
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION','')
-            get_token = Register.objects.get(token = token)                
-        
-            if request.method == 'GET':
-                serializer = RegisterSerializer(registrations)
-                return Response(serializer.data)
+        if (registrations.token == 'xxx'):
+            response = {'status':'LOGIN FIRST, YOU MUST...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        else:    
+            try:
+                token = request.META.get('HTTP_AUTHORIZATION','')
+                get_token = Register.objects.get(token = token)                
+            
+                if request.method == 'GET':
+                    serializer = RegisterSerializer(registrations)
+                    return Response(serializer.data)
 
-            elif request.method == 'DELETE':
-                
-                    Register.delete()
-                    content = {
-                        'status' : 'NO CONTENT'
-                    }
-                    return Response(content, status=status.HTTP_202_NO_CONTENT)
-              
-            elif request.method == 'PUT':                
-                serializer = RegisterSerializer(registrations, data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                
-        except Register.DoesNotExist:
-                response = {'status': 'UNAUTHORIZED'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)
+                elif request.method == 'DELETE':
+                    
+                        Register.delete()
+                        content = {
+                            'status' : 'NO CONTENT'
+                        }
+                        return Response(content, status=status.HTTP_202_NO_CONTENT)
+                  
+                elif request.method == 'PUT':                
+                    serializer = RegisterSerializer(registrations, data=request.data)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+            except Register.DoesNotExist:
+                    response = {'status': 'UNAUTHORIZED'}
+                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        
     except Register.DoesNotExist:
             content = {
                 'status': 'Not Found'
@@ -56,8 +61,7 @@ def get_post_registrations(request):
     elif request.method == 'POST':
         salt_password = 'mindzzle'
         email_var = request.data['email']
-        password = request.data['password']
-        token = make_password(str(time.time()))
+        password = request.data['password']        
         hs_pass = make_password(str(password)+str(salt_password))
         payload ={
             'full_name' : request.data['full_name'],
@@ -75,7 +79,7 @@ def get_post_registrations(request):
             'banned_type' : request.data['banned_type'],
             'birth_day': request.data['birth_day'],
             'id_city' : request.data['id_city'],
-            'token' : token
+            'token' : ''
         }
 
         serializer = RegisterSerializer(data=payload)
@@ -85,27 +89,72 @@ def get_post_registrations(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def get_login(request):
     if request.method == 'POST':
         email = request.data['email']
         key = request.data['password']
         salt_password = 'mindzzle'
         password = key + salt_password
+        token = make_password(str(time.time()))
         try:
             get_login = Register.objects.get(email=email)
             #is_password_usable(get_login.password)
-            if (check_password(password, get_login.password)):
-                response = {
-                'status' : 'SUCCESSFULLY LOGIN',
-                'token' : get_login.token,
-                'id_user': get_login.id,
-                'email' : get_login.email
-                }
-                return Response(response, status=status.HTTP_201_CREATED)
+            if (check_password(password, get_login.password)):                
+                get_in = {
+                    'email': get_login.email,
+                    'password': get_login.password,
+                    'token':token
+                    }
+                serializer = LoginSerializer(get_login, data=get_in)
+                if serializer.is_valid():
+                    serializer.save()
+                    response = {
+                    'status' : 'SUCCESSFULLY LOGIN',
+                    'token' : get_login.token,
+                    'id_user': get_login.id,
+                    'email' : get_login.email
+                    }                    
+                    return Response(response, status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                response = {'status' : 'ERROR LOGIN'}
+                response = {'status' : 'Wrong Username / Password'}
                 return Response(response, status=status.HTTP_400_BAD_REQUEST)
         except Register.DoesNotExist:
                 response = {'status' : 'NOT Found'}
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == 'GET':
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            get_token = Register.objects.get(token = token)
+            try:
+                Registration = get_token.id
+                # Registration = Register.objects.get(id=get_token.id)           
+                if (get_token.id == Registration):
+                    get_out = {
+                    'email': get_token.email,
+                    'password': get_token.password,
+                    'token':'xxx'
+                    }
+                    serializer = LoginSerializer(get_token, data = get_out)
+                    if serializer.is_valid():
+                        serializer.save()
+                        response = {'status':'SUCCESSFULLY LOGOUT'}
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    response = {'status':'NOT FOUND 1'}
+                    return Response(response, status=status.HTTP_404_NOT_FOUND)
+            except Register.DoesNotExist:
+                response = {'status':'NOT FOUND 2'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
+        except Register.DoesNotExist:
+            response = {'status':'NOT FOUND 3'}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+    else:
+        response = {'status':'BAD REQUEST'}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+# kelemahan system login yang ini. jika ada yang login selain kita. 
+# maka token juga berubah.
