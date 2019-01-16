@@ -17,10 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include, url
-from registrations import views as lihat
+from email_app import views as lihat
 
 urlpatterns = [
-    
+    url(r'^mailLog/$', lihat.get_log_email), 
     url(r'^registrations/', include('registrations.urls')),
     url(r'^contact/', include('contact.urls')),
     url(r'^business_account/', include('business_account.urls')),
