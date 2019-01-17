@@ -13,6 +13,7 @@ from .permissions import IsOwnerOrReadOnly
 def get_delete_update_certification(request, pk):
     try:
         Certification = certificate.objects.get(pk=pk)
+        registrations = Register.objects.get(pk=pk)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)

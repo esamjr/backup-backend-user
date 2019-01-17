@@ -13,7 +13,8 @@ from .permissions import IsOwnerOrReadOnly
 def get_delete_update_award(request, pk):
    
     try:
-        Award = award.objects.get(pk=pk)
+        # Award = award.objects.get(pk=pk)
+        registrations = Register.objects.get(pk=pk)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -53,7 +54,7 @@ def get_delete_update_award(request, pk):
                 }
                 return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-    except award.DoesNotExist:
+    except Register.DoesNotExist:
         content = {
             'status': 'Not Found'
         }

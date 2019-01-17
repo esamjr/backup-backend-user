@@ -12,6 +12,7 @@ from registrations.models import Register
 def get_delete_update_education(request, pk):
     try:
         Education = pendidikan.objects.get(pk=pk)
+        registrations = Register.objects.get(pk=pk)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
