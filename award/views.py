@@ -8,12 +8,12 @@ from registrations.models import Register
 from .serializers import AwardSerializer
 from .permissions import IsOwnerOrReadOnly
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET','DELETE', 'PUT'])
 #@permission_classes ((IsAuthenticated, IsOwnerOrReadOnly,))
 def get_delete_update_award(request, pk):
    
     try:
-        # Award = award.objects.get(pk=pk)
+        Award = award.objects.get(pk=pk)
         registrations = Register.objects.get(pk=pk)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
@@ -27,14 +27,16 @@ def get_delete_update_award(request, pk):
                         serializer = AwardSerializer(Award)
                         return Response(serializer.data)
 
-                    elif request.method == 'DELETE':                
-                        Award.delete()
-                        content = {
-                            'status' : 'NO CONTENT'
-                        }
-                        return Response(content, status=status.HTTP_202_NO_CONTENT)
-                        
-                         
+                    elif request.method == 'DELETE':
+                        if (Award.verified == "0"):         
+                            Award.delete()
+                            content = {
+                                'status' : 'NO CONTENT'
+                            }
+                            return Response(content, status=status.HTTP_202_NO_CONTENT)
+                        else:
+                            content={'status':'Cannot touch this, because your award already verified'}
+                            return Response(content, status=status.HTTP_401_UNAUTHORIZED)                         
                     elif request.method == 'PUT':
 
                             serializer = AwardSerializer(Award, data=request.data)

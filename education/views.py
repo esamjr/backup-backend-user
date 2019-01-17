@@ -7,7 +7,7 @@ from .models import Education as pendidikan
 from .serializers import EducationSerializer
 from registrations.models import Register
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET','DELETE', 'PUT'])
 
 def get_delete_update_education(request, pk):
     try:
@@ -26,12 +26,15 @@ def get_delete_update_education(request, pk):
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
-                        
+                        if (Education.verified == "0"):
                             Education.delete()
                             content = {
                                 'status' : 'NO CONTENT'
                             }
                             return Response(content, status=status.HTTP_202_NO_CONTENT)
+                        else:
+                            content = {'status':'Cannot touch this, because your education info already verified'}
+                            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
                         
                     elif request.method == 'PUT':                
                             serializer = EducationSerializer(Education, data=request.data)
@@ -42,22 +45,7 @@ def get_delete_update_education(request, pk):
                     if request.method == 'GET':
                         serializer = EducationSerializer(Education)
                         return Response(serializer.data)
-
-                    elif request.method == 'DELETE':
-                        
-                            Education.delete()
-                            content = {
-                                'status' : 'NO CONTENT'
-                            }
-                            return Response(content, status=status.HTTP_202_NO_CONTENT)
-                      
-                    elif request.method == 'PUT':
-                       
-                            serializer = EducationSerializer(education, data=request.data)
-                            if serializer.is_valid():
-                                serializer.save()
-                                return Response(serializer.data, status=status.HTTP_201_CREATED)
-                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                  
                 else:
                     content = {
                     'status': 'UNAUTHORIZED'

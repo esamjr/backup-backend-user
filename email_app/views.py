@@ -12,14 +12,14 @@ def get_log_email(request):
     serializer = EmailSerializer(network, many=True)
     return Response(serializer.data)
 
-# @api_view(['POST'])
+@api_view(['POST'])
 def send_email(mail,token):
 	
 	respondentEmail = Register.objects.get(email=mail)
 
 	send_mail(
 		'Account Activation',
-		'Hi '+respondentEmail.full_name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n click this button to verify your account \n <a href="http://www.user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
+		'Hi '+respondentEmail.full_name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://www.user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
 		'admin@mindzzle.com',
 		[respondentEmail.email], 
 		fail_silently=False

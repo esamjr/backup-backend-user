@@ -7,7 +7,7 @@ from .models import Experiences as pengalaman
 from .serializers import ExperiencesSerializer
 from registrations.models import Register
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET','DELETE', 'PUT'])
 
 def get_delete_update_experiences(request, pk):
     try:
@@ -27,13 +27,15 @@ def get_delete_update_experiences(request, pk):
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
-                    
-                        Experiences.delete()
-                        content = {
-                            'status' : 'NO CONTENT'
-                        }
-                        return Response(content, status=status.HTTP_202_NO_CONTENT)
-                        
+                        if (Experiences == "0"):                    
+                            Experiences.delete()
+                            content = {
+                                'status' : 'NO CONTENT'
+                            }
+                            return Response(content, status=status.HTTP_202_NO_CONTENT)
+                        else:
+                            content = {'status':'Cannot touch this, because your experience already verified'}
+                            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
                     elif request.method == 'PUT':                
                         serializer = ExperiencesSerializer(Experiences, data=request.data)
                         if serializer.is_valid():

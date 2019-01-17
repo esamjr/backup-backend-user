@@ -8,7 +8,7 @@ from registrations.models import Register
 from .serializers import CertificationSerializer
 from .permissions import IsOwnerOrReadOnly
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET','DELETE', 'PUT'])
 
 def get_delete_update_certification(request, pk):
     try:
@@ -27,12 +27,16 @@ def get_delete_update_certification(request, pk):
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
-                        if(request.user == Certification):
-                            Certification.delete()
-                            content = {
-                                'status' : 'NO CONTENT'
-                            }
-                            return Response(content, status=status.HTTP_201_CREATED)
+                        if (Certification.verified == "0"):
+                            if(request.user == Certification):
+                                Certification.delete()
+                                content = {
+                                    'status' : 'NO CONTENT'
+                                }
+                                return Response(content, status=status.HTTP_201_CREATED)
+                        else:
+                            content = {'status':'Cannot touch this, Your Ceritofication is already verified' }
+                            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
                         
                     elif request.method == 'PUT':
                        
