@@ -12,7 +12,7 @@ def get_log_email(request):
     serializer = EmailSerializer(network, many=True)
     return Response(serializer.data)
 
-@api_view(['POST'])
+# @api_view(['POST'])
 def send_email(mail,token):
 	
 	respondentEmail = Register.objects.get(email=mail)
