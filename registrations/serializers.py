@@ -12,10 +12,10 @@ class LoginSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Register
-		fields = 'email','password', 'token'
+		fields = 'email','password', 'token', 'id_type','banned_type'
 
 class ConfirmSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Register
-		fields = 'banned_type'
+		fields = ('banned_type',)
