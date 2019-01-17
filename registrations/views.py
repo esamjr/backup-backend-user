@@ -86,7 +86,7 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            # send_email(email_var,token)
+            send_email(email_var,token)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
