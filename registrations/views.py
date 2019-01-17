@@ -75,11 +75,11 @@ def get_post_registrations(request):
             'tax_num' : request.data['tax_num'],
             'url_photo' : request.data['url_photo'],
             'description' : request.data['description'],
-            'id_type' : request.data['id_type'],
+            'id_type' : 0,
             'banned_type' : request.data['banned_type'],
             'birth_day': request.data['birth_day'],
             'id_city' : request.data['id_city'],
-            'token' : ''
+            'token' : 'xxx'
         }
 
         serializer = RegisterSerializer(data=payload)
@@ -99,27 +99,31 @@ def get_login(request):
         token = make_password(str(time.time()))
         try:
             get_login = Register.objects.get(email=email)
-            #is_password_usable(get_login.password)
-            if (check_password(password, get_login.password)):                
-                get_in = {
-                    'email': get_login.email,
-                    'password': get_login.password,
-                    'token':token
-                    }
-                serializer = LoginSerializer(get_login, data=get_in)
-                if serializer.is_valid():
-                    serializer.save()
-                    response = {
-                    'status' : 'SUCCESSFULLY LOGIN',
-                    'token' : get_login.token,
-                    'id_user': get_login.id,
-                    'email' : get_login.email
-                    }                    
-                    return Response(response, status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                response = {'status' : 'Wrong Username / Password'}
-                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            if (get_login.id_type == 0):
+                response = {'status':'Account has not verified yet, check your email to verified'}
+                return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+            else:                
+                #is_password_usable(get_login.password)
+                if (check_password(password, get_login.password)):                
+                    get_in = {
+                        'email': get_login.email,
+                        'password': get_login.password,
+                        'token':token
+                        }
+                    serializer = LoginSerializer(get_login, data=get_in)
+                    if serializer.is_valid():
+                        serializer.save()
+                        response = {
+                        'status' : 'SUCCESSFULLY LOGIN',
+                        'token' : get_login.token,
+                        'id_user': get_login.id,
+                        'email' : get_login.email
+                        }                    
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    response = {'status' : 'Wrong Username / Password'}
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
         except Register.DoesNotExist:
                 response = {'status' : 'NOT Found'}
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
@@ -158,3 +162,28 @@ def get_login(request):
 
 # kelemahan system login yang ini. jika ada yang login selain kita. 
 # maka token juga berubah.
+@api_view(['POST'])
+def verified_acc(request):
+    if request.method == 'POST':
+        email = request.data['email']
+        get_verified = Register.objects.get(email=email)
+        payload = {
+            'email' : email,
+            'password' : request.data['password'],
+            'id_type' : 1,
+            'token': make_password(str(time.time()))
+        }
+        serializer = LoginSerializer(get_verified, data=payload)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            response = {'status':'Wrong email / password'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        response = {'status':'where are you going buddy?'}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+

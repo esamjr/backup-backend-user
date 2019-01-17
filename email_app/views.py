@@ -19,9 +19,9 @@ def send_email(mail):
 
 	send_mail(
 		'Account Activation',
-		'Hi '+respondentEmail.full_name +'Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right. Click <a href = "www.google.com">Here</a>',
+		'Hi '+respondentEmail.full_name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n click this button to verify your account \n <button href = "http://127.0.0.1:8000/registrations/api/verif/">Verify Account</button> \n <a href="http://127.0.0.1:8000/registrations/api/verif/"> Click Here! </a> To verify',
 		'admin@mindzzle.com',
-		[respondentEmail.email,'powerrangers@mailinator.com'], 
+		[respondentEmail.email], 
 		fail_silently=False
 		)
 
