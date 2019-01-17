@@ -13,3 +13,9 @@ class LoginSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
 		fields = 'email','password', 'token'
+
+class ConfirmSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Register
+		fields = 'banned_type'
