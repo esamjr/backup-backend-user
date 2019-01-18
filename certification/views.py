@@ -53,9 +53,9 @@ def get_delete_update_certification(request, pk):
         
             except Register.DoesNotExist:
                 content = {
-                    'status': 'UNAUTHORIZED'
+                    'status': 'Not Found'
                 }
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
 
     except certificate.DoesNotExist:
         content = {
