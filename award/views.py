@@ -22,7 +22,7 @@ def get_delete_update_award(request, pk):
             try:
                 token = request.META.get('HTTP_AUTHORIZATION','')
                 get_token = Register.objects.get(token = token) 
-                if (get_token.id == Award.id):
+                if (get_token.id == Award.id_user):
                     if request.method == 'GET':
                         serializer = AwardSerializer(Award)
                         return Response(serializer.data)

@@ -20,7 +20,7 @@ def get_delete_update_education(request, pk):
             try:
                 token = request.META.get('HTTP_AUTHORIZATION','')
                 get_token = Register.objects.get(token = token)
-                if (get_token.id == Education.id):
+                if (get_token.id == Education.id_user):
                     if request.method == 'GET':
                         serializer = EducationSerializer(Education)
                         return Response(serializer.data)

@@ -21,7 +21,7 @@ def get_delete_update_certification(request, pk):
             try:
                 token = request.META.get('HTTP_AUTHORIZATION','')
                 get_token = Register.objects.get(token = token)
-                if (get_token.id == Certification.id):
+                if (get_token.id == Certification.id_user):
                     if request.method == 'GET':
                         serializer = CertificationSerializer(Certification)
                         return Response(serializer.data)
