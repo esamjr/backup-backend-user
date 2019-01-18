@@ -12,7 +12,7 @@ from registrations.models import Register
 def get_delete_update_experiences(request, pk):
     try:
         Experiences = pengalaman.objects.get(pk=pk)
-        registrations = Register.objects.get(pk=pk)
+        registrations = Register.objects.get(pk=Experiences.id_user)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)

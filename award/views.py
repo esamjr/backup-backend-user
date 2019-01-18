@@ -14,7 +14,7 @@ def get_delete_update_award(request, pk):
    
     try:
         Award = award.objects.get(pk=pk)
-        registrations = Register.objects.get(pk=pk)
+        registrations = Register.objects.get(pk=Award.id_user)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
