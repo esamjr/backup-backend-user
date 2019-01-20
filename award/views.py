@@ -30,7 +30,7 @@ def get_delete_update_award(request, pk):
                     if request.method == 'GET':
                         serializer = AwardSerializer(Award)
                         act = 'Read Award by '                           
-                        read_log(request, registrations,act)
+                        read_log(request, registrations, act)
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
@@ -75,11 +75,13 @@ def get_delete_update_award(request, pk):
 @api_view(['GET', 'POST'])
 #@permission_classes((IsAuthenticated, ))
 def get_post_award(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
     if request.method == 'GET':
         network = award.objects.all()
         serializer = AwardSerializer(network, many=True)
         act = 'Read all award by '                           
-        read_log(request, registrations,act)
+        read_log(request, registrations, act)
         return Response(serializer.data)
 
     elif request.method == 'POST':
@@ -94,6 +96,9 @@ def get_post_award(request):
 @api_view(['GET'])
 #@permission_classes((IsAuthenticated, ))
 def get_post_award_user(request,pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
+
     try:
         if request.method == 'GET':
             network = award.objects.all().filter(id_user=pk)

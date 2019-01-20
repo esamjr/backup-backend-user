@@ -74,6 +74,8 @@ def get_delete_update_education(request, pk):
 
 @api_view(['GET', 'POST'])
 def get_post_education(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
     if request.method == 'GET':
         network = pendidikan.objects.all()
         serializer = EducationSerializer(network, many=True)
@@ -93,6 +95,8 @@ def get_post_education(request):
 
 @api_view(['GET'])
 def get_post_education_user(request,pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
     try:
         if request.method == 'GET':
             network = pendidikan.objects.all().filter(id_user=pk)

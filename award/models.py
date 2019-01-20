@@ -7,7 +7,7 @@ class Award(models.Model):
   name_institution = models.CharField(max_length=255,null=True,blank=True)
   email_institution = models.CharField(max_length=255,null=True,blank=True)
   date_received = models.DateField()
-  verfied = models.CharField(max_length=3)
+  verified = models.CharField(max_length=3)
   create_at = models.DateTimeField(auto_now_add=True)
   update_at = models.DateTimeField(auto_now=True)
   delete_at = models.DateTimeField(auto_now=True)

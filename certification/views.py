@@ -98,6 +98,8 @@ def get_post_certification(request):
 
 def get_post_certification_user(request,pk):
     if request.method == 'GET':
+        token = request.META.get('HTTP_AUTHORIZATION')
+        registrations = Register.objects.get(token =token)
         try:        
             network = certificate.objects.all().filter(id_user=pk)
             serializer = CertificationSerializer(network, many=True)

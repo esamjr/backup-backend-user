@@ -9,7 +9,7 @@ class Experiences(models.Model):
   email_company = models.CharField(max_length=255,null=True,blank=True)
   start_date = models.DateField()
   end_date = models.DateField()
-  verfied = models.CharField(max_length=3)
+  verified = models.CharField(max_length=3)
   url_photo = models.CharField(max_length=255,null=True,blank=True)
   satified = models.IntegerField(null=True,blank=True)
   create_at = models.DateTimeField(auto_now_add=True)

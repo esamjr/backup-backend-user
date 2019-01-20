@@ -8,7 +8,7 @@ class Certification(models.Model):
   email_institution = models.CharField(max_length=255)
   date_received = models.DateField(blank = True, null = True)
   file_path = models.FilePathField(blank = True, null = True)
-  verfied = models.CharField(max_length=3)
+  verified = models.CharField(max_length=3)
   create_at = models.DateTimeField(auto_now_add=True)
   update_at = models.DateTimeField(auto_now=True)
   delete_at = models.DateTimeField(auto_now=True)

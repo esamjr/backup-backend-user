@@ -9,7 +9,7 @@ class Education(models.Model):
   email_school = models.CharField(max_length=255)
   start_date = models.DateField()
   end_date = models.DateField()
-  verfied = models.CharField(max_length=3)
+  verified = models.CharField(max_length=3)
   url_photo = models.CharField(max_length=255,null=True,blank=True)
   create_at = models.DateTimeField(auto_now_add=True)
   update_at = models.DateTimeField(auto_now=True)
