@@ -27,6 +27,13 @@ def notification_user(request, modelUser, messages):
 		response = {'status':'successfull'}
 		return Response(response, status = status.HTTP_201_CREATED)
 	return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def notification_user_get(request, pk):
+	network = Notification.objects.get(pk=pk)
+	serializer = NotificationSerializer(network)
+	return Response(serializer.data)
+
 	
 @api_view(['POST', 'GET'])
 def notifications_fcm(request):
