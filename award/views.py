@@ -36,7 +36,7 @@ def get_delete_update_award(request, pk):
                     elif request.method == 'DELETE':
                         if (Award.verified == "0"):
                             act = 'Delete award by id : '                           
-                            delete_log(request, registrations, Certification.certificate_name, act)                                         
+                            delete_log(request, registrations, Award.award, act)                                         
                             Award.delete()
                             content = {
                                 'status' : 'NO CONTENT'
