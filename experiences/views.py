@@ -72,6 +72,8 @@ def get_delete_update_experiences(request, pk):
 
 @api_view(['GET', 'POST'])
 def get_post_experiences(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
     if request.method == 'GET':
         network = pengalaman.objects.all()
         serializer = ExperiencesSerializer(network, many=True)
@@ -91,7 +93,8 @@ def get_post_experiences(request):
 
 @api_view(['GET'])
 def get_post_experiences_user(request,pk):
-   
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
     try:
         if request.method == 'GET':
             network = pengalaman.objects.all().filter(id_user=pk)
