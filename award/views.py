@@ -7,6 +7,10 @@ from .models import Award as award
 from registrations.models import Register
 from .serializers import AwardSerializer
 from .permissions import IsOwnerOrReadOnly
+from log_app.views import create_log, read_log, update_log, delete_log
+from log_app.serializers import LoggingSerializer
+from log_app.models import Logging
+import time
 
 @api_view(['GET','DELETE', 'PUT'])
 #@permission_classes ((IsAuthenticated, IsOwnerOrReadOnly,))
@@ -25,10 +29,14 @@ def get_delete_update_award(request, pk):
                 if (get_token.id == Award.id_user):
                     if request.method == 'GET':
                         serializer = AwardSerializer(Award)
+                        act = 'Read Award by '                           
+                        read_log(request, registrations,act)
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
-                        if (Award.verified == "0"):         
+                        if (Award.verified == "0"):
+                            act = 'Delete award by id : '                           
+                            delete_log(request, registrations, Certification.certificate_name, act)                                         
                             Award.delete()
                             content = {
                                 'status' : 'NO CONTENT'
@@ -41,6 +49,8 @@ def get_delete_update_award(request, pk):
 
                             serializer = AwardSerializer(Award, data=request.data)
                             if serializer.is_valid():
+                                act = 'Update certification by '
+                                update_log(request, registrations, act)
                                 serializer.save()
                                 return Response(serializer.data, status=status.HTTP_201_CREATED)
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -68,12 +78,16 @@ def get_post_award(request):
     if request.method == 'GET':
         network = award.objects.all()
         serializer = AwardSerializer(network, many=True)
+        act = 'Read all award by '                           
+        read_log(request, registrations,act)
         return Response(serializer.data)
 
     elif request.method == 'POST':
         serializer = AwardSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()                
+            serializer.save()
+            act = 'Create new award by '
+            create_log(request, registrations, act)                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -84,6 +98,8 @@ def get_post_award_user(request,pk):
         if request.method == 'GET':
             network = award.objects.all().filter(id_user=pk)
             serializer = AwardSerializer(network, many=True)
+            act = 'Read all award by '                           
+            read_log(request, registrations,act)
             return Response(serializer.data)
     except award.DoesNotExist:
         content = {

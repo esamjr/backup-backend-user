@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'contact',
     'private',
     'email_app',
+    'log_app',
 ]
 
 SITE_ID = 1

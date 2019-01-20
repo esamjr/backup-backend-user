@@ -62,10 +62,13 @@ def get_post_registrations(request):
         salt_password = 'mindzzle'
         email_var = request.data['email']
         password = request.data['password'] 
+        name = request.data['full_name']
+        id_type = 0
+        banned_type = "0"
         token = make_password(str(time.time()))
         hs_pass = make_password(str(password)+str(salt_password))
         payload ={
-            'full_name' : request.data['full_name'],
+            'full_name' : name,
             'email' : email_var,
             'salt_password' : salt_password,
             'password' : hs_pass,
@@ -76,8 +79,8 @@ def get_post_registrations(request):
             'tax_num' : request.data['tax_num'],
             'url_photo' : request.data['url_photo'],
             'description' : request.data['description'],
-            'id_type' : 0,
-            'banned_type' : "0",
+            'id_type' : id_type,
+            'banned_type' : banned_type,
             'birth_day': request.data['birth_day'],
             'id_city' : request.data['id_city'],
             'token' : token
@@ -86,8 +89,16 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            send_email(email_var,token)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            subjects = 'Activation account'
+            send_email(request, email_var,token, subjects)
+            # send_mail(
+            #     subjects,
+            #     'Hi '+name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
+            #     'admin@mindzzle.com',
+            #     [email_var], 
+            #     fail_silently=False
+            #     )
+            return Response(payload, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST', 'GET'])

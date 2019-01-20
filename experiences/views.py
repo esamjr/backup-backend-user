@@ -6,6 +6,10 @@ from rest_framework.parsers import JSONParser
 from .models import Experiences as pengalaman
 from .serializers import ExperiencesSerializer
 from registrations.models import Register
+from log_app.views import create_log, read_log, update_log, delete_log
+from log_app.serializers import LoggingSerializer
+from log_app.models import Logging
+import time
 
 @api_view(['GET','DELETE', 'PUT'])
 
@@ -24,11 +28,15 @@ def get_delete_update_experiences(request, pk):
 
                     if request.method == 'GET':
                         serializer = ExperiencesSerializer(Experiences)
+                        act = 'Read experience by '                           
+                        read_log(request, registrations,act)
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
                         if (Experiences == "0"):                    
                             Experiences.delete()
+                            act = 'Delete experience by id : '                           
+                            delete_log(request, registrations, Certification.certificate_name, act)
                             content = {
                                 'status' : 'NO CONTENT'
                             }
@@ -40,6 +48,8 @@ def get_delete_update_experiences(request, pk):
                         serializer = ExperiencesSerializer(Experiences, data=request.data)
                         if serializer.is_valid():
                             serializer.save()
+                            act = 'Update experience by '
+                            update_log(request, registrations, act)
                             return Response(serializer.data, status=status.HTTP_201_CREATED)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,9 +61,9 @@ def get_delete_update_experiences(request, pk):
                 
             except Register.DoesNotExist:
                 content = {
-                    'status': 'UNAUTHORIZED'
+                    'status': 'Not found in register'
                 }
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
     except pengalaman.DoesNotExist:
         content = {
             'status': 'Not Found'
@@ -65,6 +75,8 @@ def get_post_experiences(request):
     if request.method == 'GET':
         network = pengalaman.objects.all()
         serializer = ExperiencesSerializer(network, many=True)
+        act = 'Read all experience by '                           
+        read_log(request, registrations,act)
         return Response(serializer.data)
 
 
@@ -72,6 +84,8 @@ def get_post_experiences(request):
         serializer = ExperiencesSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            act = 'Create new experience by '
+            create_log(request, registrations, act)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,6 +96,8 @@ def get_post_experiences_user(request,pk):
         if request.method == 'GET':
             network = pengalaman.objects.all().filter(id_user=pk)
             serializer = ExperiencesSerializer(network, many=True)
+            act = 'Read experience by '                           
+            read_log(request, registrations,act)
             return Response(serializer.data)
     except pengalaman.DoesNotExist:
         content = {

@@ -6,6 +6,10 @@ from rest_framework.parsers import JSONParser
 from .models import Education as pendidikan
 from .serializers import EducationSerializer
 from registrations.models import Register
+from log_app.views import create_log, read_log, update_log, delete_log
+from log_app.serializers import LoggingSerializer
+from log_app.models import Logging
+import time
 
 @api_view(['GET','DELETE', 'PUT'])
 
@@ -23,10 +27,14 @@ def get_delete_update_education(request, pk):
                 if (get_token.id == Education.id_user):
                     if request.method == 'GET':
                         serializer = EducationSerializer(Education)
+                        act = 'Read education by '                           
+                        read_log(request, registrations,act)
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
                         if (Education.verified == "0"):
+                            act = 'Delete education by id : '                           
+                            delete_log(request, registrations, Certification.certificate_name, act)
                             Education.delete()
                             content = {
                                 'status' : 'NO CONTENT'
@@ -40,11 +48,13 @@ def get_delete_update_education(request, pk):
                             serializer = EducationSerializer(Education, data=request.data)
                             if serializer.is_valid():
                                 serializer.save()
+                                act = 'Update education by '
+                                update_log(request, registrations, act)
                                 return Response(serializer.data, status=status.HTTP_201_CREATED)
                             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    if request.method == 'GET':
-                        serializer = EducationSerializer(Education)
-                        return Response(serializer.data)
+                    # if request.method == 'GET':
+                    #     serializer = EducationSerializer(Education)
+                    #     return Response(serializer.data)
                   
                 else:
                     content = {
@@ -53,12 +63,12 @@ def get_delete_update_education(request, pk):
                     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
             except Register.DoesNotExist:
                 content = {
-                    'status': 'UNAUTHORIZED'
+                    'status': 'NOT FOUND in register'
                 }
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
     except Education.DoesNotExist:
         content = {
-            'status': 'Not Found'
+            'status': 'Not Found in education'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
@@ -67,6 +77,8 @@ def get_post_education(request):
     if request.method == 'GET':
         network = pendidikan.objects.all()
         serializer = EducationSerializer(network, many=True)
+        act = 'Read all education by '                           
+        read_log(request, registrations,act)
         return Response(serializer.data)
 
 
@@ -74,6 +86,8 @@ def get_post_education(request):
         serializer = EducationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            act = 'Create new education by '
+            create_log(request, registrations, act)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -83,6 +97,8 @@ def get_post_education_user(request,pk):
         if request.method == 'GET':
             network = pendidikan.objects.all().filter(id_user=pk)
             serializer = EducationSerializer(network, many=True)
+            act = 'Read education by '                           
+            read_log(request, registrations,act)
             return Response(serializer.data)
     except pendidikan.DoesNotExist:
         content = {
