@@ -7,7 +7,7 @@ from .models import Register
 from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer
 from email_app.views import send_email
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 import time
 
 @api_view(['GET', 'PUT'])
@@ -91,14 +91,17 @@ def get_post_registrations(request):
         if serializer.is_valid():
             serializer.save()
             subjects = 'Activation account'
-            # send_email(request, email_var,token, subjects)
-            send_mail(
-                subjects,
-                'Hi '+name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
-                'admin@mindzzle.com',
-                [email_var], 
-                fail_silently=False
-                )
+            try:
+                send_email(request, email_var, token,name, subjects)
+            except:
+                return Response({'error in here'})
+            # send_mail(
+            #     subjects,
+            #     'Hi '+name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
+            #     'admin@mindzzle.com',
+            #     [email_var], 
+            #     fail_silently=False
+            #     )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

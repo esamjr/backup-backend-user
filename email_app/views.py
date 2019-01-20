@@ -10,9 +10,9 @@ from django.http import HttpResponse
 
 @csrf_exempt
 # @api_view(['POST'])
-def send_email(request,mail,token, subjects):
+def send_email(request,mail,token, name, subjects):
 # def send_email(request):
-	respondentEmail = Register.objects.get(email=mail)
+	respondentEmail = mail
 	sender = 'admin@mindzzle.com'
 	# subjects = 'Account Activation'
 	# respondentEmail = request.data['respondentEmail']
@@ -22,7 +22,7 @@ def send_email(request,mail,token, subjects):
 	try:		
 		send_mail(
 			subjects,
-			'Hi '+respondentEmail.full_name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
+			'Hi '+ name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
 			sender,
 			[respondentEmail], 
 			fail_silently=False
@@ -59,6 +59,32 @@ def email_get(request):
 		serializer = EmailSerializer(network, many=True)
 		return Response(serializer.data)
 
+
+# # @csrf_exempt
+# @api_view(['POST'])
+# # def send_email(request,mail,token, subjects):
+# def send_email(request):
+# 	# respondentEmail = mail
+# 	sender = 'admin@mindzzle.com'
+# 	subjects = 'Account Activation'
+# 	respondentEmail = request.data['respondentEmail']
+# 	sender = request.data['sender']
+# 	subjects = request.data['subjects']
+# 	token = 'okasokdianfammcdajsnckm'
+# 	try:		
+# 		send_mail(
+# 			subjects,
+# 			'Hi '+respondentEmail+'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
+# 			sender,
+# 			[respondentEmail], 
+# 			fail_silently=False
+# 			)
+# 		email_log(request, respondentEmail,sender,subjects)
+# 		response = {'status Email Sent'}
+# 		return HttpResponse(response)
+# 	except:
+# 		response = {'status failed to send email'}
+# 		return HttpResponse(response)
 
 
 # "http://www.user.mindzzle.com/registrations/api/confirm/'+token+'"
