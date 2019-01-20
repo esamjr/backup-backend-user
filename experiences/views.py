@@ -33,14 +33,14 @@ def get_delete_update_experiences(request, pk):
                         return Response(serializer.data)
 
                     elif request.method == 'DELETE':
-                        if (Experiences == "0"):                    
+                        if (Experiences.verified == "0"):                    
                             Experiences.delete()
                             act = 'Delete experience by id : '                           
-                            delete_log(request, registrations, Certification.certificate_name, act)
+                            delete_log(request, registrations, Experiences.position, act)
                             content = {
                                 'status' : 'NO CONTENT'
                             }
-                            return Response(content, status=status.HTTP_202_NO_CONTENT)
+                            return Response(content, status=status.HTTP_201_CREATED)
                         else:
                             content = {'status':'Cannot touch this, because your experience already verified'}
                             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
@@ -66,7 +66,7 @@ def get_delete_update_experiences(request, pk):
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
     except pengalaman.DoesNotExist:
         content = {
-            'status': 'Not Found'
+            'status': 'Not Found in Experience'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 

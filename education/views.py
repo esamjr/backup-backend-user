@@ -34,12 +34,12 @@ def get_delete_update_education(request, pk):
                     elif request.method == 'DELETE':
                         if (Education.verified == "0"):
                             act = 'Delete education by id : '                           
-                            delete_log(request, registrations, Certification.certificate_name, act)
+                            delete_log(request, registrations, Education.level, act)
                             Education.delete()
                             content = {
                                 'status' : 'NO CONTENT'
                             }
-                            return Response(content, status=status.HTTP_202_NO_CONTENT)
+                            return Response(content, status=status.HTTP_201_CREATED)
                         else:
                             content = {'status':'Cannot touch this, because your education info already verified'}
                             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
