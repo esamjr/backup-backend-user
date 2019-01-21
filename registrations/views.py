@@ -6,7 +6,7 @@ from rest_framework.parsers import JSONParser
 from .models import Register
 from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer
 from email_app.views import send_email, send_forget_email
-from log_app.views import update_log
+from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
 
@@ -24,10 +24,13 @@ def get_delete_update_registrations(request, pk):
             
                 if request.method == 'GET':
                     serializer = RegisterSerializer(registrations)
+                    act = 'Read registrations by '
+                    read_log(request,get_token,act)
                     return Response(serializer.data)
 
                 elif request.method == 'DELETE':
-                    
+                        act = 'Delete registrations within name : '
+                        delete_log(request, get_token, get_token.full_name, act)
                         Register.delete()
                         content = {
                             'status' : 'NO CONTENT'
@@ -37,6 +40,8 @@ def get_delete_update_registrations(request, pk):
                 elif request.method == 'PUT':                
                     serializer = RegisterSerializer(registrations, data=request.data)
                     if serializer.is_valid():
+                        act = 'Update registrations by'
+                        update_log(request, get_token, act)
                         serializer.save()
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -129,13 +134,15 @@ def get_login(request):
                             }
                         serializer = LoginSerializer(get_login, data=get_in)
                         if serializer.is_valid():
+                            act = 'user logging in by '
+                            read_log(request, get_login, act)
                             serializer.save()
                             response = {
                             'status' : 'SUCCESSFULLY LOGIN',
                             'token' : get_login.token,
                             'id_user': get_login.id,
                             'email' : get_login.email
-                            }                    
+                            }                                                
                             return Response(response, status=status.HTTP_201_CREATED)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     else:
@@ -160,8 +167,10 @@ def get_login(request):
                     }
                     serializer = LoginSerializer(get_token, data = get_out)
                     if serializer.is_valid():
+                        act = 'user has logout by '
+                        read_log(request, get_token, act)
                         serializer.save()
-                        response = {'status':'SUCCESSFULLY LOGOUT'}
+                        response = {'status':'SUCCESSFULLY LOGOUT'}                        
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
@@ -188,6 +197,8 @@ def verified_acc(request):
             }
             serializer = ConfirmSerializer(get_token, data=payload)
             if serializer.is_valid():
+                act = 'user has verified account with name : '
+                read_log(request, get_token, act)
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -213,6 +224,8 @@ def forget(request):
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
             send_forget_email(request, email, token, name, subjects)
+            act = 'User requested to forget password by '
+            read_log(request, check, act)
             return Response({'status':'Email sent'})
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
