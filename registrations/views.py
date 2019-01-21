@@ -114,10 +114,11 @@ def get_login(request):
         salt_password = 'mindzzle'
         password = key + salt_password
         token = make_password(str(time.time()))
-        token_forget = 'usethistokenforforgetyourpassword'        
+        token_forget = 'usethistokenforforgetyourpassword'
+        tokenx = str(token_forget) 
         try:
             get_login = Register.objects.get(email=email)
-            if (check_password(token_forget, get_login.token)):
+            if (check_password(tokenx, get_login.token)):
                 response = {'status':'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
             else:
@@ -209,7 +210,8 @@ def verified_acc(request):
 def forget(request):
     if request.method == 'POST':
         token_forget = 'usethistokenforforgetyourpassword'
-        token = make_password(token_forget)
+        tokenx = str(token_forget)
+        token = make_password(tokenx)
         email = request.data['email']
         payload = {'token':token}
         try:
@@ -232,8 +234,9 @@ def forget(request):
 def forget_backlink(request):
     if request.method == 'POST':
         token_forget = 'usethistokenforforgetyourpassword'
+        tokenx = str(token_forget)
         token = request.META.get('HTTP_AUTHORIZATION')
-        if (check_password(token_forget, token)): 
+        if (check_password(tokenx, token)): 
             try:
                 get_token = Register.objects.get(token=token)
                 # registrations = Register.objects.get(get_token.id)
