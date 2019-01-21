@@ -200,9 +200,9 @@ def verified_acc(request):
             response = {'status':'NOT FOUND'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['POST','GET'])
+@api_view(['POST'])
 def forget(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = make_password(str(time.time()))
         email = request.data['email']
         payload = {'token':token}
@@ -221,8 +221,10 @@ def forget(request):
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
-    
-    elif request.method == 'POST':   
+            
+@api_view(['POST'])
+def forget_backlink(request):
+    if request.method == 'POST':   
         token = request.META.get('HTTP_AUTHORIZATION')   
         try:
             get_token = Register.objects.get(token=token)

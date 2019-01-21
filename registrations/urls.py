@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^api/login/$', views.get_login, name='get_login'),
     url(r'^api/confirm/$', views.verified_acc, name='verified_acc'),
     url(r'^api/forget/$', views.forget, name='forget'),
+    url(r'^api/forgetbacklink/$', views.forget_backlink, name='forget_backlink'),
 ]
