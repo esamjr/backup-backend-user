@@ -233,31 +233,32 @@ def forget(request):
 @api_view(['POST'])
 def forget_backlink(request):
     if request.method == 'POST':
-        token_forget = 'usethistokenforforgetyourpassword'
-        tokenx = str(token_forget)
+        # token_forget = 'usethistokenforforgetyourpassword'
+        # tokenx = str(token_forget)
         token = request.META.get('HTTP_AUTHORIZATION')
-        if (check_password(tokenx, token)): 
-            try:
-                get_token = Register.objects.get(token=token)
-                # registrations = Register.objects.get(get_token.id)
-                salt_password = 'mindzzle'
-                password = request.data['password'] 
-                hs_pass = make_password(str(password)+str(salt_password))
-                payload = {'password' : hs_pass}
-                serializers = ForgetSerializer(get_token, data=payload)
-                if serializers.is_valid():
-                    serializers.save()
-                    act = 'password is changed by '
-                    update_log(request, get_token, act)
-                    response = {'status':'Password chaged'}
-                    return Response(response, status=status.HTTP_201_CREATED)
-                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-            except Register.DoesNotExist:
-                response = {'status': 'Your token is invalid'}
-                return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        else:
+        # if (check_password(tokenx, token)): 
+        try:
+            get_token = Register.objects.get(token=token)
+            # registrations = Register.objects.get(get_token.id)
+            token = make_password(str(time.time()))
+            salt_password = 'mindzzle'
+            password = request.data['password'] 
+            hs_pass = make_password(str(password)+str(salt_password))
+            payload = {'password' : hs_pass, 'token':token}
+            serializers = ForgetSerializer(get_token, data=payload)
+            if serializers.is_valid():
+                serializers.save()
+                act = 'password is changed by '
+                update_log(request, get_token, act)
+                response = {'status':'Password chaged'}
+                return Response(response, status=status.HTTP_201_CREATED)
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Register.DoesNotExist:
             response = {'status': 'Your token is invalid'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        # else:
+        #     response = {'status': 'Your token is invalid'}
+        #     return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # @api_view(['POST'])

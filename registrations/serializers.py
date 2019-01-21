@@ -24,7 +24,7 @@ class ForgetSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Register
-		fields = ('password',)
+		fields = ('password','token',)
 
 class SentForgetSerializer(serializers.ModelSerializer):
 	class Meta:
