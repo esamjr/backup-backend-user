@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer
-from email_app.views import send_email
+from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer
+from email_app.views import send_email, send_forget_email
+from log_app.views import update_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 # from django.core.mail import send_mail
 import time
@@ -188,10 +189,6 @@ def verified_acc(request):
         try:            
             get_token = Register.objects.get(token=token)
             payload = {
-            # 'email':get_token.email,
-            # 'password':get_token.password,
-            # 'token': token,
-            # 'id_type' : 0,
             'banned_type': "1"
             }
             serializer = ConfirmSerializer(get_token, data=payload)
@@ -202,6 +199,52 @@ def verified_acc(request):
         except Register.DoesNotExist:
             response = {'status':'NOT FOUND'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST','GET'])
+def forget(request):
+    if request.method == 'GET':
+        token = make_password(str(time.time()))
+        email = request.data['email']
+        payload = {'token':token}
+        try:
+            check = Register.objects.get(email = email)
+            # token = check.token
+            name = check.full_name
+            serializers = SentForgetSerializer(check, data = payload)
+            if serializers.is_valid():
+                serializers.save()
+            else:
+                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            subjects = 'Forget Password'
+            send_forget_email(request, email, token, name, subjects)
+            return Response({'status':'Email sent'})
+        except Register.DoesNotExist:
+            response = {'status':'Email Does not valid'}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+    
+    elif request.method == 'POST':   
+        token = request.META.get('HTTP_AUTHORIZATION')   
+        try:
+            get_token = Register.objects.get(token=token)
+            # registrations = Register.objects.get(get_token.id)
+            salt_password = 'mindzzle'
+            password = request.data['password'] 
+            hs_pass = make_password(str(password)+str(salt_password))
+            payload = {'password' : hs_pass}
+            serializers = ForgetSerializer(get_token, data=payload)
+            if serializers.is_valid():
+                serializers.save()
+                act = 'password is changed by '
+                update_log(request, get_token, act)
+                response = {'status':'Password chaged'}
+                return Response(response, status=status.HTTP_201_CREATED)
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Register.DoesNotExist:
+            response = {'status': 'Your token is invalid'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
 
 # @api_view(['POST'])
 # def verified_acc(request):

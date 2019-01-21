@@ -19,3 +19,14 @@ class ConfirmSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
 		fields = ('banned_type',)
+
+class ForgetSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Register
+		fields = ('password',)
+
+class SentForgetSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Register
+		fields = ('token',)
