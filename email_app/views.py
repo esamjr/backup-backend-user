@@ -9,16 +9,28 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 @csrf_exempt
-# @api_view(['POST'])
-def send_email(request,mail,token, name, subjects):
-# def send_email(request):
+def send_forget_email(request,mail,token, name, subjects):
 	respondentEmail = mail
 	sender = 'admin@mindzzle.com'
-	# subjects = 'Account Activation'
-	# respondentEmail = request.data['respondentEmail']
-	# sender = request.data['sender']
-	# subjects = request.data['subjects']
-	# token = 'okasokdianfammcdajsnckm'
+	try:		
+		send_mail(
+			subjects,
+			'Hi '+ name +'\n you try to reset your password account ! \n To complete your reset password , you just need input your new password right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a>',
+			sender,
+			[respondentEmail], 
+			fail_silently=False
+			)
+		email_log(request, respondentEmail,sender,subjects)
+		response = {'status Email Sent'}
+		return HttpResponse(response)
+	except:
+		response = {'status failed to send email'}
+		return HttpResponse(response)
+
+@csrf_exempt
+def send_email(request,mail,token, name, subjects):
+	respondentEmail = mail
+	sender = 'admin@mindzzle.com'
 	try:		
 		send_mail(
 			subjects,
