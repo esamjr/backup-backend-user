@@ -15,7 +15,7 @@ def send_forget_email(request,mail,token, name, subjects):
 	try:		
 		send_mail(
 			subjects,
-			'Hi '+ name +'\n you try to reset your password account ! \n To complete your reset password , you just need input your new password right.\n <a href="http://dev-user.mindzzle.com/password/forget/confirmation?token='+token+'"> Click Here! </a>',
+			'Hi '+ name +'\n you try to reset your password account ! \n To complete your reset password , you just need input your new password right.\n <a href="http://dev-user.mindzzle.com/password/new?token='+token+'"> Click Here! </a>',
 			sender,
 			[respondentEmail], 
 			fail_silently=False
