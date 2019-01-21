@@ -8,7 +8,6 @@ from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer,
 from email_app.views import send_email, send_forget_email
 from log_app.views import update_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
-# from django.core.mail import send_mail
 import time
 
 @api_view(['GET', 'PUT'])
@@ -60,11 +59,11 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(network, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        salt_password = 'mindzzle'
+    elif request.method == 'POST':        
         email_var = request.data['email']
         password = request.data['password'] 
         name = request.data['full_name']
+        salt_password = ''.join(str(ord(c))for c in name)
         id_type = 0
         banned_type = "0"
         token = make_password(str(time.time()))
@@ -96,13 +95,6 @@ def get_post_registrations(request):
                 send_email(request, email_var, token,name, subjects)
             except:
                 return Response({'error in here'})
-            # send_mail(
-            #     subjects,
-            #     'Hi '+name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
-            #     'admin@mindzzle.com',
-            #     [email_var], 
-            #     fail_silently=False
-            #     )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,7 +103,8 @@ def get_login(request):
     if request.method == 'POST':
         email = request.data['email']
         key = request.data['password']
-        salt_password = 'mindzzle'
+        salt = Register.objects.get(email=email).full_name
+        salt_password = ''.join(str(ord(c)) for c in salt)
         password = key + salt_password
         token = make_password(str(time.time()))
         token_forget = 'usethistokenforforgetyourpassword'
@@ -126,7 +119,6 @@ def get_login(request):
                     response = {'status':'Account has not verified yet, check your email to verified'}
                     return Response(response, status=status.HTTP_401_UNAUTHORIZED)
                 else:                
-                    #is_password_usable(get_login.password)
                     if (check_password(password, get_login.password)):                
                         get_in = {
                             'email': get_login.email,
@@ -158,8 +150,7 @@ def get_login(request):
             token = request.META.get('HTTP_AUTHORIZATION')
             get_token = Register.objects.get(token = token)
             try:
-                Registration = get_token.id
-                # Registration = Register.objects.get(id=get_token.id)           
+                Registration = get_token.id       
                 if (get_token.id == Registration):
                     get_out = {
                     'email': get_token.email,
@@ -186,8 +177,6 @@ def get_login(request):
         response = {'status':'BAD REQUEST'}
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-# kelemahan system login yang ini. jika ada yang login selain kita. 
-# maka token juga berubah.
 @api_view(['POST'])
 def verified_acc(request):
     if request.method == 'POST':
@@ -216,7 +205,6 @@ def forget(request):
         payload = {'token':token}
         try:
             check = Register.objects.get(email = email)
-            # token = check.token
             name = check.full_name
             serializers = SentForgetSerializer(check, data = payload)
             if serializers.is_valid():
@@ -233,15 +221,12 @@ def forget(request):
 @api_view(['POST'])
 def forget_backlink(request):
     if request.method == 'POST':
-        # token_forget = 'usethistokenforforgetyourpassword'
-        # tokenx = str(token_forget)
         token = request.META.get('HTTP_AUTHORIZATION')
-        # if (check_password(tokenx, token)): 
         try:
             get_token = Register.objects.get(token=token)
-            # registrations = Register.objects.get(get_token.id)
             token = make_password(str(time.time()))
-            salt_password = 'mindzzle'
+            salt = get_token.full_name
+            salt_password = ''.join(str(ord(c)) for c in salt)
             password = request.data['password'] 
             hs_pass = make_password(str(password)+str(salt_password))
             payload = {'password' : hs_pass, 'token':token}
@@ -256,30 +241,3 @@ def forget_backlink(request):
         except Register.DoesNotExist:
             response = {'status': 'Your token is invalid'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        # else:
-        #     response = {'status': 'Your token is invalid'}
-        #     return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# @api_view(['POST'])
-# def verified_acc(request):
-#     if request.method == 'POST':
-#         email = request.data['email']
-#         get_verified = Register.objects.get(email=email)
-#         payload = {
-#             'email' : email,
-#             'password' : request.data['password'],
-#             'banned_type' : 1
-#             # 'token': make_password(str(time.time()))
-#         }
-#         serializer = LoginSerializer(get_verified, data=payload)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         else:
-#             response = {'status':'Wrong email / password'}
-#             return Response(response, status=status.HTTP_400_BAD_REQUEST)
-
-#     else:
-#         response = {'status':'where are you going buddy?'}
-#         return Response(response, status=status.HTTP_400_BAD_REQUEST)
