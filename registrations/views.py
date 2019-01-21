@@ -114,35 +114,40 @@ def get_login(request):
         salt_password = 'mindzzle'
         password = key + salt_password
         token = make_password(str(time.time()))
+        token_forget = 'usethistokenforforgetyourpassword'        
         try:
             get_login = Register.objects.get(email=email)
-            if (get_login.banned_type == "0"):
-                response = {'status':'Account has not verified yet, check your email to verified'}
+            if (check_password(token_forget, get_login.token)):
+                response = {'status':'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-            else:                
-                #is_password_usable(get_login.password)
-                if (check_password(password, get_login.password)):                
-                    get_in = {
-                        'email': get_login.email,
-                        'password': get_login.password,
-                        'id_type': 1,
-                        'banned_type':"1",
-                        'token':token
-                        }
-                    serializer = LoginSerializer(get_login, data=get_in)
-                    if serializer.is_valid():
-                        serializer.save()
-                        response = {
-                        'status' : 'SUCCESSFULLY LOGIN',
-                        'token' : get_login.token,
-                        'id_user': get_login.id,
-                        'email' : get_login.email
-                        }                    
-                        return Response(response, status=status.HTTP_201_CREATED)
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    response = {'status' : 'Wrong Username / Password'}
-                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if (get_login.banned_type == "0"):
+                    response = {'status':'Account has not verified yet, check your email to verified'}
+                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+                else:                
+                    #is_password_usable(get_login.password)
+                    if (check_password(password, get_login.password)):                
+                        get_in = {
+                            'email': get_login.email,
+                            'password': get_login.password,
+                            'id_type': 1,
+                            'banned_type':"1",
+                            'token':token
+                            }
+                        serializer = LoginSerializer(get_login, data=get_in)
+                        if serializer.is_valid():
+                            serializer.save()
+                            response = {
+                            'status' : 'SUCCESSFULLY LOGIN',
+                            'token' : get_login.token,
+                            'id_user': get_login.id,
+                            'email' : get_login.email
+                            }                    
+                            return Response(response, status=status.HTTP_201_CREATED)
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        response = {'status' : 'Wrong Username / Password'}
+                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
         except Register.DoesNotExist:
                 response = {'status' : 'NOT Found'}
                 return Response(response, status=status.HTTP_404_NOT_FOUND)
@@ -203,7 +208,8 @@ def verified_acc(request):
 @api_view(['POST'])
 def forget(request):
     if request.method == 'POST':
-        token = make_password(str(time.time()))
+        token_forget = 'usethistokenforforgetyourpassword'
+        token = make_password(token_forget)
         email = request.data['email']
         payload = {'token':token}
         try:
@@ -221,31 +227,34 @@ def forget(request):
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
-            
+
 @api_view(['POST'])
 def forget_backlink(request):
-    if request.method == 'POST':   
-        token = request.META.get('HTTP_AUTHORIZATION')   
-        try:
-            get_token = Register.objects.get(token=token)
-            # registrations = Register.objects.get(get_token.id)
-            salt_password = 'mindzzle'
-            password = request.data['password'] 
-            hs_pass = make_password(str(password)+str(salt_password))
-            payload = {'password' : hs_pass}
-            serializers = ForgetSerializer(get_token, data=payload)
-            if serializers.is_valid():
-                serializers.save()
-                act = 'password is changed by '
-                update_log(request, get_token, act)
-                response = {'status':'Password chaged'}
-                return Response(response, status=status.HTTP_201_CREATED)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Register.DoesNotExist:
+    if request.method == 'POST':
+        token_forget = 'usethistokenforforgetyourpassword'
+        token = request.META.get('HTTP_AUTHORIZATION')
+        if (check_password(token_forget, token)): 
+            try:
+                get_token = Register.objects.get(token=token)
+                # registrations = Register.objects.get(get_token.id)
+                salt_password = 'mindzzle'
+                password = request.data['password'] 
+                hs_pass = make_password(str(password)+str(salt_password))
+                payload = {'password' : hs_pass}
+                serializers = ForgetSerializer(get_token, data=payload)
+                if serializers.is_valid():
+                    serializers.save()
+                    act = 'password is changed by '
+                    update_log(request, get_token, act)
+                    response = {'status':'Password chaged'}
+                    return Response(response, status=status.HTTP_201_CREATED)
+                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Register.DoesNotExist:
+                response = {'status': 'Your token is invalid'}
+                return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        else:
             response = {'status': 'Your token is invalid'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-
-
 
 
 # @api_view(['POST'])
