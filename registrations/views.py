@@ -56,7 +56,18 @@ def get_delete_update_registrations(request, pk):
             }
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-
+@api_view(['POST'])
+def search(request):
+    if request.method == 'POST':
+        name = request.data['name']
+        if (name == None) :
+            network = Register.objects.all()
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
+        else:
+            network = Register.objects.all().filter(full_name__icontains = name)
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
 @api_view(['GET', 'POST'])
 def get_post_registrations(request):
     if request.method == 'GET':
