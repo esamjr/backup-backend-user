@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, SearchSerializer, CustomJoincompanySerializer, JoincompanySerializer
+from .serializers import BusinessSerializer, SearchSerializer, CustomJoincompanySerializer, JoincompanySerializer, RegSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
 
@@ -86,8 +86,10 @@ def get_all_businessaccount(request, pk):
 @api_view(['GET'])
 def custom_get_all_businessaccount(request, pk):
     try:
-        network = Joincompany.objects.all().filter(id_company = pk, status="1")        
-        serializer = CustomJoincompanySerializer(network, many=True)
+        network = Joincompany.objects.all().filter(id_company = pk, status="1").id_user
+        # serializer = CustomJoincompanySerializer(network, many=True)
+        user = Register.objects.get().filter(id = network)
+        serializer2 = RegSerializer(user, many=True)
         # if (serializer.data == []):
         #     return Response({'status zero'})
         return Response(serializer.data)
@@ -104,15 +106,17 @@ def search_company(request):
         # token = request.META.get('HTTP_AUTHORIZATION')
         # id_user = Register.objects.get(token = token).id
         comp_name = request.data['name_comp']
-        search = Business.objects.all().filter(company_name__icontains = comp_name)
+        state = Joincompany.objects.get(status="3"or"4")
+        # search = Business.objects.filter(company_name__icontains = comp_name).all()
+        user = Register.objects.get(id = str(state.id_user))
         # join_comp = Joincompany.objects.all().filter(search)
         # search = Joincompany.objects.all()
-        serializer = SearchSerializer(search, many = True)
+        serializer = RegSerializer(user, many = True)
 
         # if (join_comp.status == "1"):
         #     pass
         # else:
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(user, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 0 = belum apa apa

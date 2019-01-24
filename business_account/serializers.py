@@ -12,7 +12,7 @@ class RegSerializer(serializers.ModelSerializer):
 
 class CustomJoincompanySerializer(serializers.ModelSerializer):
     # id_user = RegSerializer(many=True, read_only=True)
-    id_user = serializers.ReadOnlyField(source='Register')
+    id_user = serializers.ReadOnlyField(source='Register.full_name')
     class Meta:
         model = Joincompany
         fields = '__all__'
@@ -36,10 +36,23 @@ class SearchSerializer(serializers.ModelSerializer):
     # Business = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
     # id_company = JoincompanySerializer(many = True, read_only=True)
     # id_company = Joincompany.objects.all().filter(state="1")
-    id_company = serializers.ReadOnlyField(source='Joincompany')
+    # id_company = serializers.ReadOnlyField(source='Joincompany')
+    id_company = JoincompanySerializer(source='id_company')
+
     class Meta:
-        model = Business
+        model = Joincompany
         fields = ('id_company', 'company_name')
+
+        def create(self, validated_data):
+            business_data = validated_data.pop('id_company')
+            try:
+                business_instance = BUsiness.objects.filter(**business_data)[0]
+            except IndexError:
+                business_instance = Bussines.objects.create(**business_data)
+            return Joincompany.objects.create(id_company=business_instance, **validated_data)
+
+
+
 # class TrackSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Track
