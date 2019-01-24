@@ -60,10 +60,15 @@ def get_delete_update_registrations(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_registrations(request):
     if request.method == 'GET':
-        network = Register.objects.all()
-        serializer = RegisterSerializer(network, many=True)
-        return Response(serializer.data)
-
+        name = request.data['name']
+        if (name == None) :
+            network = Register.objects.all()
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
+        else:
+            network = Register.objects.all().filter(full_name__iscontains = name)
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
     elif request.method == 'POST':        
         email_var = request.data['email']
         password = request.data['password'] 
