@@ -88,8 +88,8 @@ def custom_get_all_businessaccount(request, pk):
     try:
         network = Joincompany.objects.all().filter(id_company = pk, status="1")        
         serializer = CustomJoincompanySerializer(network, many=True)
-        if (serializer.data == []):
-            return Response({'status zero'})
+        # if (serializer.data == []):
+        #     return Response({'status zero'})
         return Response(serializer.data)
     except Business.DoesNotExist:
         content = {

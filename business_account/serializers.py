@@ -11,8 +11,8 @@ class RegSerializer(serializers.ModelSerializer):
 		fields='__all__'
 
 class CustomJoincompanySerializer(serializers.ModelSerializer):
-    id_user = RegSerializer(many=True, read_only=True)
-    # id_user = serializers.ReadOnlyField(source='Register')
+    # id_user = RegSerializer(many=True, read_only=True)
+    id_user = serializers.ReadOnlyField(source='Register')
     class Meta:
         model = Joincompany
         fields = '__all__'
