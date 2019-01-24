@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, SearchSerializer, CustomJoincompanySerializer, JoincompanySerializer, RegSerializer
+from .serializers import BusinessSerializer, SearchSerializer, JoincompSerializer , CustomJoincompanySerializer, JoincompanySerializer, RegSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
 
@@ -105,18 +105,18 @@ def search_company(request):
     if request.method == 'GET':
         # token = request.META.get('HTTP_AUTHORIZATION')
         # id_user = Register.objects.get(token = token).id
-        comp_name = request.data['name_comp']
-        state = Joincompany.objects.get(status="3"or"4")
+        # comp_name = request.data['name_comp']
+        state = Joincompany.objects.all().filter(status="1")
         # search = Business.objects.filter(company_name__icontains = comp_name).all()
-        user = Register.objects.get(id = str(state.id_user))
+        # user = Register.objects.get(id = str(state.id_user))
         # join_comp = Joincompany.objects.all().filter(search)
         # search = Joincompany.objects.all()
-        serializer = RegSerializer(user, many = True)
+        serializer = JoincompSerializer(state, many = True)
 
         # if (join_comp.status == "1"):
         #     pass
         # else:
-        return Response(user, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 0 = belum apa apa

@@ -32,10 +32,24 @@ class JoincompanySerializer(serializers.ModelSerializer):
         model = Joincompany
         fields = '__all__'
 
+class JoincompSerializer(serializers.ModelSerializer):
+    id_company = BusinessSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Joincompany
+        fields = '__all__'
+
+# class JoincompSerializer(serializers.ModelSerializer):
+#     id_company = JoincompanySerializer(many=True, read_only=True)
+#     class Meta:
+#         model = Business
+#         #field = ('id_user','company_name','email','primary_phone','primary_address','id_country','id_regions','id_city','id_business_type','tax_num','logo_path','description','id_type','banned_type','create_at','update_at','delete_at')
+#         fields = '__all__'
+
 class SearchSerializer(serializers.ModelSerializer):
     # Business = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
     # id_company = JoincompanySerializer(many = True, read_only=True)
-    # id_company = Joincompany.objects.all().filter(state="1")
+    # id_company = Joincompany.objects.all().filter(status="1")
     # id_company = serializers.ReadOnlyField(source='Joincompany')
     id_company = JoincompanySerializer(source='id_company')
 
