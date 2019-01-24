@@ -66,7 +66,7 @@ def get_post_registrations(request):
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
         else:
-            network = Register.objects.all().filter(full_name__iscontains = name)
+            network = Register.objects.all().filter(full_name__icontains = name)
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
     elif request.method == 'POST':        
