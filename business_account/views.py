@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, SearchSerializer, JoincompSerializer , CustomJoincompanySerializer, JoincompanySerializer, RegSerializer
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
+from django.db.models import Q
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
@@ -83,41 +84,107 @@ def get_all_businessaccount(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
-def custom_get_all_businessaccount(request, pk):
-    try:
-        network = Joincompany.objects.all().filter(id_company = pk, status="1").id_user
-        # serializer = CustomJoincompanySerializer(network, many=True)
-        user = Register.objects.get().filter(id = network)
-        serializer2 = RegSerializer(user, many=True)
-        # if (serializer.data == []):
-        #     return Response({'status zero'})
-        return Response(serializer.data)
-    except Business.DoesNotExist:
-        content = {
-            'status': 'Not Found'
-        }
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+# @api_view(['GET'])
+# def custom_get_all_businessaccount(request, pk):
+#     try:
+#         network = Joincompany.objects.all().filter(id_company = pk, status="1").id_user
+#         # serializer = CustomJoincompanySerializer(network, many=True)
+#         user = Register.objects.get().filter(id = network)
+#         serializer2 = RegSerializer(user, many=True)
+#         # if (serializer.data == []):
+#         #     return Response({'status zero'})
+#         return Response(serializer.data)
+#     except Business.DoesNotExist:
+#         content = {
+#             'status': 'Not Found'
+#         }
+#         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
+@api_view(['GET','POST'])
+def custom_get_all_businessaccount(request):
+    if request.method == 'GET':
+        comp_name = request.data['business_id']
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            id_users = Register.objects.get(token = token)            
+            get_id_comp = Business.objects.get(id = comp_name)
+
+            get_id_join = Joincompany.objects.all().filter(status="1",id_company = get_id_comp)
+            serializer1 = JoincompanySerializer(get_id_join, many = True)
+            serializer2 = BusinessSerializer(get_id_comp)
+            serializer3 = {'status':serializer1.data,
+                           'Company':serializer2.data}
+           
+            return Response(serializer3, status=status.HTTP_201_CREATED)
+        except Joincompany.DoesNotExist:
+            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except Business.DoesNotExist:
+            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
+        except Register.DoesNotExist:
+            response = {'status':'LOGIN FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'POST':
+        comp_name = request.data['business_id']
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            id_users = Register.objects.get(token = token)            
+            get_id_comp = Business.objects.get(id = comp_name)
+
+            get_id_join = Joincompany.objects.all().filter(status="2",id_company = get_id_comp)
+            serializer1 = JoincompanySerializer(get_id_join, many = True)
+            serializer2 = BusinessSerializer(get_id_comp)
+            serializer3 = {'status':serializer1.data,
+                           'Company':serializer2.data}
+           
+            return Response(serializer3, status=status.HTTP_201_CREATED)
+        except Joincompany.DoesNotExist:
+            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except Business.DoesNotExist:
+            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
+        except Register.DoesNotExist:
+            response = {'status':'LOGIN FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def search_company(request):
     if request.method == 'GET':
-        # token = request.META.get('HTTP_AUTHORIZATION')
-        # id_user = Register.objects.get(token = token).id
         # comp_name = request.data['name_comp']
-        state = Joincompany.objects.all().filter(status="1")
-        # search = Business.objects.filter(company_name__icontains = comp_name).all()
-        # user = Register.objects.get(id = str(state.id_user))
-        # join_comp = Joincompany.objects.all().filter(search)
-        # search = Joincompany.objects.all()
-        serializer = JoincompSerializer(state, many = True)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            tokens = Register.objects.get(token=token)
+            users_id = tokens.id
+            get_id_comp = Business.objects.get(id_user = users_id)
+            id_comp = get_id_comp.id
+            get_id_join = Joincompany.objects.all().filter(Q(status=("3")) | Q(status=("4")), id_company = id_comp)
 
-        # if (join_comp.status == "1"):
-        #     pass
-        # else:
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer1 = JoincompanySerializer(get_id_join, many = True)
+            serializer2 = BusinessSerializer(get_id_comp)
+            serializer3 = {'status':[serializer1.data],
+                           'Company':serializer2.data}
+           
+            return Response(serializer3, status=status.HTTP_201_CREATED)
+        except Joincompany.DoesNotExist:
+            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except Business.DoesNotExist:
+            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
+        except Register.DoesNotExist:
+            response = {'status':'LOGIN FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # 0 = belum apa apa
 # 1 = apply
