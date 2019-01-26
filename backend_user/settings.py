@@ -31,7 +31,7 @@ EMAIL_HOST = 'mail.mindzzle.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'contact',
     'private',
     'email_app',
+    'log_app',
 ]
 
 SITE_ID = 1
