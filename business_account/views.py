@@ -84,13 +84,13 @@ def get_all_businessaccount(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET','POST'])
-def custom_get_all_businessaccount(request):
+def custom_get_all_businessaccount(request, pk):
     if request.method == 'GET':
-        comp_name = request.data['business_id']
+        # comp_name = request.data['business_id']
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
             id_users = Register.objects.get(token = token)            
-            get_id_comp = Business.objects.get(id = comp_name)
+            get_id_comp = Business.objects.get(id = pk)
 
             get_id_join = Joincompany.objects.all().filter(status="1",id_company = get_id_comp)
             serializer1 = JoincompanySerializer(get_id_join, many = True)
@@ -116,11 +116,11 @@ def custom_get_all_businessaccount(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'POST':
-        comp_name = request.data['business_id']
+        # comp_name = request.data['business_id']
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
             id_users = Register.objects.get(token = token)            
-            get_id_comp = Business.objects.get(id = comp_name)
+            get_id_comp = Business.objects.get(id = pk)
 
             get_id_join = Joincompany.objects.all().filter(status="2",id_company = get_id_comp)
             serializer1 = JoincompanySerializer(get_id_join, many = True)
@@ -156,16 +156,16 @@ def search_company(request):
             id_comp = get_id_comp.id
             get_id_join = Joincompany.objects.all().filter(Q(status=("3")) | Q(status=("4")), id_company = id_comp)
 
+            
+        
+            serializer1 = JoincompanySerializer(get_id_join, many = True)
             serializer2 = BusinessSerializer(data =get_id_comp)
-            if serializer2.is_valid():
-                serializer1 = JoincompanySerializer(get_id_join, many = True)
-                
-                serializer3 = {'status':[serializer1.data],
-                               'Company':serializer2.data}
-                return Response(serializer3, status=status.HTTP_201_CREATED)
-            else:
-                response = {'status':'did not have any..'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)      
+            serializer3 = {'status':[serializer1.data],
+                           'Company':serializer2.data}
+            return Response(serializer3, status=status.HTTP_201_CREATED)
+        
+            # response = {'status':'did not have any..'}
+            # return Response(response, status=status.HTTP_404_NOT_FOUND)      
             
         except Joincompany.DoesNotExist:
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
