@@ -83,24 +83,6 @@ def get_all_businessaccount(request, pk):
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-
-# @api_view(['GET'])
-# def custom_get_all_businessaccount(request, pk):
-#     try:
-#         network = Joincompany.objects.all().filter(id_company = pk, status="1").id_user
-#         # serializer = CustomJoincompanySerializer(network, many=True)
-#         user = Register.objects.get().filter(id = network)
-#         serializer2 = RegSerializer(user, many=True)
-#         # if (serializer.data == []):
-#         #     return Response({'status zero'})
-#         return Response(serializer.data)
-#     except Business.DoesNotExist:
-#         content = {
-#             'status': 'Not Found'
-#         }
-#         return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-
 @api_view(['GET','POST'])
 def custom_get_all_businessaccount(request):
     if request.method == 'GET':
@@ -165,8 +147,7 @@ def custom_get_all_businessaccount(request):
 
 @api_view(['GET'])
 def search_company(request):
-    if request.method == 'GET':
-        # comp_name = request.data['name_comp']
+    if request.method == 'GET':        
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
             tokens = Register.objects.get(token=token)
@@ -195,12 +176,5 @@ def search_company(request):
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        # except Exception:
-        #     return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# 0 = belum apa apa
-# 1 = apply
-# 2 = accepted
-# 3 = denied 
-# 4 = resign
+        except Exception:
+            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
