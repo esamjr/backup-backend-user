@@ -112,11 +112,15 @@ def custom_get_all_businessaccount(request):
 
             get_id_join = Joincompany.objects.all().filter(status="1",id_company = get_id_comp)
             serializer1 = JoincompanySerializer(get_id_join, many = True)
-            serializer2 = BusinessSerializer(get_id_comp)
-            serializer3 = {'status':serializer1.data,
-                           'Company':serializer2.data}
-           
-            return Response(serializer3, status=status.HTTP_201_CREATED)
+            if serializer1.is_valid():
+                serializer2 = BusinessSerializer(get_id_comp)
+                serializer3 = {'status':serializer1.data,
+                               'Company':serializer2.data}               
+                return Response(serializer3, status=status.HTTP_201_CREATED)
+            else:
+                response = {'status':'did not have any..'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
+
         except Joincompany.DoesNotExist:
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -138,11 +142,15 @@ def custom_get_all_businessaccount(request):
 
             get_id_join = Joincompany.objects.all().filter(status="2",id_company = get_id_comp)
             serializer1 = JoincompanySerializer(get_id_join, many = True)
-            serializer2 = BusinessSerializer(get_id_comp)
-            serializer3 = {'status':serializer1.data,
-                           'Company':serializer2.data}
-           
-            return Response(serializer3, status=status.HTTP_201_CREATED)
+            if serializer1.is_valid():
+                serializer2 = BusinessSerializer(get_id_comp)
+                serializer3 = {'status':serializer1.data,
+                               'Company':serializer2.data}
+                return Response(serializer3, status=status.HTTP_201_CREATED)
+            else:
+                response = {'status':'did not have any..'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)              
+                
         except Joincompany.DoesNotExist:
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -163,16 +171,21 @@ def search_company(request):
         try:
             tokens = Register.objects.get(token=token)
             users_id = tokens.id
-            get_id_comp = Business.objects.get(id_user = users_id)
+            get_id_comp = Business.objects.get(id_user=users_id)
             id_comp = get_id_comp.id
             get_id_join = Joincompany.objects.all().filter(Q(status=("3")) | Q(status=("4")), id_company = id_comp)
 
-            serializer1 = JoincompanySerializer(get_id_join, many = True)
-            serializer2 = BusinessSerializer(get_id_comp)
-            serializer3 = {'status':[serializer1.data],
-                           'Company':serializer2.data}
-           
-            return Response(serializer3, status=status.HTTP_201_CREATED)
+            serializer2 = BusinessSerializer(data =get_id_comp)
+            if serializer2.is_valid():
+                serializer1 = JoincompanySerializer(get_id_join, many = True)
+                
+                serializer3 = {'status':[serializer1.data],
+                               'Company':serializer2.data}
+                return Response(serializer3, status=status.HTTP_201_CREATED)
+            else:
+                response = {'status':'did not have any..'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)      
+            
         except Joincompany.DoesNotExist:
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -182,8 +195,8 @@ def search_company(request):
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # except Exception:
+        #     return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 0 = belum apa apa
