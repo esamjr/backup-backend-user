@@ -47,8 +47,8 @@ def get_delete_update_registrations(request, pk):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
             except Register.DoesNotExist:
-                    response = {'status': 'UNAUTHORIZED'}
-                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+                    response = {'status': 'NAME NOT FOUND'}
+                    return Response(response, status=status.HTTP_404_NOT_FOUND)
         
     except Register.DoesNotExist:
             content = {
@@ -68,6 +68,7 @@ def search(request):
             network = Register.objects.all().filter(full_name__icontains = name)
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
+            
 @api_view(['GET', 'POST'])
 def get_post_registrations(request):
     if request.method == 'GET':
