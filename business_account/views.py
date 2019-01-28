@@ -153,13 +153,49 @@ def search_company(request):
     if request.method == 'GET':        
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
-            tokens = Register.objects.get(token=token)
+            get_users = Register.objects.get(token=token).id
+            result = []
+            get_ba = Business.objects.all().values_list('id', flat=True)
+            y = 0
+            # return Response(get_ba)
+            # get_ba = BusinessSerializer(get_bas, many=True)
+            for ba in get_ba:
+                bas = get_join(get_users,ba)
+                bax = get_company(ba)
+                coba = {'id_company':ba,'company':bax, 'join':bas}
+                result.append(coba)
+                y=y+1
+                 
+
+            return Response(result)
+
+            # konsep mas ildan
+            # tokens = Register.objects.get(token=token)
+            # users = tokens.id
+            # id_company = Business.objects.all()
+            # for x in id_company:
+            #     join = Joincompany.objects.get(id_user=users, id_company=x.id)
+            #     if (join == []):
+            #         response = {'status': 'null',
+            #                     'id_company':x.id}
+            #         hasil = {}
+            #         hasil.update(response)
+                   
+            #     else:
+            #         response = {'status':'active',
+            #                     'id_company':x.id}
+            #         hasil = {}
+            #         hasil.update(response)
+            # return Response(hasil)
+
+
             users_id = tokens.id
-            get_id_join = Joincompany.objects.all().values('id_company').filter(id_user = users_id).exclude(Q(status="1") | Q(status="2"))
+            get_id_join = Joincompany.objects.all().values('id_company').filter(id_user = users_id).exclude(Q(status="1") | Q(status="2"))            
+            return Response(get_id_join, status=status.HTTP_201_CREATED)
+
+
             # serializer = JoincompanySerializer(get_id_join, many=True)
             # get_id_join = Joincompany.objects.all().values('id_company').filter(Q(status="1") | Q(status="2"), user_id = users_id)
-            return Response(get_id_join, status=status.HTTP_201_CREATED)
-        
             # response = {'status':'did not have any..'}
             # return Response(response, status=status.HTTP_404_NOT_FOUND)      
             
@@ -174,3 +210,34 @@ def search_company(request):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
         # except Exception:
         #     return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+def get_join(a,b):
+    try:
+        join = Joincompany.objects.get(id_user=a, id_company = b)
+
+        response = {
+            'id_company':b,
+            'status' : '1'
+        }
+
+        return response
+    except Joincompany.DoesNotExist:
+        response = {
+            'id_company':b,
+            'status' : 'null'
+        }
+        return response
+def get_company(b):
+    try:
+        join = Business.objects.get(id = b)
+
+        response = {
+            'company_name':join.company_name,
+            'logo_path' : join.logo_path
+        }
+
+        return response
+    except Business.DoesNotExist:
+        response = {
+            'company_name':'null',
+            'logo_path' : 'null'}
+        return response
