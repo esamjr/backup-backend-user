@@ -155,39 +155,9 @@ def search_company(request):
         try:
             tokens = Register.objects.get(token=token)
             users_id = tokens.id
-            get_id_join = Joincompany.objects.all().values('id_company').filter(user_id = users_id).exclude(Q(status="1") | Q(status="2"))
-            # get_id = 
+            get_id_join = Joincompany.objects.all().values('id_company').filter(id_user = users_id).exclude(Q(status="1") | Q(status="2"))
             # serializer = JoincompanySerializer(get_id_join, many=True)
             # get_id_join = Joincompany.objects.all().values('id_company').filter(Q(status="1") | Q(status="2"), user_id = users_id)
-            # for x in get_id_join:
-            #     y = 0
-            #     get_id = [x]
-            #     y+=1
-            # x=JoincompanySerializer(get_id_join)
-            # gets = get_id_join['id_company']
-            # for gets in get_id_join:
-            #     gone = []
-            #     gone.append(gets)
-
-            # for x in get_id_join:
-            #     get_comp = Business.objects.get(id=x)
-            #     serializer = BusinessSerializer(get_comp)
-            #     # return Response(serializer.data, status=status.HTTP_201_CREATED)
-            #     ser = str(serilaizer.data)
-            #     company = company.update(ser)
-            #     return print(serializer)
-            # get_comp = get_id_join
-            # idnya = get_object_or_404(Business, id = get_id_join)
-            # get_id_comp = Business.objects.filter(id__exact = get_id_join['id_company'])
-
-            # # id_comp = get_id_comp.id
-            # serializer1 = JoincompanySerializer(get_id_join, many = True)
-            # serializer2 = BusinessSerializer(get_id_comp)
-            # # if serializer1.is_valid():
-            # serializer3 = {'status':[serializer1.data],
-                           # 'Company':serializer2.data}
-            # return Response(json.dumps(company))
-
             return Response(get_id_join, status=status.HTTP_201_CREATED)
         
             # response = {'status':'did not have any..'}
