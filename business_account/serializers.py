@@ -21,4 +21,8 @@ class JoincompanySerializer(serializers.ModelSerializer):
         model = Joincompany
         fields = '__all__'
 
+class JoincompanySerializer2(serializers.ModelSerializer):
 
+    class Meta:
+        model = Joincompany
+        fields = ('id_company',)
