@@ -72,36 +72,25 @@ def get_all_hierarchy(request, pk1):
     #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
     try:        
-        result = []
+        results = []        
         networks = Hierarchy_models.objects.all().values_list('id', flat=True).filter(id_company=pk1)
-
-        for network in networks:
+        for network in networks:            
             hirarki = Hierarchy_models.objects.get(id=network)
             id_user = hirarki.id_user
-            try:
+            if id_user == 0:
+                serializer = HierarchySerializer(hirarki)                
+                dbase = {'hirarki':serializer.data, 'user':None }
+                results.append(dbase)
+            else :   
                 user = Register.objects.get(id = id_user)
-                # if (user == 0):
-                #     result = {'KOSONG?'}
-                # else:
                 serializer = HierarchySerializer(hirarki)
                 serializer2 = UserSerializer(user)
                 dbase = {'hirarki':serializer.data, 'user':serializer2.data }
-                result.append(dbase)
-            except Register.DoesNotExist:
-                serializer = HierarchySerializer(hirarki)
-                # serializer2 = UserSerializer(user)
-                dbase = {'hirarki':serializer.data, 'user':None }
-                result.append(dbase)
-
-        # serializer = HierarchySerializer(network, many=True)
-            return Response(result)
+                results.append(dbase)
+        return Response(results)
     except Hierarchy_models.DoesNotExist:
         content = {
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    # except Register.DoesNotExist:
-    #     content = {
-    #         'status': 'KOSONG?'
-    #     }
-    #     return Response(content, status=status.HTTP_404_NOT_FOUND)
+  
