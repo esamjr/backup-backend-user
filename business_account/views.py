@@ -157,11 +157,10 @@ def search_company(request):
         
 def get_join(a,b):
     try:
-        join = Joincompany.objects.get(id_user=a, id_company = b)
-
+        join = Joincompany.objects.get(Q(status = "1")|Q(status="2"), id_user=a, id_company = b)
         response = {
             'id_company':b,
-            'status' : '1'
+            'status' : join.status
         }
 
         return response
