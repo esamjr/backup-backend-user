@@ -16,7 +16,9 @@ def get_delete_update_joincompany(request, pk):
         content = {
             'status': 'UNAUTHORIZED'
         }
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)    
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+    join_company = Joincompany.objects.get(id = pk)        
     if request.method == 'GET':
         serializer = JoincompanySerializer(join_company)
         return Response(serializer.data)
@@ -27,7 +29,7 @@ def get_delete_update_joincompany(request, pk):
             }
             return Response(content, status=status.HTTP_202_NO_CONTENT)        
     elif request.method == 'PUT':      
-            serializer = JoincompanySerializer(Joincompany, data=request.data)
+            serializer = JoincompanySerializer(join_company, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
