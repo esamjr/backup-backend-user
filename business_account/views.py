@@ -93,8 +93,9 @@ def custom_get_one(request, pk):
             result = []
             joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="1", id_company=pk)
             for joi in joins:
+                joincomp = Joincompany.objects.get(status="1", id_company=pk, id_user=joi)
                 get_user = Register.objects.get(id = joi)
-                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day}                
+                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day,'id_join_company':joincomp.id}                
                 result.append(dic)               
             return Response(result)
 
@@ -116,8 +117,9 @@ def custom_get_two(request, pk):
             result = []
             joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="2", id_company=pk)
             for joi in joins:
+                joincomp = Joincompany.objects.get(status="2", id_company=pk, id_user=joi)
                 get_user = Register.objects.get(id = joi)
-                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day}                
+                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day,'id_join_company':joincomp.id}                
                 result.append(dic)               
             return Response(result)
 
@@ -129,6 +131,7 @@ def custom_get_two(request, pk):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
         except:
             return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET'])
