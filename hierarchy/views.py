@@ -89,7 +89,7 @@ def get_all_hierarchy(request, pk1):
                 result.append(dbase)
             except Register.DoesNotExist:
                 serializer = HierarchySerializer(hirarki)
-                serializer2 = UserSerializer(user)
+                # serializer2 = UserSerializer(user)
                 dbase = {'hirarki':serializer.data, 'user':None }
                 result.append(dbase)
 
