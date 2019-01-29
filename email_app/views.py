@@ -34,26 +34,26 @@ def send_forget_email(request,mail,token, name, subjects):
 		response = {'status failed to send email'}
 		return HttpResponse(response)
 
-# @csrf_exempt
-# def send_email(request, mail, token, name, subjects):
-# 	respondentEmail = mail
-# 	sender = 'admin@mindzzle.com'	
-# 	try:		
-# 		plaintext = get_template('email.txt')
-# 		htmly     = get_template('emailtemplate.html')
-# 		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
-# 		subject, from_email, to = subjects, sender, respondentEmail
-# 		text_content = plaintext.render(d)
-# 		html_content = htmly.render(d)
-# 		msg = EmailMultiAlternatives(subjects, text_content, sender, [mail])
-# 		msg.attach_alternative(html_content, "text/html")
-# 		msg.send()
-# 		email_log(request, respondentEmail,sender,subjects)
-# 		response = {'status Email Sent'}
-# 		return HttpResponse(response)
-# 	except:
-# 		response = {'status failed to send email'}
-# 		return HttpResponse(response)
+@csrf_exempt
+def send_email(request, mail, token, name, subjects):
+	respondentEmail = mail
+	sender = 'admin@mindzzle.com'	
+	try:		
+		plaintext = get_template('email.txt')
+		htmly     = get_template('emailtemplate.html')
+		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
+		subject, from_email, to = subjects, sender, respondentEmail
+		text_content = plaintext.render(d)
+		html_content = htmly.render(d)
+		msg = EmailMultiAlternatives(subjects, text_content, sender, [mail])
+		msg.attach_alternative(html_content, "text/html")
+		msg.send()
+		email_log(request, respondentEmail,sender,subjects)
+		response = {'status Email Sent'}
+		return HttpResponse(response)
+	except:
+		response = {'status failed to send email'}
+		return HttpResponse(response)
 
 
 @csrf_exempt
