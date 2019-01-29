@@ -89,11 +89,15 @@ def custom_get_one(request, pk):
     if request.method == 'POST':        
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
-            user = Register.objects.get(token=token).id
-            join = Joincompany.objects.get(status="1", id_company = pk, id_user = user).id_user
-            get_user = Register.objects.get(id=join)
-            serializer = RegSerializer(get_user)           
-            return Response(serializer.data)            
+            user = Register.objects.get(token=token).id            
+            result = []
+            joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="1", id_company=pk)
+            for joi in joins:
+                get_user = Register.objects.get(id = joi)
+                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day}                
+                result.append(dic)               
+            return Response(result)
+
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
@@ -101,18 +105,22 @@ def custom_get_one(request, pk):
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
         except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def custom_get_two(request, pk):
-    if request.method == 'POST':        
+   if request.method == 'POST':        
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
-            user = Register.objects.get(token=token).id
-            join = Joincompany.objects.get(status="2", id_company = pk, id_user = user).id_user
-            get_user = Register.objects.get(id=join)
-            serializer = RegSerializer(get_user)           
-            return Response(serializer.data)            
+            user = Register.objects.get(token=token).id            
+            result = []
+            joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="2", id_company=pk)
+            for joi in joins:
+                get_user = Register.objects.get(id = joi)
+                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day}                
+                result.append(dic)               
+            return Response(result)
+
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
@@ -120,7 +128,7 @@ def custom_get_two(request, pk):
             response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
         except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
