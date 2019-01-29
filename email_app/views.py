@@ -7,44 +7,54 @@ from .serializers import EmailSerializer
 from .models import Email
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.template import loader
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
+
 
 @csrf_exempt
 def send_forget_email(request,mail,token, name, subjects):
 	respondentEmail = mail
-	sender = 'admin@mindzzle.com'
+	sender = 'admin@mindzzle.com'	
 	try:		
-		send_mail(
-			subjects,
-			'Hi '+ name +'\n you try to reset your password account ! \n To complete your reset password , you just need input your new password right.\n <a href="http://dev-user.mindzzle.com/password/new?token='+token+'"> Click Here! </a>',
-			sender,
-			[respondentEmail], 
-			fail_silently=False
-			)
-		email_log(request, respondentEmail,sender,subjects)
+		plaintext = get_template('email.txt')
+		htmly     = get_template('emailtemplate.html')
+		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your reset password, press the button below','tombol':'Forget Password'})
+		subject, from_email, to = subjects, sender, respondentEmail
+		text_content = plaintext.render(d)
+		html_content = htmly.render(d)
+		msg = EmailMultiAlternatives(subjects, text_content, sender, [mail])
+		msg.attach_alternative(html_content, "text/html")
+		msg.send()
 		response = {'status Email Sent'}
 		return HttpResponse(response)
 	except:
 		response = {'status failed to send email'}
 		return HttpResponse(response)
 
-@csrf_exempt
-def send_email(request,mail,token, name, subjects):
-	respondentEmail = mail
-	sender = 'admin@mindzzle.com'
-	try:		
-		send_mail(
-			subjects,
-			'Hi '+ name +'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
-			sender,
-			[respondentEmail], 
-			fail_silently=False
-			)
-		email_log(request, respondentEmail,sender,subjects)
-		response = {'status Email Sent'}
-		return HttpResponse(response)
-	except:
-		response = {'status failed to send email'}
-		return HttpResponse(response)
+# @csrf_exempt
+# def send_email(request, mail, token, name, subjects):
+# 	respondentEmail = mail
+# 	sender = 'admin@mindzzle.com'	
+# 	try:		
+# 		plaintext = get_template('email.txt')
+# 		htmly     = get_template('emailtemplate.html')
+# 		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
+# 		subject, from_email, to = subjects, sender, respondentEmail
+# 		text_content = plaintext.render(d)
+# 		html_content = htmly.render(d)
+# 		msg = EmailMultiAlternatives(subjects, text_content, sender, [mail])
+# 		msg.attach_alternative(html_content, "text/html")
+# 		msg.send()
+# 		email_log(request, respondentEmail,sender,subjects)
+# 		response = {'status Email Sent'}
+# 		return HttpResponse(response)
+# 	except:
+# 		response = {'status failed to send email'}
+# 		return HttpResponse(response)
+
 
 @csrf_exempt
 def email_log(request,respondentEmail,sender,subjects):
@@ -77,22 +87,27 @@ def email_get(request):
 # # def send_email(request,mail,token, subjects):
 # def send_email(request):
 # 	# respondentEmail = mail
+
 # 	sender = 'admin@mindzzle.com'
 # 	subjects = 'Account Activation'
 # 	respondentEmail = request.data['respondentEmail']
-# 	sender = request.data['sender']
-# 	subjects = request.data['subjects']
+# 	name = request.data['sender']
+# 	# subjects = request.data['subjects']
 # 	token = 'okasokdianfammcdajsnckm'
 # 	try:		
-# 		send_mail(
-# 			subjects,
-# 			'Hi '+respondentEmail+'\n Thanks so much for joining Mindzzle! \n To finish signing up, you just need to confirm that we got your email right.\n <a href="http://dev-user.mindzzle.com/register/confirmation?token='+token+'"> Click Here! </a> To verify',
-# 			sender,
-# 			[respondentEmail], 
-# 			fail_silently=False
-# 			)
-# 		email_log(request, respondentEmail,sender,subjects)
-# 		response = {'status Email Sent'}
+	
+# 		plaintext = get_template('email.txt')
+# 		htmly     = get_template('emailtemplate.html')
+
+# 		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
+
+# 		subject, from_email, to = subjects, sender, respondentEmail
+# 		text_content = plaintext.render(d)
+# 		html_content = htmly.render(d)
+# 		msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+# 		msg.attach_alternative(html_content, "text/html")
+# 		msg.send()
+# 		response = {'success to send email'}
 # 		return HttpResponse(response)
 # 	except:
 # 		response = {'status failed to send email'}
