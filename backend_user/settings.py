@@ -81,9 +81,6 @@ INSTALLED_APPS = [
     'private',
     'email_app',
     'log_app',
-    'notification',
-    'file_upload',
-    
 ]
 
 SITE_ID = 1
