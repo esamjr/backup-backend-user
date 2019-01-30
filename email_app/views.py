@@ -82,39 +82,6 @@ def email_get(request):
 		serializer = EmailSerializer(network, many=True)
 		return Response(serializer.data)
 
-
-# # @csrf_exempt
-# @api_view(['POST'])
-# # def send_email(request,mail,token, subjects):
-# def send_email(request):
-# 	# respondentEmail = mail
-
-# 	sender = 'admin@mindzzle.com'
-# 	subjects = 'Account Activation'
-# 	respondentEmail = request.data['respondentEmail']
-# 	name = request.data['sender']
-# 	# subjects = request.data['subjects']
-# 	token = 'okasokdianfammcdajsnckm'
-# 	try:		
-	
-# 		plaintext = get_template('email.txt')
-# 		htmly     = get_template('emailtemplate.html')
-
-# 		d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
-
-# 		subject, from_email, to = subjects, sender, respondentEmail
-# 		text_content = plaintext.render(d)
-# 		html_content = htmly.render(d)
-# 		msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-# 		msg.attach_alternative(html_content, "text/html")
-# 		msg.send()
-# 		response = {'success to send email'}
-# 		return HttpResponse(response)
-# 	except:
-# 		response = {'status failed to send email'}
-# 		return HttpResponse(response)
-
-
 # "http://www.user.mindzzle.com/registrations/api/confirm/'+token+'"
 
 # @csrf_exempt
