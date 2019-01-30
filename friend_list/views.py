@@ -23,8 +23,10 @@ def get_delete_update_friendlist(request, pk):
     if request.method == 'GET':        
         serializer = FriendlistSerializer(Friend_list, many=True)
         return Response(serializer.data)
-    elif request.method == 'DELETE':        
-        friendlist.delete()
+
+    elif request.method == 'DELETE':
+        Friend_list = friendlist.objects.get(id = pk)        
+        Friend_list.delete()
         content = {
             'status' : 'NO CONTENT'
         }
