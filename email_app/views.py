@@ -13,6 +13,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
+import requests
 
 
 @csrf_exempt
@@ -114,3 +115,14 @@ def send_email(request):
 	except:
 		response = {'status failed to send email'}
 		return HttpResponse(response)
+
+@api_view(['POST'])
+def send_simple_message(request):
+    requests.post(
+        "https://api.mailgun.net/v3/mindzzle.com/messages",
+        auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+        data={"from": "admin@mindzzle.com",
+              "to": ["maulidan.ksl@gmail.com"],
+              "subject": "Hello",
+              "text": "Testing some Mailgun awesomness!"})
+    return HttpResponse({"suksess"})
