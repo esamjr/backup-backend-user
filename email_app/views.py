@@ -111,7 +111,7 @@ def send_email(request):
 		return HttpResponse(response)
 	except:
 		response = {'status failed to send email'}
-		return HttpResponse(response)
+		# return HttpResponse(response)
 
 
 # "http://www.user.mindzzle.com/registrations/api/confirm/'+token+'"
