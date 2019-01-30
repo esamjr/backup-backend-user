@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'private',
     'email_app',
     'log_app',
+    'notification',
+    'file_upload',
 ]
 
 SITE_ID = 1
@@ -100,10 +102,13 @@ ROOT_URLCONF = 'backend_user.urls'
 
 CORS_ORIGIN_ALLOW_ALL=True
 
+PROJECT_ROOT = os.path.dirname
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,6 +116,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "django.core.context_processors.i18n",
+                "django.core.context_processors.media",
+                "django.core.context_processors.static",
+                "django.core.context_processors.tz",
+
             ],
         },
     },

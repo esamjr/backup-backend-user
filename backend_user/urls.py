@@ -20,6 +20,8 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    url(r'^files/', include('file_upload.urls')), 
+    url(r'^notfication/', include('notification.urls')), 
     url(r'^mailLog/', include('email_app.urls')), 
     url(r'^activitylog/', include('log_app.urls')), 
     url(r'^registrations/', include('registrations.urls')),
@@ -30,6 +32,7 @@ urlpatterns = [
     url(r'^country/', include('country.urls')),
     url(r'^region/', include('region.urls')),
     url(r'^city/', include('city.urls')),
+    # url(r'^vendor/', include('vendor_api.urls')),
     # url(r'^message/', include('message.urls')),
     url(r'^experiences/', include('experiences.urls')),
     url(r'^education/', include('education.urls')),

@@ -4,11 +4,24 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+
+@api_view(['GET'])
+def get_user(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION','')
+    get_token = Register.objects.get(token = token)
+    if request.method == 'GET':
+        registrations = Register.objects.get(pk=pk)
+        serializer = SearchSerializer(registrations)    
+        act = 'searching user id ' + str(pk)
+        read_log(request,get_token,act)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT'])
 def get_delete_update_registrations(request, pk):
