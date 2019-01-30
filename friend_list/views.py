@@ -30,7 +30,7 @@ def get_delete_update_friendlist(request, pk):
         content = {
             'status' : 'NO CONTENT'
         }
-        return Response(content, status=status.HTTP_202_NO_CONTENT)
+        return Response(content, status=status.HTTP_201_CREATED)
 
   
 @api_view(['GET', 'POST'])
