@@ -23,6 +23,12 @@ def get_delete_update_friendlist(request, pk):
     if request.method == 'GET':        
         serializer = FriendlistSerializer(Friend_list, many=True)
         return Response(serializer.data)
+    elif request.method == 'DELETE':        
+        friendlist.delete()
+        content = {
+            'status' : 'NO CONTENT'
+        }
+        return Response(content, status=status.HTTP_202_NO_CONTENT)
 
   
 @api_view(['GET', 'POST'])
