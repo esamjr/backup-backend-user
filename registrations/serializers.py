@@ -34,4 +34,4 @@ class SentForgetSerializer(serializers.ModelSerializer):
 class SearchSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
-		fields = ('full_name','description', 'url_fb','url_linkedin', 'url_instagram' , 'primary_address', 'primary_phone', 'email', 'birth_day','id_country', 'id_regions', 'id_city',)
+		fields = ('full_name','description', 'url_fb','url_linkedin', 'url_instagram' , 'primary_address', 'primary_phone', 'email', 'birth_day','id_country', 'id_regions', 'id_city','url_foto',)
