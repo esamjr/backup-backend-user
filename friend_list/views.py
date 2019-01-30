@@ -31,6 +31,13 @@ def get_delete_update_friendlist(request, pk):
             'status' : 'NO CONTENT'
         }
         return Response(content, status=status.HTTP_201_CREATED)
+    elif request.method == 'PUT':
+        Friend_list = friendlist.objects.get(id = pk)
+        serializer = FriendlistSerializer(Friend_list, data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   
 @api_view(['GET', 'POST'])
