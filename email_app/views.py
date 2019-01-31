@@ -37,10 +37,10 @@ def send_forget_email(request,mail,token, name, subjects):
                   })
 
         response = {'status Email Sent'}
-        return Response(response)
+        return HttpResponse(response)
     except:
         response = {'status failed to send email'}
-        return Response(response)
+        return HttpResponse(response)
 
 @csrf_exempt
 def send_email(request, mail, token, name, subjects):
@@ -61,10 +61,10 @@ def send_email(request, mail, token, name, subjects):
                   "html": html_content})
         email_log(request, respondentEmail,sender,subjects)
         response = {'status Email Sent'}
-        return Response(response)
+        return HttpResponse(response)
     except:
         response = {'status failed to send email'}
-        return Response(response)
+        return HttpResponse(response)
 
 
 @csrf_exempt
@@ -79,10 +79,10 @@ def email_log(request,respondentEmail,sender,subjects):
 		if serializer.is_valid():
 			serializer.save()
 			content = {'status saved':'saved'}	
-			return Response(content)		
+			return HttpResponse(content)		
 		else:
 			content = {'status not saved':'not saved'}
-			return Response(content)
+			return HttpResponse(content)
 
 
 @api_view(['GET'])
@@ -90,7 +90,7 @@ def email_get(request):
 	if request.method == 'GET':
 		network = Email.objects.all()
 		serializer = EmailSerializer(network, many=True)
-		return Response(serializer.data)
+		return HttpResponse(serializer.data)
 
 
 @api_view(['POST'])
@@ -110,7 +110,7 @@ def send_forget_email(request,mail,token, name, subjects):
                   "text": "Testing some Mailgun awesomness!",
                   "html": html_content})
         response = {'status Email Sent'}
-        return Response(response)
+        return HttpResponse(response)
     except:
         response = {'status failed to send email'}
-        return Response(response)
+        return HttpResponse(response)
