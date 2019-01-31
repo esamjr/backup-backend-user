@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
@@ -24,7 +24,7 @@ def get_user(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT','DELETE'])
+@api_view(['GET', 'PUT'])
 def get_delete_update_registrations(request, pk):
     try:
         registrations = Register.objects.get(pk=pk)
@@ -140,11 +140,11 @@ def forget_attempt(request,email):
         token_forget = 'usethistokenforforgetyourpassword'
         tokenx = str(token_forget)
         token = make_password(tokenx)        
-        payload = {'token':token , 'attempt':0}
+        payload = {'token':token , 'attempt':0, 'banned_type':"0"}
         try:
             check = Register.objects.get(email = email)
             name = check.full_name
-            serializers = SentForgetSerializer(check, data = payload)
+            serializers = PassingAttemptSerializer(check, data = payload)
             if serializers.is_valid():
                 serializers.save()
             else:

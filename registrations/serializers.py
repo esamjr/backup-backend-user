@@ -40,3 +40,8 @@ class AttemptSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
 		fields = ('attempt',)
+
+class PassingAttemptSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Register
+		fields = ('attempt','token','banned_type',)
