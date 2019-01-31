@@ -203,7 +203,8 @@ def get_login(request):
                             'password': get_login.password,
                             'id_type': 1,
                             'banned_type':"1",
-                            'token':token
+                            'token':token, 
+                            'attempt':1
                             }
                         serializer = LoginSerializer(get_login, data=get_in)
                         if serializer.is_valid():
