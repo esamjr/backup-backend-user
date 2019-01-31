@@ -42,13 +42,10 @@ def send_forget_email(request,mail,token, name, subjects):
 
 @api_view(['GET'])
 def send_email(request):
-    respondentEmail = "mail"
-    sender = 'admin@mindzzle.com'	
-    try:		
-        recipient = "mail"
-        htmly = get_template('emailtemplate.html')
-        d = ({'username': "maulidan.ksl@gmail.com",'token': 'http://dev-user.mindzzle.com/register/confirmation?token=', 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
-        html_content = htmly.render(d)
+        # recipient = "mail"
+        # htmly = get_template('emailtemplate.html')
+        # d = ({'username': "maulidan.ksl@gmail.com",'token': 'http://dev-user.mindzzle.com/register/confirmation?token=', 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
+        # html_content = htmly.render(d)
         requests.post(
             "https://api.mailgun.net/v3/mindzzle.com/messages",
             auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
@@ -56,13 +53,11 @@ def send_email(request):
                   "to": ["maulidan.ksl@gmail.com","maulidan@mindzzle.com"],
                   "subject": "percobaan test",
                   "text": "Testing some Mailgun awesomness!",
-                  "html": html_content})
+                 })
         # x = email_log(request, "respondentEmail","sender","subjects")
         response = {'status': 'status Email Sent'}
         return HttpResponse(response)
-    except:
-        response = {'status failed to send email'}
-        return HttpResponse(response)
+    
 
 
 @csrf_exempt
