@@ -68,6 +68,6 @@ def filter_comp(request, pk):
             network = LevelSerializer(id_comp)
             return(network.data)
         except Level_models.DoesNotExist:
-            return Response('[]', status = status.HTTP_404_NOT_FOUND)
+            return Response([], status = status.HTTP_404_NOT_FOUND)
 
 
