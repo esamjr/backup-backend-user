@@ -57,8 +57,8 @@ def send_email(request):
                   "subject": "subjects",
                   "text": "Testing some Mailgun awesomness!",
                   "html": html_content})
-        x = email_log(request, "respondentEmail","sender","subjects")
-        response = {'status': 'status Email Sent', 'log':x}
+        # x = email_log(request, "respondentEmail","sender","subjects")
+        response = {'status': 'status Email Sent'}
         return HttpResponse(response)
     except:
         response = {'status failed to send email'}
