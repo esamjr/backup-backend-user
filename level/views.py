@@ -64,8 +64,8 @@ def filter_comp(request, pk):
     if request.method == 'POST':        
 
         try:
-            id_comp = Level_models.objects.get(id_company = pk)
-            network = LevelSerializer(id_comp)
+            id_comp = Level_models.objects.all().filter(id_company = pk)
+            network = LevelSerializer(id_comp, many=True)
             return(network.data)
         except Level_models.DoesNotExist:
             return Response([], status = status.HTTP_404_NOT_FOUND)
