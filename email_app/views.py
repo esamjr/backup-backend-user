@@ -29,7 +29,7 @@ def send_forget_email(request,mail,token, name, subjects):
             "https://api.mailgun.net/v3/mindzzle.com/messages",
             auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
             data={"from": "admin@mindzzle.com",
-                  "to": [mail],
+                  "to": ['maulidan.ksl@gmail.com'],
                   "subject": subjects,
                   "text": "Testing some Mailgun awesomness!",
                   "html": html_content})
