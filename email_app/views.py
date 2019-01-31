@@ -34,7 +34,7 @@ def send_forget_email(request,mail,token, name, subjects):
                   "text": "Testing some Mailgun awesomness!",
                   "html": html_content})
         x = email_log(request, respondentEmail,sender,subjects)
-        response = {'status': 'status Email Sent', 'log':x}
+        response = {'status': 'Email Sent', 'log':x}
         return HttpResponse(response)
     except:
         response = {'status failed to send email'}
