@@ -58,3 +58,10 @@ def get_post_level(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def filter_comp(request, pk):
+    if request.method == 'POST':        
+        id_comp = Level_models.objects.get(id_company = pk)
+        network = LevelSerializer(id_comp)
+        return(network.data)
