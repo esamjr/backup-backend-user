@@ -140,7 +140,7 @@ def forget_attempt(request,email):
         token_forget = 'usethistokenforforgetyourpassword'
         tokenx = str(token_forget)
         token = make_password(tokenx)        
-        payload = {'token':token , 'attempt':0, 'banned_type':"0"}
+        payload = {'token':token , 'attempt':0}
         try:
             check = Register.objects.get(email = email)
             name = check.full_name
