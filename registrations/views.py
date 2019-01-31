@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer, SearchSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
@@ -159,10 +159,21 @@ def forget_attempt(request,email):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
+@csrf_exempt
+def attempt_login(request,email):
+    attempt = Register.objects.get(email=email)
+    counter = attempt.attempt + 1
+    payload = {'attempt':counter}
+    serializer = AttemptSerializer(attempt, data = payload)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(counter)
+    return Response(serializer.errors)
+
 @api_view(['POST', 'GET'])
-def get_login(request):
+def get_login(request):    
     if request.method == 'POST':        
-        try:
+        try:            
             email = request.data['email']
             key = request.data['password']
             salt = Register.objects.get(email=email).full_name
@@ -172,6 +183,7 @@ def get_login(request):
             token_forget = 'usethistokenforforgetyourpassword'
             tokenx = str(token_forget)         
             get_login = Register.objects.get(email=email)
+            attempt = get_login.attempt
             if (check_password(tokenx, get_login.token)):
                 response = {'status':'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -207,6 +219,7 @@ def get_login(request):
                             return Response(response, status=status.HTTP_201_CREATED)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     else:
+                        attempt_login(request, email)
                         response = {'status' : 'Wrong Username / Password'}
                         return Response(response, status=status.HTTP_400_BAD_REQUEST)
         except Register.DoesNotExist:
