@@ -57,7 +57,7 @@ def send_email(request):
                  })
         # x = email_log(request, "respondentEmail","sender","subjects")
         response = {'status': 'status Email Sent'}
-        return HttpResponse(html_content)
+        return HttpResponse(response)
     
 
 
