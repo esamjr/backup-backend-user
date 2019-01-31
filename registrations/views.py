@@ -123,15 +123,15 @@ def get_post_registrations(request):
 @api_view(['POST', 'GET'])
 def get_login(request):
     if request.method == 'POST':
-        email = request.data['email']
-        key = request.data['password']
-        salt = Register.objects.get(email=email).full_name
-        salt_password = ''.join(str(ord(c)) for c in salt)
-        password = key + salt_password
-        token = make_password(str(time.time()))
-        token_forget = 'usethistokenforforgetyourpassword'
-        tokenx = str(token_forget) 
         try:
+            email = request.data['email']
+            key = request.data['password']
+            salt = Register.objects.get(email=email).full_name
+            salt_password = ''.join(str(ord(c)) for c in salt)
+            password = key + salt_password
+            token = make_password(str(time.time()))
+            token_forget = 'usethistokenforforgetyourpassword'
+            tokenx = str(token_forget)         
             get_login = Register.objects.get(email=email)
             if (check_password(tokenx, get_login.token)):
                 response = {'status':'you request to change your password, please check your email'}
