@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
+from django.views.decorators.csrf import csrf_exempt
 from .models import Register
 from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
@@ -133,9 +134,34 @@ def get_post_registrations(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
+def forget_attempt(request,email):
+    if request.method == 'POST':
+        token_forget = 'usethistokenforforgetyourpassword'
+        tokenx = str(token_forget)
+        token = make_password(tokenx)        
+        payload = {'token':token , 'attempt':0}
+        try:
+            check = Register.objects.get(email = email)
+            name = check.full_name
+            serializers = SentForgetSerializer(check, data = payload)
+            if serializers.is_valid():
+                serializers.save()
+            else:
+                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            subjects = 'Forget Password'
+            send_forget_email(request, email, token, name, subjects)
+            act = 'User reach maximum attempt by '
+            read_log(request, check, act)
+            return Response({'status':'Email sent'})
+        except Register.DoesNotExist:
+            response = {'status':'Email Does not valid'}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['POST', 'GET'])
 def get_login(request):
-    if request.method == 'POST':
+    if request.method == 'POST':        
         try:
             email = request.data['email']
             key = request.data['password']
@@ -150,9 +176,14 @@ def get_login(request):
                 response = {'status':'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
             else:
+                attempt = get_login.attempt
                 if (get_login.banned_type == "0"):
                     response = {'status':'Account has not verified yet, check your email to verified'}
                     return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+                elif (attempt == 5):
+                    forget_attempt(request, email)
+                    response = {'status':'You have reach your maximum attempt, please check your email'}
+                    return Response(response)
                 else:                
                     if (check_password(password, get_login.password)):                
                         get_in = {
