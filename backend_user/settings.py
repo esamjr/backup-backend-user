@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'private',
     'email_app',
     'log_app',
+    'notification',
+    'file_upload',
 ]
 
 SITE_ID = 1
@@ -100,10 +102,13 @@ ROOT_URLCONF = 'backend_user.urls'
 
 CORS_ORIGIN_ALLOW_ALL=True
 
+PROJECT_ROOT = os.path.dirname
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,6 +116,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "django.core.context_processors.i18n",
+                "django.core.context_processors.media",
+                "django.core.context_processors.static",
+                "django.core.context_processors.tz",
+
             ],
         },
     },
@@ -121,23 +131,23 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '10.124.64.3',
-#      'PORT': '5432',
-#      'NAME': 'user',
-#      'USER': 'user',
-#      'PASSWORD': 'U53rDB2016'
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+DATABASES = {
+    'default': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'HOST': '10.124.64.3',
+     'PORT': '5432',
+     'NAME': 'user',
+     'USER': 'user',
+     'PASSWORD': 'U53rDB2016'
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

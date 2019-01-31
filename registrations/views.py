@@ -4,13 +4,26 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer
+from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET'])
+def get_user(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION','')
+    get_token = Register.objects.get(token = token)
+    if request.method == 'GET':
+        registrations = Register.objects.get(pk=pk)
+        serializer = SearchSerializer(registrations)    
+        act = 'searching user id ' + str(pk)
+        read_log(request,get_token,act)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT','DELETE'])
 def get_delete_update_registrations(request, pk):
     try:
         registrations = Register.objects.get(pk=pk)
@@ -223,6 +236,7 @@ def verified_acc(request):
             response = {'status':'NOT FOUND'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['POST'])
 def forget(request):
     if request.method == 'POST':
@@ -247,6 +261,7 @@ def forget(request):
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def forget_backlink(request):
