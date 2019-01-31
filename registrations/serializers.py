@@ -12,7 +12,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Register
-		fields = 'email','password', 'token', 'id_type','banned_type'
+		fields = ('email','password', 'token', 'id_type','banned_type', 'attempt',)
 
 class ConfirmSerializer(serializers.ModelSerializer):
 

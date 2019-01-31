@@ -237,7 +237,8 @@ def get_login(request):
                     'email': get_token.email,
                     'password': get_token.password,
                     'id_type': 0,
-                    'token':'xxx'
+                    'token':'xxx',
+                    'attempt':0
                     }
                     serializer = LoginSerializer(get_token, data = get_out)
                     if serializer.is_valid():
