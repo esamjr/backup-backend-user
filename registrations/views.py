@@ -253,10 +253,10 @@ def forget(request):
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
-            x = send_forget_email(request, email, token, name, subjects)
+            send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
-            return Response({'log':x})
+            return Response({'status':'Email sent'})
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
