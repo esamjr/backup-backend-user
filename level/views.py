@@ -62,12 +62,8 @@ def get_post_level(request):
 @api_view(['POST'])
 def filter_comp(request, pk):
     if request.method == 'POST':        
-
-        try:
-            id_comp = Level_models.objects.all().filter(id_company = pk)
-            network = LevelSerializer(id_comp, many=True)
-            return(network.data)
-        except Level_models.DoesNotExist:
-            return Response([], status = status.HTTP_404_NOT_FOUND)
-
+        network = Level_models.objects.all().filter(id_company = pk)
+        serializer = LevelSerializer(network, many=True)
+        return Response(serializer.data)
+    return Response({'ERROR'})
 
