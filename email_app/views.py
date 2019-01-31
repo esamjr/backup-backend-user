@@ -17,15 +17,12 @@ from django.conf.urls import include
 import requests
 
 
-
 @csrf_exempt
 def send_forget_email(request,mail,token, name, subjects):
     respondentEmail = mail
     sender = 'admin@mindzzle.com'	
-    try:		
-       
+    try:	
         d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To reset your password, please click the button below', 'tombol':'Forget Password'})
-     
         requests.post(
             "https://api.mailgun.net/v3/mindzzle.com/messages",
             auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
@@ -93,24 +90,24 @@ def email_get(request):
 		return HttpResponse(serializer.data)
 
 
-@api_view(['POST'])
-def send_forget_email(request,mail,token, name, subjects):
-    respondentEmail = mail
-    sender = 'admin@mindzzle.com'   
-    try:        
-        htmly = get_template('emailtemplate.html')
-        d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To reset your password, please click the button below', 'tombol':'Forget Password'})
-        html_content = htmly.render(d)
-        requests.post(
-            "https://api.mailgun.net/v3/mindzzle.com/messages",
-            auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
-            data={"from": "admin@mindzzle.com",
-                  "to": [mail],
-                  "subject": subjects,
-                  "text": "Testing some Mailgun awesomness!",
-                  "html": html_content})
-        response = {'status Email Sent'}
-        return HttpResponse(response)
-    except:
-        response = {'status failed to send email'}
-        return HttpResponse(response)
+# @api_view(['POST'])
+# def send_forget_email(request,mail,token, name, subjects):
+#     respondentEmail = mail
+#     sender = 'admin@mindzzle.com'   
+#     try:        
+#         htmly = get_template('emailtemplate.html')
+#         d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To reset your password, please click the button below', 'tombol':'Forget Password'})
+#         html_content = htmly.render(d)
+#         requests.post(
+#             "https://api.mailgun.net/v3/mindzzle.com/messages",
+#             auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+#             data={"from": "admin@mindzzle.com",
+#                   "to": [mail],
+#                   "subject": subjects,
+#                   "text": "Testing some Mailgun awesomness!",
+#                   "html": html_content})
+#         response = {'status Email Sent'}
+#         return HttpResponse(response)
+#     except:
+#         response = {'status failed to send email'}
+#         return HttpResponse(response)
