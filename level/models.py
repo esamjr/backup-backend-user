@@ -2,7 +2,7 @@ from django.db import models
 
 class Level(models.Model):
 
-  id_company = models.IntegerField(null=True, blank=True)
+  id_company = models.IntegerField(null=True)
   level = models.CharField(max_length=255)
   status_parent = models.CharField(max_length=255)
   status_child = models.CharField(max_length=255)
