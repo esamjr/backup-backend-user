@@ -9,6 +9,7 @@ from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+import json
 
 @api_view(['GET'])
 def get_user(request, pk):
@@ -256,7 +257,7 @@ def forget(request):
             x = send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
-            return Response({'status':'Email sent','log':x})
+            return Response(json.dumps({'status':'Email sent','log':x}))
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
