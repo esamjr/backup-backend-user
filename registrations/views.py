@@ -23,7 +23,7 @@ def get_user(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT','DELETE'])
 def get_delete_update_registrations(request, pk):
     try:
         registrations = Register.objects.get(pk=pk)
