@@ -1,3 +1,7 @@
-from django.db import models
+# from django.db import models
 
-# Create your models here.
+# class Attempt(models.Model):
+
+#   date = models.DateTimeField()
+#   attempt = models.IntegerField(default = 0)
+#   id_user = models.IntegerField()

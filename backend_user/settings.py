@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'log_app',
     'notification',
     'file_upload',
+    'OCR_Reader',
 ]
 
 SITE_ID = 1

@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
+from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
@@ -140,20 +140,32 @@ def forget_attempt(request,email):
         token_forget = 'usethistokenforforgetyourpassword'
         tokenx = str(token_forget)
         token = make_password(tokenx)        
-        payload = {'token':token , 'attempt':0}
+        
         try:
             check = Register.objects.get(email = email)
             name = check.full_name
-            serializers = PassingAttemptSerializer(check, data = payload)
-            if serializers.is_valid():
-                serializers.save()
+
+            if (check.attempt >= 25): 
+                token_max_attempt = make_password('this is the maximum reach token, unfortunately we must banned this account temporarly')
+                payload = {'token':token_max_attempt, 'password' : token_max_attempt, 'attempt':0}
+                serializers = MaxAttemptReachSerializer(check, data = payload)
+                if serializers.is_valid():
+                    serializers.save()                   
+                response = {'status':'you have reach your maximum attempt in one day, please try again in 24 hours'}
+                return Response(response)
             else:
-                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-            subjects = 'Forget Password'
+                counter = check.attempt + 1
+                payload = {'token':token, 'attempt':counter}                
+                serializers = PassingAttemptSerializer(check, data = payload)
+                if serializers.is_valid():
+                    serializers.save()
+                else:
+                    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            subjects = 'Forget Password by try to reach the password'
             send_forget_email(request, email, token, name, subjects)
             act = 'User reach maximum attempt by '
             read_log(request, check, act)
-            return Response({'status':'Email sent'})
+            return Response({'status':'Your password is incorrect, please check your email to make new password'})
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
@@ -182,8 +194,7 @@ def get_login(request):
             token = make_password(str(time.time()))
             token_forget = 'usethistokenforforgetyourpassword'
             tokenx = str(token_forget)         
-            get_login = Register.objects.get(email=email)
-            attempt = get_login.attempt
+            get_login = Register.objects.get(email=email)           
             if (check_password(tokenx, get_login.token)):
                 response = {'status':'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -191,11 +202,15 @@ def get_login(request):
                 attempt = get_login.attempt
                 if (get_login.banned_type == "0"):
                     response = {'status':'Account has not verified yet, check your email to verified'}
-                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-                elif (attempt == 5):
+                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)              
+                elif (attempt % 5 == 0):
                     forget_attempt(request, email)
-                    response = {'status':'1'}
-                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+                    if (attempt == 25):
+                        response = {'status':'2'}
+                        return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+                    else:
+                        response = {'status':'1'}
+                        return Response(response, status=status.HTTP_401_UNAUTHORIZED)
                 else:                
                     if (check_password(password, get_login.password)):                
                         get_in = {

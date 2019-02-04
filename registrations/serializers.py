@@ -45,3 +45,8 @@ class PassingAttemptSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
 		fields = ('attempt','token',)
+
+class MaxAttemptReachSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Register
+		fields = ('attempt','token','password',)

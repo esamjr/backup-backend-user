@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    url(r'^ocr/', include('OCR_Reader.urls')), 
     url(r'^files/', include('file_upload.urls')), 
     url(r'^notfication/', include('notification.urls')), 
     url(r'^mailLog/', include('email_app.urls')), 
