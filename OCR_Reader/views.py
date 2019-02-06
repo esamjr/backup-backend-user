@@ -4,7 +4,6 @@ from pytesseract import image_to_string
 from urllib.request import urlopen
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-# import tesserocr
 
 @api_view(['GET'])
 def OCRT(request):
@@ -16,5 +15,3 @@ def OCRT(request):
 	if (nama in text) :
 		return Response(nama)
 	return Response('tidak valid')
-
-# print(text)

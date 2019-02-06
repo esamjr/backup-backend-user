@@ -9,6 +9,10 @@ from .serializers import BusinessSerializer, JoincompanySerializer, RegSerialize
 from registrations.models import Register
 from join_company.models import Joincompany
 from job_contract.models import Jobcontract
+from employee_sign.models import Employeesign
+from employee_sign.serializers import EmployeesignSerializer
+from hierarchy.serializers import HierarchySerializer
+from hierarchy.models import Hierarchy
 from django.db.models import Q
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -142,21 +146,32 @@ def cakarsebek(request, pk):
             try:
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
+                empsign = Employeesign.objects.get(id_user = user)
+                hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerHier = HierarchySerializer(Hierarchy)
                 serializerJobcon = JobconSerializer(job_contract)
-
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
-                result.append(people)                
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                result.append(people)
+            except Employeesign.DoesNotExist:
+                karyawan = Register.objects.get(id = user)
+                perus = Business.objects.get(id= company)                
+                job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
+                serializerUser = RegSerializer(karyawan)
+                serilaizerComp = BusinessSerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
+                result.append(people)
             except Jobcontract.DoesNotExist:
                 pass
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : []}
-                result.append(people)  
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people) 
         return Response(result)          
 
 @api_view(['GET'])

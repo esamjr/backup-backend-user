@@ -84,6 +84,8 @@ INSTALLED_APPS = [
     'notification',
     'file_upload',
     'OCR_Reader',
+    'business_img',
+    'user_img',
 ]
 
 SITE_ID = 1
