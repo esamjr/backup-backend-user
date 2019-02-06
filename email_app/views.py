@@ -24,8 +24,9 @@ def send_forget_email(request,mail,token, name, subjects):
     try:	
         # d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/forget/new?token='+token, 'konten':'To reset your password, please click the button below', 'tombol':'Forget Password'})
         requests.post(
-            "https://api.mailgun.net/v3/mindzzle.com/messages",
-            auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+            # "https://api.mailgun.net/v3/mindzzle.com/messages",
+            # auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+            "http://email-app.mindzzle.com/mailsent/",
             data={"from": "admin@mindzzle.com",
                   "to": [mail],
                   "subject": subjects,

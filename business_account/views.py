@@ -5,9 +5,10 @@ import json
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JoincompanySerializer2
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
+from job_contract.models import Jobcontract
 from django.db.models import Q
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -131,6 +132,24 @@ def custom_get_two(request, pk):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
         except:
             return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def cakarsebek(request, pk):
+    if request.method == 'GET':
+        result =[]
+        get_comp = Joincompany.objects.all().values_list('id_user', 'id_company').filter(Q(status="2")|Q(status="4"),id_company = pk)
+        for user, company in get_comp:
+
+            karyawan = Register.objects.get(id = user)
+            perus = Business.objects.get(id= company)
+            job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
+            serializerUser = RegSerializer(karyawan)
+            serilaizerComp = BusinessSerializer(perus)
+            serializerJobcon = JobconSerializer(job_contract)
+
+            people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
+            result.append(people)
+        return Response(result)
 
 
 

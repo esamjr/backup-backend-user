@@ -8,10 +8,13 @@ from rest_framework.response import Response
 
 @api_view(['GET'])
 def OCRT(request):
-	link = urlopen('https://4.bp.blogspot.com/-UHBY49jyQ3M/WMzeuFOZZxI/AAAAAAAAAUs/Gsv9qPEvM7k3Yz1-z28MKPi1qa4YKqXBgCLcB/s1600/NPWP%2BASAL.jpg')
+	nama = request.data['nama']
+	urlnpwp = request.data['npwp']
+	link = urlopen(urlnpwp)
 	im = Image.open(link)
 	text = image_to_string(im, lang = 'ind')
-
-	return Response(text)
+	if (nama in text) :
+		return Response(text)
+	return Response('tidak valid')
 
 # print(text)
