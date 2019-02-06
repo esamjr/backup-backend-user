@@ -22,7 +22,7 @@ from email_app import views as lihat
 urlpatterns = [
     url(r'^ocr/', include('OCR_Reader.urls')), 
     url(r'^uploadDOCuser/', include('user_img.urls')), 
-    url(r'^uploadDOCcomp/', include('business__img.urls')), 
+    url(r'^uploadDOCcomp/', include('business_img.urls')), 
     url(r'^files/', include('file_upload.urls')), 
     url(r'^notfication/', include('notification.urls')), 
     url(r'^mailLog/', include('email_app.urls')), 

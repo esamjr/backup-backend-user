@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'OCR_Reader',
     'business_img',
     'user_img',
+    'vendor_api',
 ]
 
 SITE_ID = 1

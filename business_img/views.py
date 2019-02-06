@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Company_img
 from OCR_Reader.serializers import CompImgSerializer
-from 
+
 
 @api_view(['POST'])
 def upload_doc(request):	
