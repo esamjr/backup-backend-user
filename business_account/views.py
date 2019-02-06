@@ -151,7 +151,7 @@ def cakarsebek(request, pk):
                 result.append(people)                
             except Jobcontract.DoesNotExist:
                 pass
-                people = []
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : []}
                 result.append(people)  
         return Response(result)          
 
