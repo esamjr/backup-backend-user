@@ -7,11 +7,11 @@ from rest_framework.response import Response
 
 @api_view(['GET'])
 def OCRT(request):
-	nama = request.data['nama']
-	urlnpwp = request.data['npwp']
+	
+	nomor = request.data['nomor']
 	link = urlopen(urlnpwp)
 	im = Image.open(link)
 	text = image_to_string(im, lang = 'ind')
-	if (nama in text) :
-		return Response(nama)
+	if (nomor in text) :
+		return Response(nomor)
 	return Response('tidak valid')
