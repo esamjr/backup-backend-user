@@ -139,19 +139,19 @@ def cakarsebek(request, pk):
         result =[]
         get_comp = Joincompany.objects.all().values_list('id_user', 'id_company').filter(Q(status="2")|Q(status="4"),id_company = pk)
         for user, company in get_comp:
+            try:
+                karyawan = Register.objects.get(id = user)
+                perus = Business.objects.get(id= company)
+                job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
+                serializerUser = RegSerializer(karyawan)
+                serilaizerComp = BusinessSerializer(perus)
+                serializerJobcon = JobconSerializer(job_contract)
 
-            karyawan = Register.objects.get(id = user)
-            perus = Business.objects.get(id= company)
-            job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
-            serializerUser = RegSerializer(karyawan)
-            serilaizerComp = BusinessSerializer(perus)
-            serializerJobcon = JobconSerializer(job_contract)
-
-            people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
-            result.append(people)
-        return Response(result)
-
-
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
+                result.append(people)
+                return Response(result)
+            except Jobcontract.DoesNotExist:
+                pass            
 
 @api_view(['GET'])
 def search_company(request):

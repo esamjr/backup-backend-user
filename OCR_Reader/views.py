@@ -14,7 +14,7 @@ def OCRT(request):
 	im = Image.open(link)
 	text = image_to_string(im, lang = 'ind')
 	if (nama in text) :
-		return Response(text)
+		return Response(nama)
 	return Response('tidak valid')
 
 # print(text)
