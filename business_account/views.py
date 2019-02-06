@@ -148,10 +148,10 @@ def cakarsebek(request, pk):
                 serializerJobcon = JobconSerializer(job_contract)
 
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
-                result.append(people)
-                return Response(result)
+                result.append(people)                
             except Jobcontract.DoesNotExist:
-                pass            
+                pass  
+        return Response(result)          
 
 @api_view(['GET'])
 def search_company(request):
