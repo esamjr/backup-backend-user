@@ -150,7 +150,7 @@ def cakarsebek(request, pk):
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data}
                 result.append(people)                
             except Jobcontract.DoesNotExist:
-                pass  
+                continue  
         return Response(result)          
 
 @api_view(['GET'])
