@@ -4,8 +4,8 @@ class Jobcontract(models.Model):
 
   id_company = models.IntegerField()
   id_user = models.IntegerField()
-  id_contract = models.IntegerField()
-  status = models.CharField(max_length = 3)
+  id_contract = models.IntegerField()  
+  status = models.CharField(max_length=3, null=True)
   salary = models.IntegerField()
   date_in = models.DateField()
   date_out =models.DateField()

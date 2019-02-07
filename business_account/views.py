@@ -158,8 +158,7 @@ def cakarsebek(request, pk):
                 result.append(people)
             except Employeesign.DoesNotExist:
                 karyawan = Register.objects.get(id = user)
-                perus = Business.objects.get(id= company)                
-                job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
+                perus = Business.objects.get(id= company)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
