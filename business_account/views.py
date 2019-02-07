@@ -100,8 +100,9 @@ def custom_get_one(request, pk):
             for joi in joins:
                 joincomp = Joincompany.objects.get(status="1", id_company=pk, id_user=joi)
                 get_user = Register.objects.get(id = joi)
-                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day,'id_join_company':joincomp.id}                
-                result.append(dic)               
+                dic = RegSerializer(get_user)
+                # dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day,'id_join_company':joincomp.id}                
+                result.append(dic.data)               
             return Response(result)
 
         except Register.DoesNotExist:
