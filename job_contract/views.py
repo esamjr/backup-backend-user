@@ -21,30 +21,21 @@ def get_delete_update_jobcontract(request, pk):
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if(request.user == Jobcontract):
+        
             Jobcontract.delete()
             content = {
                 'status' : 'NO CONTENT'
             }
             return Response(content, status=status.HTTP_202_NO_CONTENT)
-        else:
-            content = {
-                'status' : 'UNAUTHORIZED'
-            }
-            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+       
     elif request.method == 'PUT':
-        if(request.user == Jobcontract):
+       
             serializer = JobcontractSerializer(Jobcontract, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            content = {
-                'status': 'UNAUTHORIZED'
-            }
-            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
+     
 @api_view(['GET', 'POST'])
 def get_post_jobcontract(request):
     if request.method == 'GET':
