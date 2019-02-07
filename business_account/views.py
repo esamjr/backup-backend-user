@@ -171,7 +171,14 @@ def cakarsebek(request, pk):
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
-                result.append(people) 
+                result.append(people)
+            except Hierarchy.DoesNotExist:
+                karyawan = Register.objects.get(id = user)
+                perus = Business.objects.get(id= company)
+                serializerUser = RegSerializer(karyawan)
+                serilaizerComp = BusinessSerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
         return Response(result)          
 
 @api_view(['GET'])
