@@ -143,11 +143,11 @@ def custom_get_two(request, pk):
 def cakarsebek(request, pk):
     if request.method == 'GET':
         result =[]
-        get_comp = Joincompany.objects.all().values_list('id_user', 'id_company').filter(Q(status="2")|Q(status="4"),id_company = pk)
+        get_comp = Joincompany.objects.all().values_list('id_user', 'id_company').filter(Q(status = "2")|Q(status = "4"),id_company = pk)
         for user, company in get_comp:
             try:
                 karyawan = Register.objects.get(id = user)
-                perus = Joincompany.objects.get(id_user = user, status = "2", id_company = company)
+                perus = Joincompany.objects.get( Q(status = "2")|Q(status = "4"), id_user = user, id_company = company)
                 empsign = Employeesign.objects.get(id_user = user)
                 hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
