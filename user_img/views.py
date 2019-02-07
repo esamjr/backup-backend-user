@@ -7,22 +7,28 @@ from rest_framework.parsers import JSONParser
 from .models import User_img
 from OCR_Reader.serializers import UserImgSerializer
 from registrations.models import Register
+from OCR_Reader.views import OCRT
 @api_view(['POST'])
 def upload_doc(request):
 	try :
-		tokenx = request.META.get('HTTP_AUTHORIZATION')
-		token = Register.objects.get(token = tokenx)
+		get_token = request.META.get('HTTP_AUTHORIZATION')
+		token = Register.objects.get(token = get_token)
+		type_name = request.data['type_name']
+		url = request.data['url']
+		nomor = request.data['nomor']
+		status = request.data['status']
 		payload = {
 				'id_user' : token,
-				'type_name' : request.data['type'],
-				'url' : request.data['url'],
-				'nomor' : request.data['number'],
-				'status' : request.data['status']}
+				'type_name' : type_name,
+				'url' : url,
+				'nomor' : nomor,
+				'status' : status}
 		serializers = UserImgSerializer(data = request.data)
 		if serializers.is_valid():
+			OCRT(request, nomor, url)
 			serializer.save()
-			return Response(serializer.data, status = status.HTTP_201_CREATED)
-		return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			return Response(OCRT, status = status.HTTP_201_CREATED)
+		return Response(OCRT, status = status.HTTP_400_BAD_REQUEST)
 	except Register.DoesNotExist:
 		response = {'status' : 'UNAUTHORIZED'}
 		return Response(response, status = status.HTTP_401_UNAUTHORIZED)

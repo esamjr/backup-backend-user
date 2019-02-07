@@ -4,12 +4,12 @@ from pytesseract import image_to_string
 from urllib.request import urlopen
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 
-@api_view(['GET'])
-def OCRT(request):
+@csrf_exempt
+def OCRT(request, nomor, url):
 	
-	nomor = request.data['nomor']
-	link = urlopen(urlnpwp)
+	link = urlopen(url)
 	im = Image.open(link)
 	text = image_to_string(im, lang = 'ind')
 	if (nomor in text) :
