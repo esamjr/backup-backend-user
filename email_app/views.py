@@ -52,8 +52,9 @@ def send_email(request, mail, token, name, subjects):
         # d = ({'username': name,'token': 'http://dev-user.mindzzle.com/register/confirmation?token='+token, 'konten':'To complete your sign up, please verify your email', 'tombol':'Verify Email'})
         # html_content = htmly.render(d)
         requests.post(
-            "https://api.mailgun.net/v3/mindzzle.com/messages",
-            auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+            # "https://api.mailgun.net/v3/mindzzle.com/messages",
+            # auth=("api", "868cffd229060b45e4742e6bdd0fdf8c-c8c889c9-ed56b2bf"),
+            "http://email-app.mindzzle.com/mailsent/",
             data={"from": "admin@mindzzle.com",
                   "to": [mail],
                   "subject": subjects,
