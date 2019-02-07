@@ -8,6 +8,7 @@ from .models import Business
 from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
+from join_company.serializers import JoincompanySerializer
 from job_contract.models import Jobcontract
 from employee_sign.models import Employeesign
 from employee_sign.serializers import EmployeesignSerializer
@@ -146,7 +147,7 @@ def cakarsebek(request, pk):
         for user, company in get_comp:
             try:
                 karyawan = Register.objects.get(id = user)
-                perus = Business.objects.get(id= company)
+                perus = Joincompany.objects.get(id_user = user, status = "2", id_company = company)
                 empsign = Employeesign.objects.get(id_user = user)
                 hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
@@ -158,6 +159,7 @@ def cakarsebek(request, pk):
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
                 result.append(people)
             except Employeesign.DoesNotExist:
+                pass
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
                 serializerUser = RegSerializer(karyawan)
@@ -166,6 +168,7 @@ def cakarsebek(request, pk):
                 result.append(people)
             except Jobcontract.DoesNotExist:
                 pass
+
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
                 empsign = Employeesign.objects.get(id_user = user)
@@ -175,13 +178,16 @@ def cakarsebek(request, pk):
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
             except Hierarchy.DoesNotExist:
+                pass
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
                 empsign = Employeesign.objects.get(id_user = user)
+                job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
+                serializerJobcon = JobconSerializer(job_contract)
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
         return Response(result)          
 
