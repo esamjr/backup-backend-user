@@ -260,5 +260,24 @@ def get_users(b):
             'birth_day':'null'}
         return response
 
-# @api_view(['GET'])
-# def count_emp(request):
+@api_view(['GET'])
+def count_emp(request,pk):
+    beacon = Business.objects.get(id = pk)
+    id_perusahaan = beacon.id
+    nama_perusahaan = beacon.company_name
+    id_admin = beacon.id_user
+    nama_admin = Register.objects.get(id = id_admin).full_name
+    parent_perusahaan = beacon.parent_company
+    employees = Joincompany.objects.all().filter(status = "2", id_company = pk)
+    counter = 0
+    for man in employees :
+        counter = counter+1
+    total_karyawan = counter
+    tabel = {
+        'id_company':id_perusahaan,
+        'company_name':nama_perusahaan,
+        'super_admin':nama_admin
+        'parent_company':parent_perusahaan,
+        'total_employees':counter
+    }
+    return Response(tabel)
