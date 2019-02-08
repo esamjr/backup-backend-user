@@ -152,7 +152,7 @@ def cakarsebek(request, pk):
                 hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
                 serializerUser = RegSerializer(karyawan)
-                serilaizerComp = BusinessSerializer(perus)
+                serilaizerComp = JoincompanySerializer(perus)
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerHier = HierarchySerializer(Hierarchy)
                 serializerJobcon = JobconSerializer(job_contract)
@@ -161,20 +161,20 @@ def cakarsebek(request, pk):
             except Employeesign.DoesNotExist:
                 pass
                 karyawan = Register.objects.get(id = user)
-                perus = Business.objects.get(id= company)
+                perus = Joincompany.objects.get( Q(status = "2")|Q(status = "4"), id_user = user, id_company = company)
                 serializerUser = RegSerializer(karyawan)
-                serilaizerComp = BusinessSerializer(perus)
+                serilaizerComp = JoincompanySerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
                 result.append(people)
             except Jobcontract.DoesNotExist:
                 pass
 
                 karyawan = Register.objects.get(id = user)
-                perus = Business.objects.get(id= company)
+                perus = Joincompany.objects.get( Q(status = "2")|Q(status = "4"), id_user = user, id_company = company)
                 empsign = Employeesign.objects.get(id_user = user)
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
-                serilaizerComp = BusinessSerializer(perus)
+                serilaizerComp = JoincompanySerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
             except Hierarchy.DoesNotExist:
