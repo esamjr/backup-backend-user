@@ -155,7 +155,7 @@ def cakarsebek(request, pk):
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerHier = HierarchySerializer(Hierarchy)
                 serializerJobcon = JobconSerializer(job_contract)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                people = {'1user':serializerUser.errors, 'join_company':serilaizerComp.errors, 'job_contract' : serializerJobcon.errors, 'employee_sign':serializerEmps.errors, 'hierarchy':serializerHier.errors}
                 result.append(people)
             except Employeesign.DoesNotExist:
                 pass
@@ -163,7 +163,7 @@ def cakarsebek(request, pk):
                 perus = Joincompany.objects.get( status = "2", id_user = user, id_company = pk)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = JoincompanySerializer(perus)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
+                people = {'2user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
                 result.append(people)
             except Jobcontract.DoesNotExist:
                 pass
@@ -173,7 +173,7 @@ def cakarsebek(request, pk):
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = JoincompanySerializer(perus)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                people = {'3user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
             except Hierarchy.DoesNotExist:
                 pass
@@ -185,7 +185,7 @@ def cakarsebek(request, pk):
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = BusinessSerializer(perus)
-                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                people = {'4user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
         return Response(result)          
 
