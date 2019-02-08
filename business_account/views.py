@@ -276,7 +276,7 @@ def count_emp(request,pk):
     tabel = {
         'id_company':id_perusahaan,
         'company_name':nama_perusahaan,
-        'super_admin':nama_admin
+        'super_admin':nama_admin,
         'parent_company':parent_perusahaan,
         'total_employees':counter
     }
