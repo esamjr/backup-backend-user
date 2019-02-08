@@ -147,7 +147,7 @@ def cakarsebek(request, pk):
             try:
                 karyawan = Register.objects.get(id = user)
                 perus = Joincompany.objects.get( status = "2", id_user = user, id_company = company)
-                empsign = Employeesign.objects.get(id_user = user)
+                empsign = Employeesign.objects.get(id_user = user, id_company = company)
                 hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
                 serializerUser = RegSerializer(karyawan)
@@ -160,7 +160,7 @@ def cakarsebek(request, pk):
             except Employeesign.DoesNotExist:
                 pass
                 karyawan = Register.objects.get(id = user)
-                perus = Joincompany.objects.get( Q(status = "2")|Q(status = "4"), id_user = user, id_company = company)
+                perus = Joincompany.objects.get( status = "2", id_user = user, id_company = company)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = JoincompanySerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
@@ -169,8 +169,8 @@ def cakarsebek(request, pk):
                 pass
 
                 karyawan = Register.objects.get(id = user)
-                perus = Joincompany.objects.get( Q(status = "2")|Q(status = "4"), id_user = user, id_company = company)
-                empsign = Employeesign.objects.get(id_user = user)
+                perus = Joincompany.objects.get( status = "2", id_user = user, id_company = company)
+                empsign = Employeesign.objects.get(id_user = user, id_company = company)
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
                 serilaizerComp = JoincompanySerializer(perus)
@@ -180,7 +180,7 @@ def cakarsebek(request, pk):
                 pass
                 karyawan = Register.objects.get(id = user)
                 perus = Business.objects.get(id= company)
-                empsign = Employeesign.objects.get(id_user = user)
+                empsign = Employeesign.objects.get(id_user = user, id_company = company)
                 job_contract = Jobcontract.objects.get(id_user = user, id_company = company)
                 serializerJobcon = JobconSerializer(job_contract)
                 serializerEmps = EmployeesignSerializer(empsign)
