@@ -8,7 +8,6 @@ from .models import Business
 from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
-from join_company.serializers import JoincompanySerializer
 from job_contract.models import Jobcontract
 from employee_sign.models import Employeesign
 from employee_sign.serializers import EmployeesignSerializer
