@@ -150,13 +150,16 @@ def cakarsebek(request, pk):
                 empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
                 hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
                 job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
-                serializerUser = RegSerializer(karyawan)
+                serializerUser = RegSerializer( karyawan)
                 serilaizerComp = JoincompanySerializer(perus)
                 serializerEmps = EmployeesignSerializer(empsign)
-                serializerHier = HierarchySerializer(Hierarchy)
+                serializerHier = HierarchySerializer(hierarchy)
                 serializerJobcon = JobconSerializer(job_contract)
-                people = {'1user':serializerUser.errors, 'join_company':serilaizerComp.errors, 'job_contract' : serializerJobcon.errors, 'employee_sign':serializerEmps.errors, 'hierarchy':serializerHier.errors}
-                result.append(people)
+                people = {'1user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                result.append(people)                
+                result.append(serializerHier.data)
+                
+                
             except Employeesign.DoesNotExist:
                 pass
                 karyawan = Register.objects.get(id = user)
@@ -187,6 +190,7 @@ def cakarsebek(request, pk):
                 serilaizerComp = BusinessSerializer(perus)
                 people = {'4user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
+
         return Response(result)          
 
 @api_view(['GET'])
