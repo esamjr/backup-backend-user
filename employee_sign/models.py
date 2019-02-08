@@ -5,7 +5,7 @@ class Employeesign(models.Model):
   id_user = models.IntegerField()
   id_company = models.IntegerField()
   id_hirarchy = models.IntegerField(null = True)
-  id_hirarchy_history = models.IntegerField()
+  id_hirarchy_history = models.IntegerField(null = True)
   id_contract = models.IntegerField()
   id_job_contract = models.IntegerField(null = True)
   role_type = models.CharField(max_length=255)
