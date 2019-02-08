@@ -179,13 +179,13 @@ def cakarsebek(request, pk):
             except Hierarchy.DoesNotExist:
                 pass
                 karyawan = Register.objects.get(id = user)
-                perus = Business.objects.get(id= pk)
+                perus = Joincompany.objects.get(id= pk)
                 empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
                 job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
                 serializerJobcon = JobconSerializer(job_contract)
                 serializerEmps = EmployeesignSerializer(empsign)
                 serializerUser = RegSerializer(karyawan)
-                serilaizerComp = BusinessSerializer(perus)
+                serilaizerComp = JoincompanySerializer(perus)
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
 
