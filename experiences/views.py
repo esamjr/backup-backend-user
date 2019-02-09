@@ -9,14 +9,16 @@ from registrations.models import Register
 from log_app.views import create_log, read_log, update_log, delete_log
 from log_app.serializers import LoggingSerializer
 from log_app.models import Logging
+from business_account.models import Business
 import time
 
 @api_view(['GET','DELETE', 'PUT'])
 
 def get_delete_update_experiences(request, pk):
     try:
-        Experiences = pengalaman.objects.get(pk=pk)
-        registrations = Register.objects.get(pk=Experiences.id_user)
+        Experiences = pengalaman.objects.get(id=pk)
+        company = Business.objects.get(id = Experiences.id_company).id_user
+        registrations = Register.objects.get(id=Experiences.id_user)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
@@ -24,8 +26,7 @@ def get_delete_update_experiences(request, pk):
             try:
                 token = request.META.get('HTTP_AUTHORIZATION','')
                 get_token = Register.objects.get(token = token)
-                if (get_token.id == Experiences.id_user):
-
+                if ((get_token.id == Experiences.id_user) | (get_token.id == company)):
                     if request.method == 'GET':
                         serializer = ExperiencesSerializer(Experiences)
                         act = 'Read experience by '                           
