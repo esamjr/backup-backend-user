@@ -12,23 +12,25 @@ from OCR_Reader.views import OCRT
 def upload_doc(request):
 	try :
 		get_token = request.META.get('HTTP_AUTHORIZATION')
-		token = Register.objects.get(token = get_token)
+		token = Register.objects.get(token = get_token).id
 		type_name = request.data['type_name']
 		url = request.data['url']
 		nomor = request.data['nomor']
-		status = request.data['status']
+		# status = request.data['status']
 		payload = {
 				'id_user' : token,
 				'type_name' : type_name,
 				'url' : url,
 				'nomor' : nomor,
-				'status' : status}
-		serializers = UserImgSerializer(data = request.data)
-		if serializers.is_valid():
-			OCRT(request, nomor, url)
-			serializer.save()
-			return Response(OCRT, status = status.HTTP_201_CREATED)
-		return Response(OCRT, status = status.HTTP_400_BAD_REQUEST)
+				'status' : "1"}
+		OCRT(request, nomor, url)
+		serializers = UserImgSerializer(data = payload)
+		if serializers.is_valid():			
+			serializers.save()
+			response = {'status' : 'OK'}
+			return Response(response, status = status.HTTP_201_CREATED)
+		response = {'status' : 'NOT OK'}
+		return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 	except Register.DoesNotExist:
-		response = {'status' : 'UNAUTHORIZED'}
+		response = {'status' : 'Register Does Not Exist'}
 		return Response(response, status = status.HTTP_401_UNAUTHORIZED)
