@@ -13,6 +13,8 @@ class Register(models.Model):
   id_regions = models.IntegerField()
   id_city = models.IntegerField()
   tax_num = models.IntegerField()
+  ssn_num = models.IntegerField(default = 0)
+  verfied = models.IntegerField(default = 0)  
   url_photo = models.CharField(max_length=255,null=True, blank=True)
   description = models.TextField(null=True, blank=True)
   id_type = models.IntegerField()
