@@ -7,7 +7,7 @@ from rest_framework.parsers import JSONParser
 from .models import User_img
 from OCR_Reader.serializers import UserImgSerializer
 from registrations.models import Register
-# from OCR_Reader.views import OCRT
+from .serializers import ValidSerializer,ExpTaxnumSerializers
 from PIL import Image
 from pytesseract import image_to_string
 from urllib.request import urlopen
@@ -17,6 +17,7 @@ def upload_doc(request):
 	try:
 		get_token = request.META.get('HTTP_AUTHORIZATION')
 		token = Register.objects.get(token = get_token).id
+		user = Register.objects.get(token = get_token)
 		type_name = request.data['type_name']
 		url = request.data['url']
 		nomor = request.data['nomor']
@@ -35,9 +36,15 @@ def upload_doc(request):
 			serializers = UserImgSerializer(data = payload)
 			if serializers.is_valid():			
 				serializers.save()
-				response = {'status' : 'OK'}
-				return Response(response, status = status.HTTP_201_CREATED)
-			return Response(serializers.errors, status = status.HTTP_201_CREATED)
+				payloads = {'ssn_num':nomor,
+							'verfied':"1"}
+				serializer2 = ValidSerializer(user, data = payloads)
+				if serializer2.is_valid():
+					serializer2.save()
+					response = {'status' : 'OK'}
+					return Response(response, status = status.HTTP_201_CREATED)
+				return Response(serializer2.errors, status = status.HTTP_400_BAD_REQUEST)
+			return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 			# else:
 			# 	response = {'status' : 'KTP TIDAK VALID'}
 			# 	return Response(response, status = status.HTTP_400_BAD_REQUEST)
@@ -59,9 +66,14 @@ def upload_doc(request):
 				serializers = UserImgSerializer(beacon, data = payload)
 				if serializers.is_valid():			
 					serializers.save()
-					response = {'status' : 'OK'}
-					return Response(response, status = status.HTTP_201_CREATED)
-				return Response(serializers.errors, status = status.HTTP_201_CREATED)
+					payloads = ('tax_num':nomor)
+					serializer2 = ExpTaxnumSerializer(user, data = payloads)
+					if serializer2.is_valid():
+						serializer2.save()
+						response = {'status' : 'OK'}
+						return Response(response, status = status.HTTP_201_CREATED)
+					return Response(serializer2.errors, status = status.HTTP_400_BAD_REQUEST)
+				return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 			else:
 				response = {'status' : 'NPWP TIDAK VALID'}
 				return Response(response, status = status.HTTP_400_BAD_REQUEST)

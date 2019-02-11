@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    url(r'^goal/', include('goal.urls')), 
     url(r'^review_scheduler/', include('review_scheduler.urls')),
     url(r'^type_goal/', include('type_goal.urls')), 
     url(r'^ocr/', include('OCR_Reader.urls')), 

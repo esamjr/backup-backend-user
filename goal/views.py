@@ -46,6 +46,12 @@ def get_put_delete(request,pk):
 		}
 		return Response(payload, status = status.HTTP_201_CREATED)
 	elif request.method == 'PUT':
-		return
+		serializer = GoalSerializer(beacon, data = request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)		
 	elif request.method == 'DELETE':
-		return
+		beacon.delete()
+		response = {'status':'DELETION SUCCESS'}
+		return Response(response, status=status.HTTP_201_CREATED)
