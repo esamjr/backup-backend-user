@@ -87,6 +87,12 @@ INSTALLED_APPS = [
     'business_img',
     'user_img',
     'vendor_api',
+    'goal',
+    'goal_assignment',
+    'log_created_goal',
+    'type_goal',
+    'review_scheduler',
+    'goal_negotiation',
 ]
 
 SITE_ID = 1

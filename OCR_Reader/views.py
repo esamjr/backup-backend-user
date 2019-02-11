@@ -26,5 +26,5 @@ def OCRTx(request):
 	im = Image.open(link)
 	text = image_to_string(im, lang = 'ind')
 	if (nomor in text) :
-		return Response({'valid'})
-	return Response({'tidak valid'})
+		return Response({text})
+	return Response({text})
