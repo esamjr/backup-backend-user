@@ -61,11 +61,18 @@ def get_put_delete(request,pk):
 			}
 			return Response(payload, status = status.HTTP_201_CREATED)
 		elif request.method == 'PUT':
-			serializer = GoalSerializer(beacon, data = request.data)
-			if serializer.is_valid():
-				serializer.save()
-				return Response(serializer.data, status=status.HTTP_201_CREATED)
-			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)		
+			try:
+				token = request.META.get('HTTP_AUTHORIZATION')
+				user = Register.objects.get(token = token).id
+				serializer = GoalSerializer(beacon, data = request.data)
+				if serializer.is_valid():
+					serializer.save()
+					update_log_goal(request, serializer.data['id_company'],serializer.data['id'],serializer.data['id_hierarchy'],user)
+					return Response(serializer.data, status=status.HTTP_201_CREATED)
+				return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			except Register.DoesNotExist:
+				response = {'status':'USER DOES NOT EXIST/ WRONG TOKEN'}
+				return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 		elif request.method == 'DELETE':
 			beacon.delete()
 			response = {'status':'DELETION SUCCESS'}
