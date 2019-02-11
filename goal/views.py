@@ -54,4 +54,4 @@ def get_put_delete(request,pk):
 	elif request.method == 'DELETE':
 		beacon.delete()
 		response = {'status':'DELETION SUCCESS'}
-		return Response(response, status=status.HTTP_201_CREATED)
+		return Response(response, status=status.HTTP_204_NO_CONTENT)

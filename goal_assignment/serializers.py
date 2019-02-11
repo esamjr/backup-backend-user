@@ -1,15 +1,9 @@
 from rest_framework import serializers
-from .models import Hierarchy
-from registrations.models import Register
+from .models import Goal_assign
 
-class HierarchySerializer(serializers.ModelSerializer):
+
+class GoalassignSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = Hierarchy
-        fields = '__all__'
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Register
+        model = Goal_assign
         fields = '__all__'

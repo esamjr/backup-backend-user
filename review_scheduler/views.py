@@ -37,7 +37,7 @@ def revies_sched(request):
 			beacon = review_scheduler.objects.get(id = idx)
 			beacon.delete()
 			response = {'status':'DELETION SUCCSESS'}
-			return Response(response, status=status.HTTP_201_CREATED)
+			return Response(response, status=HTTP_204_NO_CONTENT)
 		except review_scheduler.DoesNotExist:
 			response = {'status':'DATA DOES NOT EXIST'}
 			return Response(response, status=status.HTTP_400_BAD_REQUEST)

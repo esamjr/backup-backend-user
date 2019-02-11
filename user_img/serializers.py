@@ -9,6 +9,6 @@ class ValidSerializer(serializers.ModelSerializer):
         fields = ('ssn_num', 'verfied',)
 
 class ExpTaxnumSerializer(serializers.ModelSerializer):
-	class Mete:
+	class Meta:
 		model = Register
 		fields = ('tax_num',)
