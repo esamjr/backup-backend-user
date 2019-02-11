@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
-
+import time
 @csrf_exempt
 def create_log_goal(request, id_company,id_goal,id_hierarchy,id_user):
 	times = time.asctime(time.localtime(time.time()))
