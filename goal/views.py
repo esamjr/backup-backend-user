@@ -16,10 +16,10 @@ def post_get_goals(request):
 	if request.method == 'POST':
 		serializers = GoalSerializer(data = request.data)
 		if serializers.is_valid():
-			serializer.save()
+			serializers.save()
 
-			return Response(serializer.data, status = status.HTTP_201_CREATED)
-		return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			return Response(serializers.data, status = status.HTTP_201_CREATED)
+		return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 	elif request.method == 'GET':
 		netw = Goal.objects.all()
 		serializer = GoalSerializer(netw, many = True)
