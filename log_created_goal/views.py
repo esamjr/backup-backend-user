@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .serializers import LogGoalSerializer,LogGoalUpdateSerializer
+from .serializers import LogGoalSerializer,LogGoalUpdateSerializer,OpenLogGoalSerializer
 from .models import log_goal
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
@@ -31,3 +31,9 @@ def update_log_goal(request, id_company,id_goal,id_hierarchy,id_user):
 		serializers.save()
 		return Response(serializers.data)
 	return Response(serializers.errors)
+
+@api_view(['GET'])
+def open_log(request):
+	netw = log_goal.objects.all()
+	serializer =  OpenLogGoalSerializer(netw, many = True)
+	return Response(serializer.data, status = status.HTTP_201_CREATED)

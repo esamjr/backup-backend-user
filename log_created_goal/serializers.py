@@ -12,3 +12,9 @@ class LogGoalUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = log_goal
         fields = ('update_at',)
+
+class OpenLogGoalSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = log_goal
+        fields = '__all__'
