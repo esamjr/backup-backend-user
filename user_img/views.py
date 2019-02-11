@@ -48,7 +48,6 @@ def upload_doc(request):
 			# else:
 			# 	response = {'status' : 'KTP TIDAK VALID'}
 			# 	return Response(response, status = status.HTTP_400_BAD_REQUEST)
-
 		elif (type_name == "npwp"):
 			beacon = User_img.objects.get(id_user = token)
 			payload = {

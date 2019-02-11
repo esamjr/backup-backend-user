@@ -40,7 +40,7 @@ def tipe_goal(request):
 			beacon = type_goal.objects.get(id=idx)
 			beacon.delete()
 			response = {'status':'DELETION SUCCSESS'}
-			return Response(response, status=status.HTTP_201_CREATED)
+			return Response(response, status=status.HTTP_204_NO_CONTENT)
 		except type_goal.DoesNotExist:
 			response = {'status': 'NOT FOUND'}
 			return Response(response, status=status.HTTP_404_NOT_FOUND)

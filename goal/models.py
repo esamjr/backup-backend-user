@@ -15,3 +15,6 @@ class Goal(models.Model):
 	created_at = models.DateTimeField(auto_now_add = True)
 	update_at = models.DateTimeField(auto_now = True)
 	due_date = models.DateField()
+	id_level = models.IntegerField()
+	time_allocation = models.IntegerField()
+	sisa_allocation = models.IntegerField()

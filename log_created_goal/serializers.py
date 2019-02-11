@@ -1,15 +1,14 @@
 from rest_framework import serializers
-from .models import Hierarchy
-from registrations.models import Register
+from .models import log_goal
 
-class HierarchySerializer(serializers.ModelSerializer):
+class LogGoalSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = Hierarchy
-        fields = '__all__'
+        model = log_goal
+        fields = ('id_company','id_goal','id_hierarchy','id_user','created_at',)
 
-class UserSerializer(serializers.ModelSerializer):
-
+class LogGoalUpdateSerializer(serializers.ModelSerializer):
+    
     class Meta:
-        model = Register
-        fields = '__all__'
+        model = log_goal
+        fields = ('update_at',)

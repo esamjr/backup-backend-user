@@ -30,14 +30,14 @@ def revies_sched(request):
 			return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 		except review_scheduler.DoesNotExist:
 			response = {'status':'DATA DOES NOT EXIST'}
-			return Response(response, status=status.HTTP_400_BAD_REQUEST)
+			return Response(response, status=status.HTTP_404_NOT_FOUND)
 	elif request.method == 'DELETE':
 		try:
 			idx = request.data['id']
 			beacon = review_scheduler.objects.get(id = idx)
 			beacon.delete()
 			response = {'status':'DELETION SUCCSESS'}
-			return Response(response, status=HTTP_204_NO_CONTENT)
+			return Response(response, status=status.HTTP_204_NO_CONTENT)
 		except review_scheduler.DoesNotExist:
 			response = {'status':'DATA DOES NOT EXIST'}
-			return Response(response, status=status.HTTP_400_BAD_REQUEST)
+			return Response(response, status=status.HTTP_404_NOT_FOUND)

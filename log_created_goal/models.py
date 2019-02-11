@@ -5,5 +5,5 @@ class log_goal(models.Model):
 	id_goal = models.IntegerField()
 	id_hierarchy = models.IntegerField()
 	id_user = models.IntegerField()
-	created_at = models.DateTimeField(auto_now_add = True)
-	update_at = models.DateTimeField(auto_now = True)
+	created_at = models.CharField(max_length = 255)
+	update_at = models.CharField(max_length = 255, default = '**')

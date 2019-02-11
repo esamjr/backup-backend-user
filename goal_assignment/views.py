@@ -38,4 +38,5 @@ def goal_assignment(request):
 			response = {'status':'DELETION SUCCESSFULL'}
 			return Response(response, status = status.HTTP_204_NO_CONTENT)
 		except Goal_assign.DoesNotExist:
-			return
+			response = {'status':'GOAL ASSIGNMENT DOES NOT EXIST'}
+			return Response(response, status=status.HTTP_404_NOT_FOUND)
