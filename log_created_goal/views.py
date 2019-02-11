@@ -18,8 +18,8 @@ def create_log_goal(request, id_company,id_goal,id_hierarchy,id_user):
 	serializers = LogGoalSerializer(data = payload)
 	if serializers.is_valid():
 		serializers.save()
-		return Response(serializer.data)
-	return Response(serializer.errors)
+		return Response(serializers.data)
+	return Response(serializers.errors)
 
 @csrf_exempt
 def update_log_goal(request, id_company,id_goal,id_hierarchy,id_user):
@@ -29,5 +29,5 @@ def update_log_goal(request, id_company,id_goal,id_hierarchy,id_user):
 	serializers = LogGoalUpdateSerializer(beacon, data = payload)
 	if serializers.is_valid():
 		serializers.save()
-		return Response(serializer.data)
-	return Response(serializer.errors)
+		return Response(serializers.data)
+	return Response(serializers.errors)
