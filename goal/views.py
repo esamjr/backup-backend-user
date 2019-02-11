@@ -10,20 +10,29 @@ from type_goal.models import type_goal
 from review_scheduler.serializers import ReviewSerializer
 from review_scheduler.models import review_scheduler
 from log_created_goal.views import create_log_goal, update_log_goal
+from registrations.models import Register
 
 @api_view(['POST', 'GET'])
 def post_get_goals(request):
-	if request.method == 'POST':
-		serializers = GoalSerializer(data = request.data)
-		if serializers.is_valid():
-			serializers.save()
-			create_log_goal(request, serializers.data['id_company'],serializers.data['id'],serializers.data['id_hierarchy'],serializers.data['id_user'])
-			return Response(serializers.data, status = status.HTTP_201_CREATED)
-		return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
-	elif request.method == 'GET':
-		netw = Goal.objects.all()
-		serializer = GoalSerializer(netw, many = True)
-		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	try:
+		token = request.META.get('HTTP_AUTHORIZATION')
+		user = Register.objects.get(token = token).id
+
+		if request.method == 'POST':
+			serializers = GoalSerializer(data = request.data)
+			if serializers.is_valid():
+				serializers.save()
+				create_log_goal(request, serializers.data['id_company'],serializers.data['id'],serializers.data['id_hierarchy'],serializers.data['id_user'])
+				return Response(serializers.data, status = status.HTTP_201_CREATED)
+			return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
+		elif request.method == 'GET':
+			netw = Goal.objects.all()
+			serializer = GoalSerializer(netw, many = True)
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+	except Register.DoesNotExist:
+		response = {'status':'USER DOES NOT EXIST/ WRONG TOKEN'}
+		return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET','PUT','DELETE'])
 def get_put_delete(request,pk):
