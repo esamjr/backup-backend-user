@@ -46,9 +46,9 @@ def get_put_delete(request,pk):
 				'max_bonus' : beacon.max_bonus,
 				'status' : beacon.status,
 				'id_review_scheduler' : serializer2.data,
-				'id_level' : id_level,
-				'time_allocation' : time_allocation,
-				'sisa_allocation' : sisa_allocation
+				'id_level' : beacon.id_level,
+				'time_allocation' : beacon.time_allocation,
+				'sisa_allocation' : beacon.sisa_allocation
 			}
 			return Response(payload, status = status.HTTP_201_CREATED)
 		elif request.method == 'PUT':
