@@ -7,7 +7,7 @@ from rest_framework.parsers import JSONParser
 from .models import User_img
 from OCR_Reader.serializers import UserImgSerializer
 from registrations.models import Register
-from .serializers import ValidSerializer,ExpTaxnumSerializers
+from .serializers import ValidSerializer,ExpTaxnumSerializer
 from PIL import Image
 from pytesseract import image_to_string
 from urllib.request import urlopen
@@ -57,7 +57,7 @@ def upload_doc(request):
 				'no_npwp' : nomor,
 				'url_npwp' : url,
 				'no_ktp' : beacon.no_ktp,
-				'url_ktp' : beacon.url_ktp,
+				'url_ktp' : beacon.url_ktp
 				}
 			link = urlopen(url)
 			im = Image.open(link)
@@ -66,7 +66,7 @@ def upload_doc(request):
 				serializers = UserImgSerializer(beacon, data = payload)
 				if serializers.is_valid():			
 					serializers.save()
-					payloads = ('tax_num':nomor)
+					payloads = {'tax_num': nomor}
 					serializer2 = ExpTaxnumSerializer(user, data = payloads)
 					if serializer2.is_valid():
 						serializer2.save()
