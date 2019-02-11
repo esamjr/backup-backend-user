@@ -22,7 +22,7 @@ def post_get_goals(request):
 			serializers = GoalSerializer(data = request.data)
 			if serializers.is_valid():
 				serializers.save()
-				create_log_goal(request, serializers.data['id_company'],serializers.data['id'],serializers.data['id_hierarchy'],serializers.data['id_user'])
+				create_log_goal(request, serializers.data['id_company'],serializers.data['id'],serializers.data['id_hierarchy'],user)
 				return Response(serializers.data, status = status.HTTP_201_CREATED)
 			return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'GET':
