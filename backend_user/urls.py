@@ -20,7 +20,7 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
-url(r'^log_goal/', include('log_created_goal.urls')), 
+    url(r'^log_goal/', include('log_created_goal.urls')), 
     url(r'^goal_negotiation/', include('goal_negotiation.urls')), 
     url(r'^goal_assign/', include('goal_assignment.urls')), 
     url(r'^goal/', include('goal.urls')), 
