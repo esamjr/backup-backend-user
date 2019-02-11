@@ -11,7 +11,7 @@ from review_scheduler.serializers import ReviewSerializer
 from review_scheduler.models import review_scheduler
 from log_created_goal.views import create_log_goal, update_log_goal
 
-@api_view(['POST, GET'])
+@api_view(['POST', 'GET'])
 def post_get_goals(request):
 	if request.method == 'POST':
 		serializers = GoalSerializer(data = request.data)
