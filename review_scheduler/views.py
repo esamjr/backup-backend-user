@@ -16,7 +16,7 @@ def revies_sched(request):
 			return Response(serializers.data, status=status.HTTP_201_CREATED)
 		return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 	elif request.method == 'GET':
-		netw = revies_scheduler.objects.all()
+		netw = review_scheduler.objects.all()
 		serializers = ReviewSerializer(netw, many=True)
 		return Response(serializers.data, status=status.HTTP_201_CREATED)
 	elif request.method == 'PUT':
