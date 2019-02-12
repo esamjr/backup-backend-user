@@ -16,6 +16,17 @@ from hierarchy.models import Hierarchy
 from django.db.models import Q
 
 @api_view(['GET'])
+def child_company_vendor(request, pk):
+    if request.method == 'GET':
+        try:
+            beacon = Business.objects.all().filter('parent_company' = pk)
+            serializers = BusinessSerializer(beacon, many = True)
+            return Response(serializers.data, status = status.HTTP_201_CREATED)
+        except Business.DoesNotExist:
+            response = {'status':'CHILD COMPANY DOES NOT EXIST'}
+            return Response(response, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
 def buat_vendor(request,pk):
     if request.method == 'GET':
         Businessaccount = Business.objects.get(pk=pk)
