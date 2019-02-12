@@ -19,7 +19,7 @@ from django.db.models import Q
 def child_company_vendor(request, pk):
     if request.method == 'GET':
         try:
-            beacon = Business.objects.all().filter('parent_company' = pk)
+            beacon = Business.objects.all().filter(parent_company = pk)
             serializers = BusinessSerializer(beacon, many = True)
             return Response(serializers.data, status = status.HTTP_201_CREATED)
         except Business.DoesNotExist:
