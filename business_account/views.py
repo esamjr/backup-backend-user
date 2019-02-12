@@ -31,6 +31,63 @@ def buat_vendor(request,pk):
         result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
         return Response(result)
 
+@api_view(['GET'])
+def cakarsebek_vendor(request, pk):
+    if request.method == 'GET':
+        result =[]
+        get_comp = Joincompany.objects.all().values_list('id_user', flat=True).filter(status = "2",id_company = pk)
+        for user in get_comp:
+            try:
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerHier = HierarchySerializer(hierarchy)
+                serializerJobcon = JobconSerializer(job_contract)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                # people = {'user':serializerUser.data}
+                result.append(people)        
+                # return Response(result)
+            except Employeesign.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
+                result.append(people)
+            except Jobcontract.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+            except Hierarchy.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerJobcon = JobconSerializer(job_contract)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+        return Response(result) 
+
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
     try:
