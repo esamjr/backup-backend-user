@@ -30,7 +30,19 @@ def get_delete_update_businessaccount(request, pk):
             if (user.id==Businessaccount.id_user):
                 if request.method == 'GET':
                     serializer = BusinessSerializer(Businessaccount)
-                    return Response(serializer.data)
+                    user = Register.objects.get(id = serializer.data['id_user'])
+                    userSerial = RegSerializer(user)
+                    try: 
+                        pba = Business.objects.get(id= serializer.data['parent_company'])
+                        pbaserial = BusinessSerializer(pba)
+                        pbanya = pbaserial.data
+                    except Business.DoesNotExist:
+                        pbanya = 'null'
+
+                    
+                    # pbaserial = BusinessSerializer(pba)
+                    result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
+                    return Response(result)
 
                 elif request.method == 'DELETE':                    
                         Businessaccount.delete()
@@ -66,9 +78,27 @@ def get_delete_update_businessaccount(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_businessaccount(request):
     if request.method == 'GET':
-        network = Business.objects.all()
-        serializer = BusinessSerializer(network, many=True)
-        return Response(serializer.data)
+        beacon = Business.objects.all().values_list('id', 'id_user', 'parent_company')
+        result = []
+        for comp, user, parent in beacon:
+            ba = Business.objects.get(id= comp)
+            baserial = BusinessSerializer(ba)
+
+            network = Register.objects.get(id = comp)
+            serializer = RegSerializer(network)
+
+            try:
+                pba = Business.objects.get(id = parent)
+                pbaserial = BusinessSerializer(pba)
+                pbanya = pbaserial.data
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                result.append(hasil)
+            except Business.DoesNotExist:
+                pbanya = 'null'
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                result.append(hasil)
+           
+        return Response(result)
 
     elif request.method == 'POST':
         serializer = BusinessSerializer(data=request.data)
