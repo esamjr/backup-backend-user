@@ -2,7 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-	url(r'^vendoronly/getchild(?P<pk>[0-9]+)$', views.child_company_vendor, name='child_company_vendor'),
+	url(r'^vendoronly/getchild/(?P<pk>[0-9]+)$', views.child_company_vendor, name='child_company_vendor'),
 	url(r'^vendoronly/(?P<pk>[0-9]+)$', views.buat_vendor, name='buat_vendor'),
 	url(r'^vendoronly/findcuremployee/(?P<pk>[0-9]+)$', views.cakarsebek_vendor, name='cakarsebek_vendor'),
     url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_update_businessaccount, name='get_delete_update_businessaccount'),
