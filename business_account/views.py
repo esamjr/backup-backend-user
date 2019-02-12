@@ -15,6 +15,22 @@ from hierarchy.serializers import HierarchySerializer
 from hierarchy.models import Hierarchy
 from django.db.models import Q
 
+@api_view(['GET'])
+def buat_vendor(request,pk):
+    if request.method == 'GET':
+        Businessaccount = Business.objects.get(pk=pk)
+        serializer = BusinessSerializer(Businessaccount)
+        user = Register.objects.get(id = serializer.data['id_user'])
+        userSerial = RegSerializer(user)
+        try: 
+            pba = Business.objects.get(id= serializer.data['parent_company'])
+            pbaserial = BusinessSerializer(pba)
+            pbanya = pbaserial.data
+        except Business.DoesNotExist:
+            pbanya = 'null'        
+        result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
+        return Response(result)
+
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
     try:
@@ -81,21 +97,40 @@ def get_post_businessaccount(request):
         beacon = Business.objects.all().values_list('id', 'id_user', 'parent_company')
         result = []
         for comp, user, parent in beacon:
-            ba = Business.objects.get(id= comp)
-            baserial = BusinessSerializer(ba)
-
-            network = Register.objects.get(id = comp)
-            serializer = RegSerializer(network)
-
+           
             try:
+                ba = Business.objects.get(id= comp)
+                baserial = BusinessSerializer(ba)
+
+                network = Register.objects.get(id = user)
+                serializer = RegSerializer(network)
+
                 pba = Business.objects.get(id = parent)
                 pbaserial = BusinessSerializer(pba)
+
                 pbanya = pbaserial.data
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
                 result.append(hasil)
             except Business.DoesNotExist:
+                ba = Business.objects.get(id= comp)
+                baserial = BusinessSerializer(ba)
+
+                network = Register.objects.get(id = user)
+                serializer = RegSerializer(network)
+
                 pbanya = 'null'
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                result.append(hasil)
+            except Register.DoesNotExist:
+                ba = Business.objects.get(id= comp)
+                baserial = BusinessSerializer(ba)
+
+                serializer = str(user) + 'FAKE ID_USER'
+
+                pba = Business.objects.get(id = parent)
+                pbaserial = BusinessSerializer(pba)
+                pbanya = pbaserial.data
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer}
                 result.append(hasil)
            
         return Response(result)
