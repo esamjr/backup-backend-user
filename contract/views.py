@@ -17,7 +17,7 @@ def get_delete_update_contract(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = Contractserializer(contract)
+        serializer = ContractSerializer(contract)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
