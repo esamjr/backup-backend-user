@@ -196,8 +196,11 @@ def get_post_businessaccount(request):
                 serializer = str(user) + 'FAKE ID_USER'
 
                 pba = Business.objects.get(id = parent)
-                pbaserial = BusinessSerializer(pba)
-                pbanya = pbaserial.data
+                if Business.DoesNotExist:
+                    pbanya = 'null'
+                else:
+                    pbaserial = BusinessSerializer(pba)
+                    pbanya = pbaserial.data
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer}
                 result.append(hasil)
            
