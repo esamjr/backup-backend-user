@@ -15,13 +15,13 @@ def get_delete_update_timecontract(request, pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+    Timecontract = Time_contract.objects.get(pk=pk)
     if request.method == 'GET':
         serializer = TimecontractSerializer(Timecontract)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if(request.user == Timecontract):
+        if(request.user == Timecontract.name):
             Timecontract.delete()
             content = {
                 'status' : 'NO CONTENT'
@@ -33,7 +33,7 @@ def get_delete_update_timecontract(request, pk):
             }
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
-        if(request.user == Timecontract):
+        if(request.user == Timecontract.name):
             serializer = TimecontractSerializer(Timecontract, data=request.data)
             if serializer.is_valid():
                 serializer.save()

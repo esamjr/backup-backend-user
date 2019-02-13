@@ -15,18 +15,19 @@ def get_delete_update_roletype(request, pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+
+    Roletype = Role_type.object.get(pk=pk)
     if request.method == 'GET':
         serializer = Roletypeserializer(Roletype)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if(request.user == Roletype):
+        if(request.user == Roletype.name):
             Roletype.delete()
             content = {
                 'status' : 'NO CONTENT'
             }
-            return Response(content, status=status.HTTP_202_NO_CONTENT)
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
         else:
             content = {
                 'status' : 'UNAUTHORIZED'
