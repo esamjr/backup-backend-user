@@ -20,12 +20,12 @@ def get_delete_update_jobcontract(request, pk):
         serializer = JobcontractSerializer(Jobcontract)
         return Response(serializer.data)
 
-    elif request.method == 'DELETE':
-        
-            Jobcontract.delete()
+    elif request.method == 'DELETE':       
+            
             content = {
                 'status' : 'NO CONTENT'
             }
+            Jobcontract.delete()
             return Response(content, status=status.HTTP_204_NO_CONTENT)
        
     elif request.method == 'PUT':
@@ -51,7 +51,7 @@ def get_post_jobcontract(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def get_all_jobcontract(request, pk1,pk2):
+def get_all_jobcontract(request, pk1):
     try:
         network = Job_contract.objects.all().filter(id_company = pk1)
         serializer = JobcontractSerializer(network, many=True)
