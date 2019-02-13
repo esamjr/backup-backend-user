@@ -168,31 +168,22 @@ def get_post_businessaccount(request):
             ba = Business.objects.get(id= comp)
             baserial = BusinessSerializer(ba)
             try:
-                
-
                 network = Register.objects.get(id = user)
                 serializer = RegSerializer(network)
 
                 pba = Business.objects.get(id = parent)
                 pbaserial = BusinessSerializer(pba)
-
                 pbanya = pbaserial.data
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
                 result.append(hasil)
             except Business.DoesNotExist:
-                ba = Business.objects.get(id= comp)
-                baserial = BusinessSerializer(ba)
-
                 network = Register.objects.get(id = user)
                 serializer = RegSerializer(network)
 
                 pbanya = 'null'
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
                 result.append(hasil)
-            except Register.DoesNotExist:
-                ba = Business.objects.get(id= comp)
-                baserial = BusinessSerializer(ba)
-
+            except Register.DoesNotExist:               
                 serializer = str(user) + 'FAKE ID_USER'
 
                 pba = Business.objects.get(id = parent)
