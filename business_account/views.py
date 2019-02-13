@@ -165,10 +165,10 @@ def get_post_businessaccount(request):
         beacon = Business.objects.all().values_list('id', 'id_user', 'parent_company')
         result = []
         for comp, user, parent in beacon:
-           
+            ba = Business.objects.get(id= comp)
+            baserial = BusinessSerializer(ba)
             try:
-                ba = Business.objects.get(id= comp)
-                baserial = BusinessSerializer(ba)
+                
 
                 network = Register.objects.get(id = user)
                 serializer = RegSerializer(network)
