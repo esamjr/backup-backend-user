@@ -41,7 +41,7 @@ def get_delete_update_award(request, pk):
                             content = {
                                 'status' : 'NO CONTENT'
                             }
-                            return Response(content, status=status.HTTP_201_CREATED)
+                            return Response(content, status=status.HTTP_204_NO_CONTENT)
                         else:
                             content={'status':'Cannot touch this, because your award already verified'}
                             return Response(content, status=status.HTTP_401_UNAUTHORIZED)                         

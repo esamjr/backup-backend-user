@@ -49,7 +49,7 @@ def get_delete_update_registrations(request, pk):
                         content = {
                             'status' : 'NO CONTENT'
                         }
-                        return Response(content, status=status.HTTP_202_NO_CONTENT)
+                        return Response(content, status=status.HTTP_204_NO_CONTENT)
                   
                 elif request.method == 'PUT':                
                     serializer = RegisterSerializer(registrations, data=request.data)
