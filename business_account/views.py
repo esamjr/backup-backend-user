@@ -1,13 +1,103 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+import json
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
+from job_contract.models import Jobcontract
+from employee_sign.models import Employeesign
+from employee_sign.serializers import EmployeesignSerializer
+from hierarchy.serializers import HierarchySerializer
+from hierarchy.models import Hierarchy
 from django.db.models import Q
+
+@api_view(['GET'])
+def child_company_vendor(request, pk):
+    if request.method == 'GET':
+        try:
+            beacon = Business.objects.all().filter(parent_company = pk)
+            serializers = BusinessSerializer(beacon, many = True)
+            return Response(serializers.data, status = status.HTTP_201_CREATED)
+        except Business.DoesNotExist:
+            response = {'status':'CHILD COMPANY DOES NOT EXIST'}
+            return Response(response, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def buat_vendor(request,pk):
+    if request.method == 'GET':
+        Businessaccount = Business.objects.get(pk=pk)
+        serializer = BusinessSerializer(Businessaccount)
+        user = Register.objects.get(id = serializer.data['id_user'])
+        userSerial = RegSerializer(user)
+        try: 
+            pba = Business.objects.get(id= serializer.data['parent_company'])
+            pbaserial = BusinessSerializer(pba)
+            pbanya = pbaserial.data
+        except Business.DoesNotExist:
+            pbanya = 'null'        
+        result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
+        return Response(result)
+
+@api_view(['GET'])
+def cakarsebek_vendor(request, pk):
+    if request.method == 'GET':
+        result =[]
+        get_comp = Joincompany.objects.all().values_list('id_user', flat=True).filter(status = "2",id_company = pk)
+        for user in get_comp:
+            try:
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerHier = HierarchySerializer(hierarchy)
+                serializerJobcon = JobconSerializer(job_contract)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                # people = {'user':serializerUser.data}
+                result.append(people)        
+                # return Response(result)
+            except Employeesign.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
+                result.append(people)
+            except Jobcontract.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+            except Hierarchy.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerJobcon = JobconSerializer(job_contract)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+        return Response(result) 
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
@@ -24,7 +114,19 @@ def get_delete_update_businessaccount(request, pk):
             if (user.id==Businessaccount.id_user):
                 if request.method == 'GET':
                     serializer = BusinessSerializer(Businessaccount)
-                    return Response(serializer.data)
+                    user = Register.objects.get(id = serializer.data['id_user'])
+                    userSerial = RegSerializer(user)
+                    try: 
+                        pba = Business.objects.get(id= serializer.data['parent_company'])
+                        pbaserial = BusinessSerializer(pba)
+                        pbanya = pbaserial.data
+                    except Business.DoesNotExist:
+                        pbanya = 'null'
+
+                    
+                    # pbaserial = BusinessSerializer(pba)
+                    result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
+                    return Response(result)
 
                 elif request.method == 'DELETE':                    
                         Businessaccount.delete()
@@ -60,9 +162,40 @@ def get_delete_update_businessaccount(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_businessaccount(request):
     if request.method == 'GET':
-        network = Business.objects.all()
-        serializer = BusinessSerializer(network, many=True)
-        return Response(serializer.data)
+        beacon = Business.objects.all().values_list('id', 'id_user', 'parent_company')
+        result = []
+        for comp, user, parent in beacon:
+            ba = Business.objects.get(id= comp)
+            baserial = BusinessSerializer(ba)
+            try:
+                network = Register.objects.get(id = user)
+                serializer = RegSerializer(network)
+
+                pba = Business.objects.get(id = parent)
+                pbaserial = BusinessSerializer(pba)
+                pbanya = pbaserial.data
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                result.append(hasil)
+            except Business.DoesNotExist:
+                network = Register.objects.get(id = user)
+                serializer = RegSerializer(network)
+
+                pbanya = 'null'
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                result.append(hasil)
+            except Register.DoesNotExist:               
+                serializer = str(user) + 'FAKE ID_USER'
+
+                pba = Business.objects.get(id = parent)
+                if Business.DoesNotExist:
+                    pbanya = 'null'
+                else:
+                    pbaserial = BusinessSerializer(pba)
+                    pbanya = pbaserial.data
+                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer}
+                result.append(hasil)
+           
+        return Response(result)
 
     elif request.method == 'POST':
         serializer = BusinessSerializer(data=request.data)
@@ -83,98 +216,199 @@ def get_all_businessaccount(request, pk):
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET','POST'])
-def custom_get_all_businessaccount(request, pk):
+@api_view(['POST'])
+def custom_get_one(request, pk):
+    if request.method == 'POST':        
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            user = Register.objects.get(token=token).id            
+            result = []
+            joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="1", id_company=pk)
+            for joi in joins:
+                joincomp = Joincompany.objects.get(status="1", id_company=pk, id_user=joi)
+                get_user = Register.objects.get(id = joi)
+                dicx = RegSerializer(get_user)
+                dic = {'user': dicx.data,'id_join_company':joincomp.id}                
+                result.append(dic)               
+            return Response(result)
+
+        except Register.DoesNotExist:
+            response = {'status':'LOGIN FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
+        except Joincompany.DoesNotExist:
+            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
+        except:
+            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def custom_get_two(request, pk):
+   if request.method == 'POST':        
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            user = Register.objects.get(token=token).id            
+            result = []
+            joins = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="2", id_company=pk)
+            for joi in joins:
+                joincomp = Joincompany.objects.get(status="2", id_company=pk, id_user=joi)
+                get_user = Register.objects.get(id = joi)
+                dic = {'id': get_user.id,'fullname' : get_user.full_name, 'Birthday': get_user.birth_day,'id_join_company':joincomp.id}                
+                result.append(dic)               
+            return Response(result)
+
+        except Register.DoesNotExist:
+            response = {'status':'LOGIN FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
+        except Joincompany.DoesNotExist:
+            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
+            return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
+        except:
+            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def cakarsebek(request, pk):
     if request.method == 'GET':
-        # comp_name = request.data['business_id']
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            id_users = Register.objects.get(token = token)            
-            get_id_comp = Business.objects.get(id = pk)
-
-            get_id_join = Joincompany.objects.all().filter(status="1",id_company = get_id_comp)
-            serializer1 = JoincompanySerializer(get_id_join, many = True)
-            if serializer1.is_valid():
-                serializer2 = BusinessSerializer(get_id_comp)
-                serializer3 = {'status':serializer1.data,
-                               'Company':serializer2.data}               
-                return Response(serializer3, status=status.HTTP_201_CREATED)
-            else:
-                response = {'status':'did not have any..'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)
-
-        except Joincompany.DoesNotExist:
-            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except Business.DoesNotExist:
-            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
-        except Register.DoesNotExist:
-            response = {'status':'LOGIN FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'POST':
-        # comp_name = request.data['business_id']
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            id_users = Register.objects.get(token = token)            
-            get_id_comp = Business.objects.get(id = pk)
-
-            get_id_join = Joincompany.objects.all().filter(status="2",id_company = get_id_comp)
-            serializer1 = JoincompanySerializer(get_id_join, many = True)
-            if serializer1.is_valid():
-                serializer2 = BusinessSerializer(get_id_comp)
-                serializer3 = {'status':serializer1.data,
-                               'Company':serializer2.data}
-                return Response(serializer3, status=status.HTTP_201_CREATED)
-            else:
-                response = {'status':'did not have any..'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)              
-                
-        except Joincompany.DoesNotExist:
-            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except Business.DoesNotExist:
-            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
-        except Register.DoesNotExist:
-            response = {'status':'LOGIN FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        result =[]
+        get_comp = Joincompany.objects.all().values_list('id_user', flat=True).filter(status = "2",id_company = pk)
+        for user in get_comp:
+            try:
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                hierarchy = Hierarchy.objects.get(id= empsign.id_hirarchy)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerHier = HierarchySerializer(hierarchy)
+                serializerJobcon = JobconSerializer(job_contract)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':serializerHier.data}
+                # people = {'user':serializerUser.data}
+                result.append(people)        
+                # return Response(result)
+            except Employeesign.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':[], 'hierarchy':[]}
+                result.append(people)
+            except Jobcontract.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : [], 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+            except Hierarchy.DoesNotExist:
+                pass
+                beacon =  Register.objects.get(id = user)
+                karyawan = beacon.id
+                perus = Joincompany.objects.get( status = "2", id_user = karyawan, id_company = pk)
+                empsign = Employeesign.objects.get(id_user = perus.id_user, id_company = perus.id_company)
+                job_contract = Jobcontract.objects.get(id = empsign.id_job_contract)
+                serializerJobcon = JobconSerializer(job_contract)
+                serializerEmps = EmployeesignSerializer(empsign)
+                serializerUser = RegSerializer(beacon)
+                serilaizerComp = JoincompanySerializer(perus)
+                people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
+                result.append(people)
+        return Response(result)          
 
 @api_view(['GET'])
 def search_company(request):
     if request.method == 'GET':        
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
-            tokens = Register.objects.get(token=token)
-            users_id = tokens.id
-            get_id_comp = Business.objects.get(id_user=users_id)
-            id_comp = get_id_comp.id
-            get_id_join = Joincompany.objects.all().filter(Q(status=("3")) | Q(status=("4")), id_company = id_comp)
-
+            get_users = Register.objects.get(token=token).id
+            result = []
+            get_ba = Business.objects.all().values_list('id', flat=True)
+            y = 0
             
-        
-            serializer1 = JoincompanySerializer(get_id_join, many = True)
-            serializer2 = BusinessSerializer(data =get_id_comp)
-            serializer3 = {'status':[serializer1.data],
-                           'Company':serializer2.data}
-            return Response(serializer3, status=status.HTTP_201_CREATED)
-        
-            # response = {'status':'did not have any..'}
-            # return Response(response, status=status.HTTP_404_NOT_FOUND)      
-            
-        except Joincompany.DoesNotExist:
-            response = {'status':'TRY TO APPLY JOB FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except Business.DoesNotExist:
-            response = {'status':'MAKE BUSINESS ACCOUNT FIRST, YOU MUST ...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)    
+            for ba in get_ba:
+                bas = get_join(get_users,ba)
+                bax = get_company(ba)
+                coba = {'id_company':ba,'company':bax, 'join':bas}
+                result.append(coba)
+                y=y+1 
+            return Response(result)
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        except Exception:
-            return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+        
+def get_join(a,b):
+    try:
+        join = Joincompany.objects.get(Q(status = "1")|Q(status="2"), id_user=a, id_company = b)
+        response = {
+            'id_company':b,
+            'status' : join.status
+        }
+
+        return response
+    except Joincompany.DoesNotExist:
+        response = {
+            'id_company':b,
+            'status' : 'null'
+        }
+        return response
+
+def get_company(b):
+    try:
+        join = Business.objects.get(id = b)
+
+        response = {
+            'company_name':join.company_name,
+            'logo_path' : join.logo_path
+        }
+
+        return response
+    except Business.DoesNotExist:
+        response = {
+            'company_name':'null',
+            'logo_path' : 'null'}
+        return response
+
+def get_users(b):
+    try:
+        joinx = Register.objects.get(id = b)
+
+        response = {
+            'full_name':joinx.full_name,            
+            'birth_day':joinx.birth_day
+        }
+
+        return response
+    except Register.DoesNotExist:
+        response = {
+            'full_name':'null',            
+            'birth_day':'null'}
+        return response
+
+@api_view(['GET'])
+def count_emp(request,pk):
+    beacon = Business.objects.get(id = pk)
+    id_perusahaan = beacon.id
+    nama_perusahaan = beacon.company_name
+    id_admin = beacon.id_user
+    nama_admin = Register.objects.get(id = id_admin).full_name
+    parent_perusahaan = beacon.parent_company
+    employees = Joincompany.objects.all().filter(status = "2", id_company = pk)
+    counter = 0
+    for man in employees :
+        counter = counter+1
+    total_karyawan = counter
+    tabel = {
+        'id_company':id_perusahaan,
+        'company_name':nama_perusahaan,
+        'super_admin':nama_admin,
+        'parent_company':parent_perusahaan,
+        'total_employees':counter
+    }
+    return Response(tabel)

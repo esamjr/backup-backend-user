@@ -20,6 +20,17 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    url(r'^log_goal/', include('log_created_goal.urls')), 
+    url(r'^goal_negotiation/', include('goal_negotiation.urls')), 
+    url(r'^goal_assign/', include('goal_assignment.urls')), 
+    url(r'^goal/', include('goal.urls')), 
+    url(r'^review_scheduler/', include('review_scheduler.urls')),
+    url(r'^type_goal/', include('type_goal.urls')), 
+    url(r'^ocr/', include('OCR_Reader.urls')), 
+    url(r'^uploadDOCuser/', include('user_img.urls')), 
+    url(r'^uploadDOCcomp/', include('business_img.urls')), 
+    url(r'^files/', include('file_upload.urls')), 
+    url(r'^notfication/', include('notification.urls')), 
     url(r'^mailLog/', include('email_app.urls')), 
     url(r'^activitylog/', include('log_app.urls')), 
     url(r'^registrations/', include('registrations.urls')),
@@ -30,6 +41,7 @@ urlpatterns = [
     url(r'^country/', include('country.urls')),
     url(r'^region/', include('region.urls')),
     url(r'^city/', include('city.urls')),
+    # url(r'^vendor/', include('vendor_api.urls')),
     # url(r'^message/', include('message.urls')),
     url(r'^experiences/', include('experiences.urls')),
     url(r'^education/', include('education.urls')),

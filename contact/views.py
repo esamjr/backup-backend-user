@@ -49,24 +49,12 @@ def get_delete_update_contract(request, pk):
 def get_post_contract(request):
     if request.method == 'GET':
         network = Contact.objects.all()
-        serializer = ContractSerializer(network, many=True)
+        serializer = ContactSerializer(network, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = ContractSerializer(data=request.data)
+        serializer = ContactSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'POST'])
-def get_all_contract(request,pk):
-    try:
-        network = Contact.objects.all().filter(id_company=pk)
-        serializer = ContractSerializer(network, many=True)
-        return Response(serializer.data)
-    except Contact.DoesNotExist:
-        content = {
-            'status': 'Not Found'
-        }
-        return Response(content, status=status.HTTP_404_NOT_FOUND)

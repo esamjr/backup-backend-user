@@ -17,7 +17,7 @@ def get_delete_update_contract(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = Contractserializer(contract)
+        serializer = contractSerializer(contract)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
@@ -34,7 +34,7 @@ def get_delete_update_contract(request, pk):
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
         if(request.user == contract):
-            serializer = ContractSerializer(contract, data=request.data)
+            serializer = contractSerializer(contract, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -49,11 +49,11 @@ def get_delete_update_contract(request, pk):
 def get_post_contract(request):
     if request.method == 'GET':
         network = Contract.objects.all()
-        serializer = ContractSerializer(network, many=True)
+        serializer = contractSerializer(network, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = ContractSerializer(data=request.data)
+        serializer = contractSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -63,7 +63,7 @@ def get_post_contract(request):
 def get_all_contract(request,pk):
     try:
         network = Contract.objects.all().filter(id_company=pk)
-        serializer = ContractSerializer(network, many=True)
+        serializer = contractSerializer(network, many=True)
         return Response(serializer.data)
     except Contract.DoesNotExist:
         content = {

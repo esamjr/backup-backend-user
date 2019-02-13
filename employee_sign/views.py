@@ -16,29 +16,21 @@ def get_delete_update_employeesign(request, pk):
             return Response(serializer.data)
 
         elif request.method == 'DELETE':
-            if(request.user == employee_sign):
+           
                 employee_sign.delete()
                 content = {
                     'status' : 'NO CONTENT'
                 }
                 return Response(content, status=status.HTTP_202_NO_CONTENT)
-            else:
-                content = {
-                    'status' : 'UNAUTHORIZED'
-                }
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+           
         elif request.method == 'PUT':
-            if(request.user == employee_sign):
+           
                 serializer = EmployeesignSerializer(employee_sign, data=request.data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                content = {
-                    'status': 'UNAUTHORIZED'
-                }
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            
     except Employeesign.DoesNotExist:
         content = {
             'status': 'Not Found'

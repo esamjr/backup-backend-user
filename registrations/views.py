@@ -3,12 +3,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
+from django.views.decorators.csrf import csrf_exempt
 from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, ConfirmSerializer, ForgetSerializer, SentForgetSerializer
+from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+
+@api_view(['GET'])
+def get_user(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION','')
+    get_token = Register.objects.get(token = token)
+    if request.method == 'GET':
+        registrations = Register.objects.get(pk=pk)
+        serializer = SearchSerializer(registrations)    
+        act = 'searching user id ' + str(pk)
+        read_log(request,get_token,act)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT'])
 def get_delete_update_registrations(request, pk):
@@ -120,10 +134,61 @@ def get_post_registrations(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST', 'GET'])
-def get_login(request):
+@csrf_exempt
+def forget_attempt(request,email):
     if request.method == 'POST':
+        token_forget = 'usethistokenforforgetyourpassword'
+        tokenx = str(token_forget)
+        token = make_password(tokenx)        
+        
         try:
+            check = Register.objects.get(email = email)
+            name = check.full_name
+
+            if (check.attempt >= 25): 
+                token_max_attempt = make_password('this is the maximum reach token, unfortunately we must banned this account temporarly')
+                payload = {'token':token_max_attempt, 'password' : token_max_attempt, 'attempt':0}
+                serializers = MaxAttemptReachSerializer(check, data = payload)
+                if serializers.is_valid():
+                    serializers.save()                   
+                # response = {'status':'you have reach your maximum attempt in one day, please try again in 24 hours'}
+                response = {'status':'2'}
+                return Response(response)
+            else:
+                counter = check.attempt + 1
+                payload = {'token':token, 'attempt':counter}                
+                serializers = PassingAttemptSerializer(check, data = payload)
+                if serializers.is_valid():
+                    serializers.save()                    
+                else:
+                    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            subjects = 'Forget Password by try to reach the password'
+            send_forget_email(request, email, token, name, subjects)
+            act = 'User reach maximum attempt by '
+            read_log(request, check, act)
+            response = {'status':'1'}
+            return Response(response)
+            # return Response({'status':'Your password is incorrect, please check your email to make new password'})
+        except Register.DoesNotExist:
+            response = {'status':'Email Does not valid'}
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+
+@csrf_exempt
+def attempt_login(request,email):
+    attempt = Register.objects.get(email=email)
+    counter = attempt.attempt + 1
+    payload = {'attempt':counter}
+    serializer = AttemptSerializer(attempt, data = payload)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(counter)
+    return Response(serializer.errors)
+
+@api_view(['POST', 'GET'])
+def get_login(request):    
+    try:
+        if request.method == 'POST':
             email = request.data['email']
             key = request.data['password']
             salt = Register.objects.get(email=email).full_name
@@ -132,55 +197,60 @@ def get_login(request):
             token = make_password(str(time.time()))
             token_forget = 'usethistokenforforgetyourpassword'
             tokenx = str(token_forget)         
-            get_login = Register.objects.get(email=email)
+            get_login = Register.objects.get(email=email) 
+            attempt = get_login.attempt          
             if (check_password(tokenx, get_login.token)):
                 response = {'status':'you request to change your password, please check your email'}
+                return Response(response, status=status.HTTP_401_UNAUTHORIZED)                            
+            elif (get_login.banned_type == "0"):
+                response = {'status':'Account has not verified yet, check your email to verified'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+            elif (check_password(password, get_login.password)):                
+                    get_in = {
+                        'email': get_login.email,
+                        'password': get_login.password,
+                        'id_type': 1,
+                        'banned_type':"1",
+                        'token':token, 
+                        'attempt':1
+                        }
+                    serializer = LoginSerializer(get_login, data=get_in)
+                    if serializer.is_valid():
+                        act = 'user logging in by '
+                        read_log(request, get_login, act)
+                        serializer.save()
+                        response = {
+                        'status' : 'SUCCESSFULLY LOGIN',
+                        'token' : get_login.token,
+                        'id_user': get_login.id,
+                        'email' : get_login.email
+                        }                                                
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                if (get_login.banned_type == "0"):
-                    response = {'status':'Account has not verified yet, check your email to verified'}
-                    return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-                else:                
-                    if (check_password(password, get_login.password)):                
-                        get_in = {
-                            'email': get_login.email,
-                            'password': get_login.password,
-                            'id_type': 1,
-                            'banned_type':"1",
-                            'token':token
-                            }
-                        serializer = LoginSerializer(get_login, data=get_in)
-                        if serializer.is_valid():
-                            act = 'user logging in by '
-                            read_log(request, get_login, act)
-                            serializer.save()
-                            response = {
-                            'status' : 'SUCCESSFULLY LOGIN',
-                            'token' : get_login.token,
-                            'id_user': get_login.id,
-                            'email' : get_login.email
-                            }                                                
-                            return Response(response, status=status.HTTP_201_CREATED)
-                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    else:
-                        response = {'status' : 'Wrong Username / Password'}
-                        return Response(response, status=status.HTTP_400_BAD_REQUEST)
-        except Register.DoesNotExist:
-                response = {'status' : 'NOT Found'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)
-
-    elif request.method == 'GET':
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION')
-            get_token = Register.objects.get(token = token)
-            try:
+                if (attempt == 0):
+                    attempt_login(request, email)
+                    response = {'status' : 'Wrong Username / Password'}
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                elif(attempt % 5 == 0):
+                    forget_attempt(request, email)                    
+                    return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    attempt_login(request, email)
+                    response = {'status' : 'Wrong Username / Password'}
+                    return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                        
+        elif request.method == 'GET':
+                token = request.META.get('HTTP_AUTHORIZATION')
+                get_token = Register.objects.get(token = token)            
                 Registration = get_token.id       
                 if (get_token.id == Registration):
                     get_out = {
                     'email': get_token.email,
                     'password': get_token.password,
                     'id_type': 0,
-                    'token':'xxx'
+                    'token':'xxx',
+                    'attempt':0
                     }
                     serializer = LoginSerializer(get_token, data = get_out)
                     if serializer.is_valid():
@@ -190,18 +260,14 @@ def get_login(request):
                         response = {'status':'SUCCESSFULLY LOGOUT'}                        
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    response = {'status':'NOT FOUND 1'}
-                    return Response(response, status=status.HTTP_404_NOT_FOUND)
-            except Register.DoesNotExist:
-                response = {'status':'NOT FOUND 2'}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)
-        except Register.DoesNotExist:
-            response = {'status':'NOT FOUND 3'}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
-    else:
-        response = {'status':'BAD REQUEST'}
-        return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                response = {'status':'NOT FOUND 1'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)  
+        else:
+            response = {'status':'BAD REQUEST'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+    except Register.DoesNotExist:
+        response = {'status':'NOT FOUND 3'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def verified_acc(request):
@@ -222,6 +288,7 @@ def verified_acc(request):
         except Register.DoesNotExist:
             response = {'status':'NOT FOUND'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def forget(request):
@@ -247,6 +314,7 @@ def forget(request):
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def forget_backlink(request):
