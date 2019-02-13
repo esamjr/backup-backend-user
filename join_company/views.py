@@ -23,11 +23,12 @@ def get_delete_update_joincompany(request, pk):
         serializer = JoincompanySerializer(join_company)
         return Response(serializer.data)
     elif request.method == 'DELETE':        
-            join_company.delete()
+            
             content = {
                 'status' : 'EXTERMINATE...EXTERMINATE...'
             }
-            return Response(content, status=status.HTTP_202_NO_CONTENT)        
+            join_company.delete()
+            return Response(content, status=status.HTTP_204_NO_CONTENT)        
     elif request.method == 'PUT':      
             serializer = JoincompanySerializer(join_company, data=request.data)
             if serializer.is_valid():
