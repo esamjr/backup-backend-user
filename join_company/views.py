@@ -65,3 +65,18 @@ def get_post_joincompany_user(request,pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def join_company_by_active(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        user = Register.objects.get(token = token).id
+        beacon = Joincompany.objects.get(id_company = pk, status = "2", id_user = user)
+        serializer = JoincompanySerializer(beacon)    
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+    except Register.DoesNotExist:
+        response = {'status':'USER DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+    except Joincompany.DoesNotExist:
+        response = {'status':'JOIN COMPANY DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)        
