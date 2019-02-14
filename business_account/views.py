@@ -394,3 +394,29 @@ def count_emp(request,pk):
         'total_employees':counter
     }
     return Response(tabel)
+
+@api_view(['GET'])
+def get_ba_by_users(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        user = Register.objects.get(token = token).id
+        beacon = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user)
+        result = []
+        for company in beacon: 
+            try:               
+                business = Business.objects.get(id = company)
+                employee = Employeesign.objects.get(id_company = company, id_user = user)
+                BSerializer = BusinessSerializer(business)
+                ESerializer = EmployeesignSerializer(employee)
+                hasil = {'Business':BSerializer.data, 'Employee_Sign': ESerializer.data}
+                result.append(hasil)
+            except Business.DoesNotExist:
+                pass
+            except Employeesign.DoesNotExist:
+                pass
+        return Response(result, status=status.HTTP_201_CREATED)
+    except Register.DoesNotExist:
+        response = {'status': 'USER DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+
