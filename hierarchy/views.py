@@ -60,8 +60,6 @@ def get_post_hierarchy(request):
 @api_view(['GET'])
 def get_hierarchy_by_user(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION')
-    
-    
     try:
         user = Register.objects.get(token = token).id
         beacon = Hierarchy_models.objects.get(id_user = user, id_company = pk)
