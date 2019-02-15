@@ -58,13 +58,13 @@ def get_post_hierarchy(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def get_hierarchy_by_user(request):
+def get_hierarchy_by_user(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION')
-    company = request.data['id_company']
+    
     
     try:
         user = Register.objects.get(token = token).id
-        beacon = Hierarchy_models.objects.get(id_user = user, id_company = company)
+        beacon = Hierarchy_models.objects.get(id_user = user, id_company = pk)
         serializer = HierarchySerializer(beacon)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Hierarchy_models.DoesNotExist:
