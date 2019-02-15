@@ -64,10 +64,10 @@ def get_hierarchy_by_user(request):
     
     try:
         user = Register.objects.get(token = token).id
-        beacon = Hierarchy.objects.get(id_user = user, id_company = company)
+        beacon = Hierarchy_models.objects.get(id_user = user, id_company = company)
         serializer = HierarchySerializer(beacon)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    except Hierarchy.DoesNotExist:
+    except Hierarchy_models.DoesNotExist:
         response = {'status':'HIERARCHY DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
     except Register.DoesNotExist:
