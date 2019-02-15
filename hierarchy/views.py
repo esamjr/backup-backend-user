@@ -61,13 +61,17 @@ def get_post_hierarchy(request):
 def get_hierarchy_by_user(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     company = request.data['id_company']
-    user = Register.objects.get(token = token).id
+    
     try:
+        user = Register.objects.get(token = token).id
         beacon = Hierarchy.objects.get(id_user = user, id_company = company)
         serializer = HierarchySerializer(beacon)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Hierarchy.DoesNotExist:
         response = {'status':'HIERARCHY DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+    except Register.DoesNotExist:
+        response = {'status':'USER DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
