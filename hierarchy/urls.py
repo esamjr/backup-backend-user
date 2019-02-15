@@ -2,7 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-
+	url(r'^api/gethierarchybyuser/$', views.get_hierarchy_by_user, name='get_hierarchy_by_user'),
 	url(r'^api/filter/(?P<pk1>[0-9]+)$', views.get_all_hierarchy, name='get_all_hierarchy'),
     url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_update_hierarchy, name='get_delete_update_hierarchy'),
     url(r'^api/$', views.get_post_hierarchy, name='get_post_hierarchy'),
