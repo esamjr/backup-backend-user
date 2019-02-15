@@ -41,3 +41,9 @@ def revies_sched(request):
 		except review_scheduler.DoesNotExist:
 			response = {'status':'DATA DOES NOT EXIST'}
 			return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_review_by_company(request,pk):
+	netw = review_scheduler.objects.all().filter(id_company = pk)
+	serializers = ReviewSerializer(netw, many=True)
+	return Response(serializers.data, status=status.HTTP_201_CREATED)
