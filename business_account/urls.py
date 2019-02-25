@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^api/search/$', views.search_company, name = 'search_company'),
     url(r'^api/custom/apply/(?P<pk>[0-9]+)$$', views.custom_get_one, name='custom_get_one'),
     url(r'^api/findcuremployee/(?P<pk>[0-9]+)$', views.cakarsebek, name='cakarsebek'),
+    url(r'^api/get_name/(?P<pk>[0-9]+)$', views.get_name, name='get_name'),
     url(r'^api/custom/active/(?P<pk>[0-9]+)$$', views.custom_get_two, name='custom_get_two')
 ]
