@@ -16,6 +16,15 @@ from hierarchy.models import Hierarchy
 from django.db.models import Q
 
 @api_view(['GET'])
+def get_name(request,pk):
+    if request.method == 'GET':
+        try:
+            network = Business.objects.get(id = pk) 
+            return Response(network.company_name, status = status.HTTP_201_CREATED)
+        except Business.DoesNotExist:
+            return Response(None, status = status.HTTP_404_NOT_FOUND)
+            
+@api_view(['GET'])
 def child_company_vendor(request, pk):
     if request.method == 'GET':
         try:
