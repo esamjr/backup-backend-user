@@ -13,7 +13,7 @@ from log_app.models import Logging
 import time
 
 @api_view(['GET','DELETE', 'PUT'])
-#@permission_classes ((IsAuthenticated, IsOwnerOrReadOnly,))
+
 def get_delete_update_award(request, pk):
    
     try:
@@ -73,7 +73,7 @@ def get_delete_update_award(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST'])
-#@permission_classes((IsAuthenticated, ))
+
 def get_post_award(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     registrations = Register.objects.get(token =token)
@@ -94,7 +94,7 @@ def get_post_award(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-#@permission_classes((IsAuthenticated, ))
+
 def get_post_award_user(request,pk):
     token = request.META.get('HTTP_AUTHORIZATION')
     registrations = Register.objects.get(token =token)
