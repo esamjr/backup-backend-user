@@ -93,6 +93,8 @@ INSTALLED_APPS = [
     'type_goal',
     'review_scheduler',
     'goal_negotiation',
+    'awards_BA',
+    'certifications_BA',
 ]
 
 SITE_ID = 1

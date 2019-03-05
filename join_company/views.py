@@ -80,3 +80,14 @@ def join_company_by_active(request, pk):
     except Joincompany.DoesNotExist:
         response = {'status':'JOIN COMPANY DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)        
+
+@api_view(['GET'])
+def server_integration(request):
+    if request.method == 'GET':
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            user = Register.objects.get(token = token)
+            comp = Joincompany.objects.get(id_user = user.id)
+            return Response(comp.id_company, status =status.HTTP_202_ACCEPTED)
+        except Register.DoesNotExist:
+            return Response({'status':'UNAUTHORIZED'}, status =status.HTTP_401_UNAUTHORIZED)
