@@ -20,13 +20,13 @@ def get_delete_update_award(request, pk):
        get_token = Register.objects.get(token = token).id
        admin = Business.objects.get(id_user = get_token)
        awards = AwardBA.objects.get(pk = pk)
-	   if request.method == 'GET':
-	        serializer = AwardBASerializer(awards)
-	        act = 'Read Award BA by '                           
-	        read_log(request, get_token, act)
-	        return Response(serializer.data)
+        if request.method == 'GET':
+            serializer = AwardBASerializer(awards)
+            act = 'Read Award BA by '                           
+            read_log(request, get_token, act)
+            return Response(serializer.data)
 
-	   elif request.method == 'DELETE':
+        elif request.method == 'DELETE':
             act = 'Delete award by id : '                           
             read_log(request, get_token, act)                                         
             awards.delete()
@@ -35,8 +35,8 @@ def get_delete_update_award(request, pk):
             }
             return Response(content, status=status.HTTP_204_NO_CONTENT)
 
-	   elif request.method == 'PUT':
-	   	    serializer = AwardBASerializer(awards, data=request.data)
+        elif request.method == 'PUT':
+            serializer = AwardBASerializer(awards, data=request.data)
             if serializer.is_valid():
                 act = 'Update certification by '
                 update_log(request, get_token, act)
@@ -45,11 +45,11 @@ def get_delete_update_award(request, pk):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except Register.DoesNotExist: 
-		return Response({'status':'User Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)           
- 	except AwardBA.DoesNotExist: 
-		return Response({'status':'Award Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)       
-	except Business.DoesNotExist: 
-		return Response({'status':'YOU ARE NOT THE ONE'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'status':'User Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)           
+    except AwardBA.DoesNotExist: 
+        return Response({'status':'Award Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)       
+    except Business.DoesNotExist: 
+        return Response({'status':'YOU ARE NOT THE ONE'}, status = status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(['GET', 'POST'])
