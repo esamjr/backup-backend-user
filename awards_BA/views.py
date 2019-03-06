@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import AwardBA
-from businness_account.models import Business
+from business_account.models import Business
 from registrations.models import Register
 from .serializers import AwardBASerializer
 
@@ -15,11 +15,11 @@ import time
 
 @api_view(['GET','DELETE', 'PUT'])
 def get_delete_update_award(request, pk):
-   try:
-       token = request.META.get('HTTP_AUTHORIZATION')
-       get_token = Register.objects.get(token = token).id
-       admin = Business.objects.get(id_user = get_token)
-       awards = AwardBA.objects.get(pk = pk)
+    try:
+        token = request.META.get('HTTP_AUTHORIZATION')
+        get_token = Register.objects.get(token = token).id
+        admin = Business.objects.get(id_user = get_token)
+        awards = AwardBA.objects.get(pk = pk)
         if request.method == 'GET':
             serializer = AwardBASerializer(awards)
             act = 'Read Award BA by '                           
