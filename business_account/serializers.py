@@ -27,3 +27,10 @@ class JobconSerializer(serializers.ModelSerializer):
     class Meta:
         model = Jobcontract
         fields = '__all__'
+
+
+class NameCompanySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Jobcontract
+        fields = '__all__'

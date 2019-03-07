@@ -30,7 +30,7 @@ def get_delete_update_friendlist(request, pk):
         content = {
             'status' : 'NO CONTENT'
         }
-        return Response(content, status=status.HTTP_201_CREATED)
+        return Response(content, status=status.HTTP_204_NO_CONTENT)
     elif request.method == 'PUT':
         Friend_list = friendlist.objects.get(id = pk)
         serializer = FriendlistSerializer(Friend_list, data = request.data)

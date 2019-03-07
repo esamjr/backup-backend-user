@@ -18,10 +18,8 @@ def get_delete_update_hierarchy(request, pk):
             'status': 'UNAUTHORIZED'
         }
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
     try:
-        Hierarchy = Hierarchy_models.objects.get(pk=pk)    
-    
+        Hierarchy = Hierarchy_models.objects.get(pk=pk)
         if request.method == 'GET':
             serializer = HierarchySerializer(Hierarchy)
             return Response(serializer.data)
@@ -31,7 +29,6 @@ def get_delete_update_hierarchy(request, pk):
                     'status' : 'NO CONTENT'
                 }
                 return Response(content, status=status.HTTP_202_NO_CONTENT)
-           
         elif request.method == 'PUT':            
                 serializer = HierarchySerializer(Hierarchy, data=request.data)
                 if serializer.is_valid():
@@ -59,6 +56,22 @@ def get_post_hierarchy(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_hierarchy_by_user(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        user = Register.objects.get(token = token).id
+        beacon = Hierarchy_models.objects.get(id_user = user, id_company = pk)
+        serializer = HierarchySerializer(beacon)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Hierarchy_models.DoesNotExist:
+        response = {'status':'HIERARCHY DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+    except Register.DoesNotExist:
+        response = {'status':'USER DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def get_all_hierarchy(request, pk1):

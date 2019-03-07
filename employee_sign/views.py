@@ -21,7 +21,7 @@ def get_delete_update_employeesign(request, pk):
                 content = {
                     'status' : 'NO CONTENT'
                 }
-                return Response(content, status=status.HTTP_202_NO_CONTENT)
+                return Response(content, status=status.HTTP_204_NO_CONTENT)
            
         elif request.method == 'PUT':
            
@@ -52,7 +52,7 @@ def get_post_employeesign(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
-def get_all_employeesign(request, pk1, pk2):
+def get_all_employeesign(request, pk1):
     if  request.method == 'GET':
         try:
             network = Employeesign.objects.all().filter(id_company=pk1 )

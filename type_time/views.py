@@ -15,7 +15,7 @@ def get_delete_update_typetime(request, pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+    Typetime = Time_type.objects.get(pk=pk)
     if request.method == 'GET':
         serializer = TypetimeSerializer(Typetime)
         return Response(serializer.data)

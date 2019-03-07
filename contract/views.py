@@ -26,7 +26,7 @@ def get_delete_update_contract(request, pk):
             content = {
                 'status' : 'NO CONTENT'
             }
-            return Response(content, status=status.HTTP_202_NO_CONTENT)
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
         else:
             content = {
                 'status' : 'UNAUTHORIZED'

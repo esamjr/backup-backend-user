@@ -39,8 +39,7 @@ def get_delete_update_certification(request, pk):
                             content = {
                                 'status' : 'NO CONTENT'
                             }
-                            return Response(content, status=status.HTTP_201_CREATED)
-                        # return  Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                            return Response(content, status=status.HTTP_204_NO_CONTENT)
                             
                         else:
                             content = {'status':'Cannot touch this, Your Ceritification is already verified' }

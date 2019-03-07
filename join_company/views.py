@@ -23,11 +23,12 @@ def get_delete_update_joincompany(request, pk):
         serializer = JoincompanySerializer(join_company)
         return Response(serializer.data)
     elif request.method == 'DELETE':        
-            join_company.delete()
+            
             content = {
                 'status' : 'EXTERMINATE...EXTERMINATE...'
             }
-            return Response(content, status=status.HTTP_202_NO_CONTENT)        
+            join_company.delete()
+            return Response(content, status=status.HTTP_204_NO_CONTENT)        
     elif request.method == 'PUT':      
             serializer = JoincompanySerializer(join_company, data=request.data)
             if serializer.is_valid():
@@ -64,3 +65,29 @@ def get_post_joincompany_user(request,pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def join_company_by_active(request, pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        user = Register.objects.get(token = token).id
+        beacon = Joincompany.objects.get(id_company = pk, status = "2", id_user = user)
+        serializer = JoincompanySerializer(beacon)    
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+    except Register.DoesNotExist:
+        response = {'status':'USER DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+    except Joincompany.DoesNotExist:
+        response = {'status':'JOIN COMPANY DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)        
+
+@api_view(['GET'])
+def server_integration(request):
+    if request.method == 'GET':
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            user = Register.objects.get(token = token)
+            comp = Joincompany.objects.get(id_user = user.id)
+            return Response(comp.id_company, status =status.HTTP_202_ACCEPTED)
+        except Register.DoesNotExist:
+            return Response({'status':'UNAUTHORIZED'}, status =status.HTTP_401_UNAUTHORIZED)

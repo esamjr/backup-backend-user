@@ -45,7 +45,8 @@ def tipe_goal(request):
 			response = {'status': 'NOT FOUND'}
 			return Response(response, status=status.HTTP_404_NOT_FOUND)
 
-
-
-
-
+@api_view(['GET'])
+def get_type_by_company(request,pk):
+	netw = type_goal.objects.all().filter(id_company = pk)
+	serializers = TypegoalSerializer(netw, many=True)
+	return Response(serializers.data, status=status.HTTP_201_CREATED)

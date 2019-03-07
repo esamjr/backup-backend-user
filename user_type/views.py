@@ -15,13 +15,13 @@ def get_delete_update_usertype(request, pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+    user_type = Usertype.object.get(pk=pk)
     if request.method == 'GET':
         serializer = Usertypeserializer(user_type)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        if(request.user == user_type.name):
+        if(request.user == user_type):
             user_type.delete()
             content = {
                 'status' : 'NO CONTENT'
@@ -33,7 +33,7 @@ def get_delete_update_usertype(request, pk):
             }
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == 'PUT':
-        if(request.user == user_type.name):
+        if(request.user == user_type):
             serializer = UsertypeSerializer(user_type, data=request.data)
             if serializer.is_valid():
                 serializer.save()

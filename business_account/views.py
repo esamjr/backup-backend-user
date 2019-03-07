@@ -23,7 +23,7 @@ def get_name(request,pk):
             return Response(network.company_name, status = status.HTTP_201_CREATED)
         except Business.DoesNotExist:
             return Response(None, status = status.HTTP_404_NOT_FOUND)
-            
+
 @api_view(['GET'])
 def child_company_vendor(request, pk):
     if request.method == 'GET':
@@ -131,9 +131,6 @@ def get_delete_update_businessaccount(request, pk):
                         pbanya = pbaserial.data
                     except Business.DoesNotExist:
                         pbanya = 'null'
-
-                    
-                    # pbaserial = BusinessSerializer(pba)
                     result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
                     return Response(result)
 
@@ -142,7 +139,7 @@ def get_delete_update_businessaccount(request, pk):
                         content = {
                             'status' : 'NO CONTENT'
                         }
-                        return Response(content, status=status.HTTP_202_NO_CONTENT)
+                        return Response(content, status=status.HTTP_204_NO_CONTENT)
                    
                 elif request.method == 'PUT':                    
                         serializer = BusinessSerializer(Businessaccount, data=request.data)
@@ -179,31 +176,16 @@ def get_post_businessaccount(request):
             try:
                 network = Register.objects.get(id = user)
                 serializer = RegSerializer(network)
-
                 pba = Business.objects.get(id = parent)
                 pbaserial = BusinessSerializer(pba)
-                pbanya = pbaserial.data
-                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
+                hasil = {'Business': baserial.data, 'PBA':pbaserial.data, 'SA':serializer.data}
                 result.append(hasil)
             except Business.DoesNotExist:
                 network = Register.objects.get(id = user)
                 serializer = RegSerializer(network)
-
                 pbanya = 'null'
                 hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer.data}
-                result.append(hasil)
-            except Register.DoesNotExist:               
-                serializer = str(user) + 'FAKE ID_USER'
-
-                pba = Business.objects.get(id = parent)
-                if Business.DoesNotExist:
-                    pbanya = 'null'
-                else:
-                    pbaserial = BusinessSerializer(pba)
-                    pbanya = pbaserial.data
-                hasil = {'Business': baserial.data, 'PBA':pbanya, 'SA':serializer}
-                result.append(hasil)
-           
+                result.append(hasil)           
         return Response(result)
 
     elif request.method == 'POST':
@@ -421,3 +403,29 @@ def count_emp(request,pk):
         'total_employees':counter
     }
     return Response(tabel)
+
+@api_view(['GET'])
+def get_ba_by_users(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    try:
+        user = Register.objects.get(token = token).id
+        beacon = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user)
+        result = []
+        for company in beacon: 
+            try:               
+                business = Business.objects.get(id = company)
+                employee = Employeesign.objects.get(id_company = company, id_user = user)
+                BSerializer = BusinessSerializer(business)
+                ESerializer = EmployeesignSerializer(employee)
+                hasil = {'Business':BSerializer.data, 'Employee_Sign': ESerializer.data}
+                result.append(hasil)
+            except Business.DoesNotExist:
+                pass
+            except Employeesign.DoesNotExist:
+                pass
+        return Response(result, status=status.HTTP_201_CREATED)
+    except Register.DoesNotExist:
+        response = {'status': 'USER DOES NOT EXIST'}
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+
