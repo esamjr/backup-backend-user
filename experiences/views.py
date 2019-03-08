@@ -16,6 +16,7 @@ import time
 
 def get_delete_update_experiences(request, pk):
     if request.method == 'DELETE':
+        Experiences = pengalaman.objects.get(id=pk)
         if (Experiences.verified == "0"):                    
             Experiences.delete()
             act = 'Delete experience by id : '                           
@@ -39,7 +40,7 @@ def get_delete_update_experiences(request, pk):
                 try:
                     token = request.META.get('HTTP_AUTHORIZATION','')
                     get_token = Register.objects.get(token = token)
-                    if ((get_token.id == Experiences.id_user) | (get_token.id == Business.objects.get(id = Experiences.id_company).id_user)):
+                    if ((get_token.id == Experiences.id_user) | (get_token.id == company)):
                         if request.method == 'GET':
                             serializer = ExperiencesSerializer(Experiences)
                             act = 'Read experience by '                           
