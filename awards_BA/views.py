@@ -18,8 +18,9 @@ def get_delete_update_award(request, pk):
     try:
         token = request.META.get('HTTP_AUTHORIZATION')
         get_token = Register.objects.get(token = token)
-        admin = Business.objects.get(id_user = get_token.id)
         awards = AwardBA.objects.get(pk = pk)
+        admin = Business.objects.get(id = awards.id_user , id_user = get_token.id)
+       
         if request.method == 'GET':
             serializer = AwardBASerializer(awards)
             act = 'Read Award BA by '                           
