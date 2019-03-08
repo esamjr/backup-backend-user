@@ -16,8 +16,8 @@ import time
 
 def get_delete_update_experiences(request, pk):
     if request.method == 'DELETE':
-        registrations = Register.objects.get(id=Experiences.id_user)
         Experiences = pengalaman.objects.get(id=pk)
+        registrations = Register.objects.get(id=Experiences.id_user)
         if (Experiences.verified == "0"):                    
             Experiences.delete()
             act = 'Delete experience by id : '                           
