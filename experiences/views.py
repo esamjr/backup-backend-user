@@ -17,7 +17,7 @@ import time
 def get_delete_update_experiences(request, pk):
     try:
         Experiences = pengalaman.objects.get(id=pk)
-        company = Business.objects.get(id = Experiences.id_company).id_user
+        # company = Business.objects.get(id = Experiences.id_company).id_user
         registrations = Register.objects.get(id=Experiences.id_user)
         if (registrations.token == 'xxx'):
             response = {'status':'LOGIN FIRST, YOU MUST...'}
@@ -26,7 +26,7 @@ def get_delete_update_experiences(request, pk):
             try:
                 token = request.META.get('HTTP_AUTHORIZATION','')
                 get_token = Register.objects.get(token = token)
-                if ((get_token.id == Experiences.id_user) | (get_token.id == company)):
+                if ((get_token.id == Experiences.id_user) | (get_token.id == Business.objects.get(id = Experiences.id_company).id_user)):
                     if request.method == 'GET':
                         serializer = ExperiencesSerializer(Experiences)
                         act = 'Read experience by '                           
