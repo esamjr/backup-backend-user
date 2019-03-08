@@ -17,8 +17,8 @@ import time
 def get_delete_update_award(request, pk):
     try:
         token = request.META.get('HTTP_AUTHORIZATION')
-        get_token = Register.objects.get(token = token).id
-        admin = Business.objects.get(id_user = get_token)
+        get_token = Register.objects.get(token = token)
+        admin = Business.objects.get(id_user = get_token.id)
         awards = AwardBA.objects.get(pk = pk)
         if request.method == 'GET':
             serializer = AwardBASerializer(awards)
