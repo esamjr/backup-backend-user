@@ -98,14 +98,14 @@ def get_post_registrations(request):
     elif request.method == 'POST':        
         email_var = request.data['email']
         password = request.data['password'] 
-        name = request.data['full_name']
-        salt_password = ''.join(str(ord(c))for c in name)
+        full_name = request.data['full_name']
+        salt_password = ''.join(str(ord(c))for c in full_name)
         id_type = 0
         banned_type = "0"
         token = make_password(str(time.time()))
         hs_pass = make_password(str(password)+str(salt_password))
         payload ={
-            'full_name' : name,
+            'full_name' : full_name,
             'email' : email_var,
             'salt_password' : salt_password,
             'password' : hs_pass,
