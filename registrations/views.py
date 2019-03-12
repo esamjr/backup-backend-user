@@ -128,7 +128,7 @@ def get_post_registrations(request):
             serializer.save()
             subjects = 'Activation account'
             try:
-                send_email(request, email_var, token,name, subjects)
+                send_email(request, email_var, token,full_name, subjects)
             except:
                 return Response({'error in here'})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
