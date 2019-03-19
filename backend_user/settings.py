@@ -95,6 +95,10 @@ INSTALLED_APPS = [
     'goal_negotiation',
     'awards_BA',
     'certifications_BA',
+    'recruitment',
+    'interview',
+    'jobfair_online',
+    'test_form',
 ]
 
 SITE_ID = 1

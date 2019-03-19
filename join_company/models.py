@@ -7,3 +7,4 @@ class Joincompany(models.Model):
   create_at = models.DateTimeField(auto_now_add=True)
   update_at = models.DateTimeField(auto_now=True)
   delete_at = models.DateTimeField(auto_now=True)
+  id_rec = models.IntegerField(null = True, blank = True)

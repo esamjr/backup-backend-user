@@ -91,6 +91,10 @@ INSTALLED_APPS = [
     'goal_negotiation',
     'awards_BA',
     'certifications_BA',
+    'recruitment',
+    'interview',
+    'jobfair_online',
+    'test_form',
 ]
 
 SITE_ID = 1
@@ -203,4 +207,3 @@ sentry_sdk.init(
     dsn="https://d49c829576a043298afe01484cbe1c18@sentry.io/1377949",
     integrations=[DjangoIntegration()]
 )
-#test

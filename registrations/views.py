@@ -191,7 +191,8 @@ def get_login(request):
         if request.method == 'POST':
             email = request.data['email']
             key = request.data['password']
-            salt = Register.objects.get(email=email).full_name
+            beacon = Register.objects.get(email=email)
+            salt = beacon.full_name
             salt_password = ''.join(str(ord(c)) for c in salt)
             password = key + salt_password
             token = make_password(str(time.time()))
@@ -205,7 +206,8 @@ def get_login(request):
             elif (get_login.banned_type == "0"):
                 response = {'status':'Account has not verified yet, check your email to verified'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-            elif (check_password(password, get_login.password)):                
+            elif (check_password(password, get_login.password)):   
+                    flag = beacon.banned_type                             
                     get_in = {
                         'email': get_login.email,
                         'password': get_login.password,
@@ -223,7 +225,8 @@ def get_login(request):
                         'status' : 'SUCCESSFULLY LOGIN',
                         'token' : get_login.token,
                         'id_user': get_login.id,
-                        'email' : get_login.email
+                        'email' : get_login.email,
+                        'flag ' : flag
                         }                                                
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -276,7 +279,7 @@ def verified_acc(request):
         try:            
             get_token = Register.objects.get(token=token)
             payload = {
-            'banned_type': "1"
+            'banned_type': "2"
             }
             serializer = ConfirmSerializer(get_token, data=payload)
             if serializer.is_valid():

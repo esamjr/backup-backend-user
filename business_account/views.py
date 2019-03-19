@@ -5,7 +5,7 @@ import json
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Business
-from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer , VerBusSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
 from job_contract.models import Jobcontract
@@ -123,6 +123,7 @@ def get_delete_update_businessaccount(request, pk):
             if (user.id==Businessaccount.id_user):
                 if request.method == 'GET':
                     serializer = BusinessSerializer(Businessaccount)
+                    flag = Businessaccount.banned_type
                     user = Register.objects.get(id = serializer.data['id_user'])
                     userSerial = RegSerializer(user)
                     try: 
@@ -131,8 +132,8 @@ def get_delete_update_businessaccount(request, pk):
                         pbanya = pbaserial.data
                     except Business.DoesNotExist:
                         pbanya = 'null'
-                    result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
-                    return Response(result)
+                    result = [{'Business': serializer.data}, {'PBA':pbanya}, {'SA':userSerial.data}, {'flag':flag}]
+                    return Response(result, status = status.HTTP_201_CREATED)
 
                 elif request.method == 'DELETE':                    
                         Businessaccount.delete()
@@ -428,4 +429,22 @@ def get_ba_by_users(request):
         response = {'status': 'USER DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
-
+@api_view(['POST'])
+def verfied_business(request):
+    if request.method == 'POST':
+        try:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            user = Register.objects.get(token = token)
+        except Register.DoesNotExist:
+            return Response({'status':'Please Login First'}, status =status.HTTP_401_UNAUTHORIZED)
+        try:
+            comp_id = request.data['comp_id']
+            beacon = Business.objects.get(id= comp_id)
+            payload = {'banned_type':'1'}
+            serializer = VerBusSerializer(beacon, data = payload)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status = status.HTTP_201_CREATED)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        except Business.DoesNotExist:
+            return Response({'status':'Company Does Not Exist'}, status =status.HTTP_400_BAD_REQUEST)
