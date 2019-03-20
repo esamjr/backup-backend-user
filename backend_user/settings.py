@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'interview',
     'jobfair_online',
     'test_form',
+    'chatapp',
 ]
 
 SITE_ID = 1
