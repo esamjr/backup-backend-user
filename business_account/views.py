@@ -130,6 +130,10 @@ def get_delete_update_businessaccount(request, pk):
                         pba = Business.objects.get(id= serializer.data['parent_company'])
                         pbaserial = BusinessSerializer(pba)
                         pbanya = pbaserial.data
+                        BT = {'banned_type':'2'}
+                        serializerBT = VerBusSerializer(pba, data = BT)
+                        if serializerBT.is_valid():
+                            serializerBT.save()
                     except Business.DoesNotExist:
                         pbanya = 'null'
                     result = [{'Business': serializer.data}, {'PBA':pbanya}, {'SA':userSerial.data}, {'flag':flag}]
