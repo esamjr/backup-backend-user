@@ -11,6 +11,7 @@ class Experiences(models.Model):
   present_date = models.IntegerField(default = 0)
   end_date = models.DateField(null = True, blank = True)
   verified = models.CharField(max_length=3)
+  recomendation = models.TextField(null = True, blank = True)
   url_photo = models.CharField(max_length=255,null=True,blank=True)
   satisfied = models.IntegerField(null=True,blank=True)
   create_at = models.DateTimeField(auto_now_add=True)

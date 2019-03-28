@@ -18,11 +18,12 @@ import time
 def get_post_jobs(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     user = Register.objects.get(token = token)
-    join = Joincompany.objects.get(id_user = user.id, status="2").id_company
+    
     if request.method == 'POST':
+        # join = Joincompany.objects.get(id_user = user.id, status="2").id_company
         payload = {
             'position' : request.data['position'],
-            'comp_id' : join,
+            'comp_id' : request.data['comp_id'],
             'descript' : request.data['descript'],
             'sallary' : request.data['sallary'],
             'location' : request.data['location'],
@@ -39,7 +40,7 @@ def get_post_jobs(request):
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     elif request.method =='GET':
         network = Jobs.objects.all()
-        serializer = JobSerializer(data = network, many = True)
+        serializer = JobSerializer(network, many = True)
         return Response(serializer.data , status = status.HTTP_201_CREATED)
 
 @api_view(['GET','DELETE', 'PUT'])
@@ -78,34 +79,39 @@ def apply(request,pk):
 
 @api_view(['GET'])
 def search_by_id_rec(request,pk):
-    obj = Recruitment.objects.get(id = pk)
-    serializer = RecSerializer( data = obj)
-    if serializer.is_valid():
+    try:
+        obj = Recruitment.objects.get(id = pk)
+        serializer = RecSerializer(obj)        
         return Response(serializer.data ,status = status.HTTP_201_CREATED)
-    return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+    except Recruitment.DoesNotExist:
+        return Response({'status':'No User With that ID'}, status = status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
-def search(request,pk):
-    if pk == 1: #by status recruitment = 1 (reviewing)
-        obj = Recruitment.objects.all().filter(status = 1)
-        serializer = RecSerializer( data = obj, many = True)
-        if serializer.is_valid():
-            return Response(serializer.data ,status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    elif pk == 2: #by status recruitment = 2 (interviewed)
+def search(request,pk):   
+    if pk == '1': #by status recruitment = 1 (reviewing)
+        try:
+            obj = Recruitment.objects.all().filter(status = 1)
+            serializer = RecSerializer(obj, many = True)            
+            return Response(serializer.data ,status = status.HTTP_201_CREATED)            
+        except Recruitment.DoesNotExist:
+            return Response({'status':'Does Not Exist'}, status = status.HTTP_204_NO_CONTENT)
+        # except Exception:
+        #     return Response({'status':'Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+
+    elif pk == '2': #by status recruitment = 2 (interviewed)
         obj = Recruitment.objects.all().filter(status = 2)
         serializer = RecSerializer( data = obj, many = True)
         if serializer.is_valid():
             return Response(serializer.data ,status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    elif pk == 3: #by id users
+    elif pk == '3': #by id users
         obj = Recruitment.objects.all().filter(id_applicant = pk)
         serializer = RecSerializer( data = obj, many = True)
         if serializer.is_valid():
             return Response(serializer.data ,status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    elif pk == 4: #by own id
+    elif pk == '4': #by own id
         token = request.META.get('HTTP_AUTHORIZATION')
         user = Register.objects.get(token = token).id
         obj = Recruitment.objects.all().filter(id_applicant = user)
@@ -113,7 +119,7 @@ def search(request,pk):
         if serializer.is_valid():
             return Response(serializer.data ,status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    elif pk == 5: #transfer data from recruitment to join company 
+    elif pk == '5': #transfer data from recruitment to join company 
         obj = Recruitment.objects.all().values_list('id','id_jobs', 'id_user').filter(status = 2)
         for id_rec, jobs, user in obj:
             comp = Jobs.objects.get(id = jobs).comp_id

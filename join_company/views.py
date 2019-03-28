@@ -87,7 +87,7 @@ def server_integration(request):
         try:
             token = request.META.get('HTTP_AUTHORIZATION')
             user = Register.objects.get(token = token)
-            comp = Joincompany.objects.get(id_user = user.id)
+            comp = Joincompany.objects.get(id_user = user.id, status = "2") # tidak bisa mengambil jika user bergabung dengan berbagai perusahaan
             return Response(comp.id_company, status =status.HTTP_202_ACCEPTED)
         except Register.DoesNotExist:
             return Response({'status':'UNAUTHORIZED'}, status =status.HTTP_401_UNAUTHORIZED)
