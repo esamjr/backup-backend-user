@@ -44,8 +44,8 @@ def get_post_jobs(request):
         for net in network:
             beac = Jobs.objects.get(id = net)
             serializer = JobSerializer(beac)
-            beaco = Business.objects.get(id = serializer.data['comp_id']).company_name
-            sets = {'comp_name': beaco, 'data':serializer.data}
+            beaco = Business.objects.get(id = serializer.data['comp_id'])
+            sets = {'comp_name': beaco.company_name, 'logo':beaco.logo_path ,'data':serializer.data}
             datas.append(sets)
 
         return Response(datas , status = status.HTTP_201_CREATED)
