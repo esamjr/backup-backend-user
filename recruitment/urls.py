@@ -2,6 +2,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+
+	url(r'^api/jobs/find_applicant/(?P<pk>[0-9]+)$', views.find_applicant, name='find_applicant'),
 	url(r'^api/jobs/$', views.get_post_jobs, name='get_post_jobs'),
 	url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_put_jobs, name='get_delete_put_jobs'),
 	url(r'^api/apply/(?P<pk>[0-9]+)$', views.apply, name='apply'),

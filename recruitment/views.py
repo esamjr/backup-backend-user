@@ -92,7 +92,14 @@ def search_by_id_rec(request,pk):
         return Response(serializer.data ,status = status.HTTP_201_CREATED)
     except Recruitment.DoesNotExist:
         return Response({'status':'No User With that ID'}, status = status.HTTP_400_BAD_REQUEST)
-
+@api_view(['GET'])
+def find_applicant(request, pk):
+    try:
+        beacon = Recruitment.objects.all().filter(id_jobs = pk, status = 0)
+        serializer = RecSerializer(beacon, many = True)
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+    except Recruitment.DoesNotExist:
+        return Response({'status':'Does Not Exist'}, status = status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
 def search(request,pk):   
