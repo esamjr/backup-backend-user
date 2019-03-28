@@ -8,7 +8,7 @@ from .serializers import JobSerializer, RecSerializer
 from registrations.models import Register
 from join_company.models import Joincompany
 from join_company.serializers import JoincompanySerializer
-
+from business_account.models import Business
 from log_app.views import create_log, read_log, update_log, delete_log
 from log_app.serializers import LoggingSerializer
 from log_app.models import Logging
@@ -39,9 +39,16 @@ def get_post_jobs(request):
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     elif request.method =='GET':
-        network = Jobs.objects.all()
-        serializer = JobSerializer(network, many = True)
-        return Response(serializer.data , status = status.HTTP_201_CREATED)
+        network = Jobs.objects.all().values_list('id', flat = True)
+        datas = []
+        for net in network:
+            beac = Jobs.objects.get(id = net)
+            serializer = JobSerializer(beac)
+            beaco = Business.objects.get(id = serializer.data['comp_id']).company_name
+            sets = {'comp_name': beaco, 'data':serializer.data}
+            datas.append(sets)
+
+        return Response(datas , status = status.HTTP_201_CREATED)
 
 @api_view(['GET','DELETE', 'PUT'])
 def get_delete_put_jobs(request, pk):
