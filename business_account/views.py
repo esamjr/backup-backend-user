@@ -440,7 +440,7 @@ def verfied_business(request):
         #     token = request.META.get('HTTP_AUTHORIZATION')
         #     user = Register.objects.get(token = token)
         # except Register.DoesNotExist:
-            return Response({'status':'Please Login First'}, status =status.HTTP_401_UNAUTHORIZED)
+            # return Response({'status':'Please Login First'}, status =status.HTTP_401_UNAUTHORIZED)
         try:
             comp_id = request.data['comp_id']
             beacon = Business.objects.get(id= comp_id)
