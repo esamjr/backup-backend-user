@@ -6,6 +6,7 @@ from rest_framework.parsers import JSONParser
 from .models import Jobs, Recruitment
 from .serializers import JobSerializer, RecSerializer
 from registrations.models import Register
+from registrations.serializers import RegisterSerializer
 from join_company.models import Joincompany
 from join_company.serializers import JoincompanySerializer
 from business_account.models import Business
@@ -91,13 +92,19 @@ def search_by_id_rec(request,pk):
         serializer = RecSerializer(obj)        
         return Response(serializer.data ,status = status.HTTP_201_CREATED)
     except Recruitment.DoesNotExist:
-        return Response({'status':'No User With that ID'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'status':'No Jobs With that ID'}, status = status.HTTP_400_BAD_REQUEST)
 @api_view(['GET'])
 def find_applicant(request, pk):
     try:
         beacon = Recruitment.objects.all().filter(id_jobs = pk, status = 0)
-        serializer = RecSerializer(beacon, many = True)
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
+        datas = []
+        for var in beacon:
+            serializer = RecSerializer(beacon)
+            nets = Register.objects.get(id = serializer.data['id_applicant'])
+            serialReg = RegisterSerializer(nets)
+            netwo = {'data_applicant':serialReg.data, 'data_jobs':serializer.data}
+            datas.append(netwo)
+        return Response(datas, status = status.HTTP_201_CREATED)
     except Recruitment.DoesNotExist:
         return Response({'status':'Does Not Exist'}, status = status.HTTP_204_NO_CONTENT)
 
@@ -129,11 +136,9 @@ def search(request,pk):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = Register.objects.get(token = token).id
         obj = Recruitment.objects.all().filter(id_applicant = user)
-        serializer = RecSerializer(obj, many = True)
-        # if serializer.is_valid():
+        serializer = RecSerializer(obj, many = True)        
         return Response(serializer.data ,status = status.HTTP_201_CREATED)
-        # return Response(obj ,status = status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        
     elif pk == '5': #transfer data from recruitment to join company 
         obj = Recruitment.objects.all().values_list('id','id_jobs', 'id_user').filter(status = 2)
         for id_rec, jobs, user in obj:
