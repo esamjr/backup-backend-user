@@ -22,7 +22,7 @@ def get_delete_update_historyhierarchy(request, pk):
         serializer = HistoryhierarchySerializer(history_hierarchy)
         users = Register.objects.get(id = serializer.data['id_user'])
 
-        return Response({'nama':users.name,'data':serializer.data})
+        return Response({'nama':users.full_name,'data':serializer.data})
 
     elif request.method == 'DELETE':
         
@@ -48,7 +48,7 @@ def get_post_historyhierarchy(request):
         for nets in network:
             serializer = HistoryhierarchySerializer(nets)
             users = Register.objects.get(id = serializer.data['id_user'])
-            sets = {'nama':users.name,'data':serializer.data}
+            sets = {'nama':users.full_name,'data':serializer.data}
             datas.append(sets)
         return Response(datas)
 
@@ -67,7 +67,7 @@ def get_all_historyhierarchy(request, pk):
         for nets in network:
             serializer = HistoryhierarchySerializer(nets)
             users = Register.objects.get(id = serializer.data['id_user'])
-            sets = {'nama':users.name,'data':serializer.data}
+            sets = {'nama':users.full_name,'data':serializer.data}
             datas.append(sets)
         return Response(datas)
     except Historyhierarchy.DoesNotExist:
