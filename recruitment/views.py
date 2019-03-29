@@ -99,7 +99,7 @@ def find_applicant(request, pk):
         beacon = Recruitment.objects.all().filter(id_jobs = pk, status = 0)
         datas = []
         for var in beacon:
-            serializer = RecSerializer(beacon)
+            serializer = RecSerializer(var)
             nets = Register.objects.get(id = serializer.data['id_applicant'])
             serialReg = RegisterSerializer(nets)
             netwo = {'data_applicant':serialReg.data, 'data_jobs':serializer.data}
