@@ -47,6 +47,7 @@ def get_post_historyhierarchy(request):
         datas = []
         for nets in network:
             serializer = HistoryhierarchySerializer(nets)
+            users = Register.objects.get(id = serializer.data['id_user'])
             sets = {'nama':users.name,'data':serializer.data}
             datas.append(sets)
         return Response(datas)
@@ -62,8 +63,13 @@ def get_post_historyhierarchy(request):
 def get_all_historyhierarchy(request, pk):
     try:
         network = Historyhierarchy.objects.all().filter(id_company=pk)
-        serializer = HistoryhierarchySerializer(network, many=True)
-        return Response(serializer.data)
+        datas = []
+        for nets in network:
+            serializer = HistoryhierarchySerializer(nets)
+            users = Register.objects.get(id = serializer.data['id_user'])
+            sets = {'nama':users.name,'data':serializer.data}
+            datas.append(sets)
+        return Response(datas)
     except Historyhierarchy.DoesNotExist:
         content = {
             'status': 'Not Found'
