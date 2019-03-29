@@ -436,10 +436,10 @@ def get_ba_by_users(request):
 @api_view(['POST'])
 def verfied_business(request):
     if request.method == 'POST':
-        try:
-            token = request.META.get('HTTP_AUTHORIZATION')
-            user = Register.objects.get(token = token)
-        except Register.DoesNotExist:
+        # try:
+        #     token = request.META.get('HTTP_AUTHORIZATION')
+        #     user = Register.objects.get(token = token)
+        # except Register.DoesNotExist:
             return Response({'status':'Please Login First'}, status =status.HTTP_401_UNAUTHORIZED)
         try:
             comp_id = request.data['comp_id']
