@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Historyhierarchy
 from .serializers import HistoryhierarchySerializer
+from registrations.models import Register
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_historyhierarchy(request, pk):
@@ -17,8 +18,11 @@ def get_delete_update_historyhierarchy(request, pk):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
+        
         serializer = HistoryhierarchySerializer(history_hierarchy)
-        return Response(serializer.data)
+        users = Register.objects.get(id = serializer.data['id_user'])
+
+        return Response({'nama':users.name,'data':serializer.data})
 
     elif request.method == 'DELETE':
         
@@ -39,9 +43,13 @@ def get_delete_update_historyhierarchy(request, pk):
 @api_view(['GET', 'POST'])
 def get_post_historyhierarchy(request):
     if request.method == 'GET':
-        network = Historyhierarchy.objects.all()
-        serializer = HistoryhierarchySerializer(network, many=True)
-        return Response(serializer.data)
+        network = Historyhierarchy.objects.all()        
+        datas = []
+        for nets in network:
+            serializer = HistoryhierarchySerializer(nets)
+            sets = {'nama':users.name,'data':serializer.data}
+            datas.append(sets)
+        return Response(datas)
 
     elif request.method == 'POST':
         serializer = HistoryhierarchySerializer(data=request.data)
