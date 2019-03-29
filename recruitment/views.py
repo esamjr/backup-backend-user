@@ -129,10 +129,10 @@ def search(request,pk):
         token = request.META.get('HTTP_AUTHORIZATION')
         user = Register.objects.get(token = token).id
         obj = Recruitment.objects.all().filter(id_applicant = user)
-        # serializer = RecSerializer( data = obj, many = True)
+        serializer = RecSerializer(obj, many = True)
         # if serializer.is_valid():
-        #     return Response(serializer.data ,status = status.HTTP_201_CREATED)
-        return Response(obj ,status = status.HTTP_201_CREATED)
+        return Response(serializer.data ,status = status.HTTP_201_CREATED)
+        # return Response(obj ,status = status.HTTP_201_CREATED)
         # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     elif pk == '5': #transfer data from recruitment to join company 
         obj = Recruitment.objects.all().values_list('id','id_jobs', 'id_user').filter(status = 2)
