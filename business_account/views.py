@@ -433,6 +433,11 @@ def get_ba_by_users(request):
         response = {'status': 'USER DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['GET'])
+def get_all_name_id_comp(request):
+    beacon = Business.objects.all().values_list('id', 'company_name')
+    return Response(beacon, status = status.HTTP_201_CREATED)
+
 @api_view(['POST'])
 def verfied_business(request):
     if request.method == 'POST':

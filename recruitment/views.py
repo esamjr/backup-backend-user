@@ -122,22 +122,29 @@ def search(request,pk):
 
     elif pk == '2': #by status recruitment = 2 (interviewed)
         obj = Recruitment.objects.all().filter(status = 2)
-        serializer = RecSerializer( data = obj, many = True)
-        if serializer.is_valid():
+        serializer = RecSerializer(obj, many = True)
+        try:
             return Response(serializer.data ,status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'status':'ERROR'}, status = status.HTTP_400_BAD_REQUEST)
     elif pk == '3': #by id users
         obj = Recruitment.objects.all().filter(id_applicant = pk)
-        serializer = RecSerializer( data = obj, many = True)
-        if serializer.is_valid():
-            return Response(serializer.data ,status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        serializer = RecSerializer(obj, many = True)
+        user = Register.objects.get(id = pk)
+        regser = RegisterSerializer(user)
+        try:
+            return Response({'Bio':regser.data,'Data':serializer.data} ,status = status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'status':'ERROR'}, status = status.HTTP_400_BAD_REQUEST)
     elif pk == '4': #by own id
         token = request.META.get('HTTP_AUTHORIZATION')
         user = Register.objects.get(token = token).id
         obj = Recruitment.objects.all().filter(id_applicant = user)
         serializer = RecSerializer(obj, many = True)        
-        return Response(serializer.data ,status = status.HTTP_201_CREATED)
+        try:
+            return Response(serializer.data ,status = status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'status':'ERROR'}, status = status.HTTP_400_BAD_REQUEST)
         
     elif pk == '5': #transfer data from recruitment to join company 
         obj = Recruitment.objects.all().values_list('id','id_jobs', 'id_user').filter(status = 2)

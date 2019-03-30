@@ -2,6 +2,7 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
+    url(r'^api/get-all-comp/$', views.get_all_name_id_comp, name='get_all_name_id_comp'), 
     url(r'^api/verified_company/$', views.verfied_business, name='verfied_business'), 
     url(r'^api/empbabyusers/$', views.get_ba_by_users, name='get_ba_by_users'),    
 	url(r'^vendoronly/getchild/(?P<pk>[0-9]+)$', views.child_company_vendor, name='child_company_vendor'),
