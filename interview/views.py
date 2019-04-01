@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Interview
 from .serializers import InterSerializer
 from registrations.models import Register
+from email_app.views import intervied_email
 
 @api_view(['GET', 'DELETE',  'PUT'])
 def get_put_delete_interview(request, pk):
@@ -35,5 +36,6 @@ def get_post_interview(request):
         serializer = InterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            intervied_email(request, serializer.data['email_user'], serializer.data['date'], serializer.data['time'], serializer.data['place'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
