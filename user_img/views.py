@@ -12,8 +12,31 @@ from PIL import Image
 from pytesseract import image_to_string
 from urllib.request import urlopen
 
+@api_view(['GET'])
+def get_all_doc(request):
+	token = request.META.get('HTTP_AUTHORIZATION')	
+	user = Register.objects.get(id = '0')
+	if token == user.token:
+		datas = User_img.objects.all()
+		serializer = UserImgSerializer(datas, many = True)
+		return Response(serializer.data, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_doc(request):
+	token = request.META.get('HTTP_AUTHORIZATION')
+	try:
+		user = Register.objects.get(token = token)
+		datas = User_img.objects.get(id_user = user.id)
+		serializer = UserImgSerializer(datas)
+		return Response(serializer.data, status = status.HTTP_200_OK)
+	except Register.DoesNotExist:
+		return Response({'status':'YOU DID NOT HAVE ACCESS'}, status = status.HTTP_401_UNAUTHORIZED)
+	except User_img.DoesNotExist:
+		return Response({'status':'YOUR DATA IS NOT AVAILABLE'}, status = status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['POST'])
-def upload_doc(request):
+def upload_doc(request):	
 	try:
 		get_token = request.META.get('HTTP_AUTHORIZATION')
 		token = Register.objects.get(token = get_token).id
