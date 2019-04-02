@@ -15,24 +15,42 @@ def setting_license_company(request,pk):
             token = request.META.get('HTTP_AUTHORIZATION')
             user = Register.objects.get(token = token)
             company = Business.objects.get(id = pk ,id_user = user.id)
-            hierarchy_comp = Hierarchy.objects.all().values_list('division', flat=True).filter(id_company = company.id)
+            
+            hierarchy_comp = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company = company.id)
             result = []
-            for inst in hierarchy_comp:
+            for inst in hierarchy_comp:                
                 payload = {
                             'id_hierarchy': inst,
                             'attendance':'0',
                             'payroll':'0',
-                            'status':'0'
+                            'status':'0',
+                            'id_comp':company.id
                         }
                 serializer = LicenseCompSerializer(data = payload)
                 if serializer.is_valid():
                     serializer.save()
                     result.append(serializer.data)
             return Response(result, status = status.HTTP_201_CREATED)
+            # -----------------START TESTING CODE---------------
+            # hierarchy_comp = Hierarchy.objects.get(id_company = company.id, division = 'CTO').id
+            # payload = {
+            #             'id_hierarchy': hierarchy_comp,
+            #             'attendance':'0',
+            #             'payroll':'0',
+            #             'status':'0',
+            #             'id_comp':company.id
+            #         }          
+            # serializer = LicenseCompSerializer(data = payload)
+            # if serializer.is_valid():
+            #     serializer.save()
+            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
+            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            #-----------------END TESTING CODE------------------
+            
         except Register.DoesNotExist:
-            return Response({'status':'User Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'status':'User Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
         except Business.DoesNotExist:
-            return Response({'status':'Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'status':'Company Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
         except Hierarchy.DoesNotExist:
             return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
     
@@ -46,8 +64,10 @@ def setting_license_company(request,pk):
 
     elif request.method == 'GET':
         try:
-            beacon = LicenseComp.objects.get(id = pk)
-            serializer = LicenseCompSerializer(beacon)
+            # beacon = LicenseComp.objects.get(id = pk)
+            # serializer = LicenseCompSerializer(beacon)
+            beacon = LicenseComp.objects.all()
+            serializer = LicenseCompSerializer(beacon, many = True)
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         except LicenseComp.DoesNotExist:
             return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)

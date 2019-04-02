@@ -12,8 +12,9 @@ class LicenseComp (models.Model):
       ('1', 'Active'),
       ('2', 'Deactive'),
     )
-  id_hierarchy = models.IntegerField()
+  id_hierarchy = models.IntegerField(unique = True)
   attendance = models.CharField(default ='0', max_length = 10, choices = Auth)
   payroll = models.CharField(default = '0', max_length = 10, choices = Auth)
   status = models.CharField(default = '0', max_length = 10, choices = stat)
-  exp_date = models.DateField(default = None)
+  expr_date = models.DateField(null = True, blank = True)
+  id_comp = models.IntegerField()
