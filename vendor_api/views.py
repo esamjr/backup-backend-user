@@ -42,7 +42,7 @@ def generate(request):
 		try:
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			if user.id == '0':
+			if user.id == 0:
 				network = Vendor_api.objects.all()
 				serializer = VendorSerializer(network, many=True)
 				return Response(serializer.data, status=status.HTTP_201_CREATED)
