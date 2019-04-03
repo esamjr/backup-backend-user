@@ -7,6 +7,10 @@ from rest_framework_jwt.settings import api_settings
 from .serializers import VendorSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from registrations.models import Register
+from join_company.models import Joincompany
+from business_account.models import Business
+from hierarchy.models import Hierarchy
+from license_company.models import LicenseComp
 
 @api_view(['GET', 'POST'])
 def generate(request):
@@ -89,3 +93,69 @@ def login_logout_vendors(request):
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def api_login_absensee(request):	
+	try:
+		token_vendor = request.META.get('HTTP_AUTHORIZATION')
+		if token_vendor == 'xxx':
+			return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
+		vendor = Vendor_api.objects.get(token = token_vendor)
+
+		email = request.data['email']
+		password = request.data['password']
+		user = Register.objects.get(email = email)
+		companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+		comp = []
+		for company in companies:
+			beacon = Business.objects.get(id = company)
+			payload = {
+			'token_user': user.token,
+			'image': beacon.logo_path,
+			'comp_id': beacon.id,
+			'comp_name': beacon.company_name
+			}
+			comp.append(payload)
+		return Response(comp, status = status.HTTP_201_CREATED)
+
+	except Vendor_api.DoesNotExist:
+		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Joincompany.DoesNotExist:
+		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
+	except Business.DoesNotExist:
+		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+
+@api_view(['GET'])
+def api_find_company_absensee(request):
+	try:
+		token_vendor = request.META.get('HTTP_AUTHORIZATION')
+		vendor = Vendor_api.objects.get(token = token_vendor)
+		token = request.data['token_user']
+		id_comp = request.data['id_comp']
+		user = Register.objects.get(token = token)
+		company = Business.objects.get(id = id_comp)
+		hierarchy = Hierarchy.objects.get(id_user = user.id, id_company = id_comp)
+		license = LicenseComp.objects.get(id_hierarchy = hierarchy.id, id_comp = hierarchy.id_company)
+		if license.attendance == '1':
+			auth = 'IsAdmin'
+		elif license.attendance == '2':
+			auth = 'IsUser'
+		else:
+			return Response({'status':'User is Unauthorized to Attendance.'}, status = status.HTTP_401_UNAUTHORIZED)
+		payload = {
+		'fullname': user.full_name,
+		'division': hierarchy.division,
+		'company_name': company.company_name,
+		'absensee_auth': auth
+		}
+		return Response(payload, status = status.HTTP_202_ACCEPTED)
+	except Vendor_api.DoesNotExist:
+		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'User did not have any relation in the company'}, status = status.HTTP_202_ACCEPTED)
+	except Business.DoesNotExist:
+		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)

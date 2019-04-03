@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from .models import Jobs, Recruitment
-from .serializers import JobSerializer, RecSerializer
+from .serializers import JobSerializer, RecSerializer, StatusApplySerializer
 from registrations.models import Register
 from registrations.serializers import RegisterSerializer
 from join_company.models import Joincompany
@@ -67,7 +67,7 @@ def get_delete_put_jobs(request, pk):
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors ,status = status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@api_view(['POST','PUT'])
 def apply(request,pk):
     if request.method == 'POST':
         get_token = request.META.get('HTTP_AUTHORIZATION')
@@ -84,6 +84,38 @@ def apply(request,pk):
             serializer.save()
             return Response(serializer.data, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PUT':
+        try:
+            get_token = request.META.get('HTTP_AUTHORIZATION')
+            rec = Recruitment.objects.get(id = pk)
+            jobs = Jobs.objects.get(id = rec.id_jobs).comp_id
+            busines = Business.objects.get(id = jobs)
+            admin = Register.objects.get(id = busines.id_user)
+
+            if admin.token == get_token:
+                payload = {
+                'id': rec.id,
+                'id_jobs': rec.id_jobs,
+                'id_applicant': rec.id_applicant,
+                'descript': rec.descript,
+                'status':request.data['status']
+                }
+                serializer = RecSerializer(data = payload)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status = status.HTTP_200_OK)
+                return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+        except Recruitment.DoesNotExist:
+            return Response({'status':'Recruitment Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+        except Jobs.DoesNotExist:
+            return Response({'status':'Jobs Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+        except Business.DoesNotExist:
+            return Response({'status':'Business Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+        except Register.DoesNotExist:
+            return Response({'status':'User Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def search_by_id_rec(request,pk):

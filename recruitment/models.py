@@ -14,8 +14,14 @@ class Jobs(models.Model):
   create_at = models.DateTimeField(auto_now_add = True)
 
 class Recruitment(models.Model):
+  stat = (
+    (0 , 'apply'),
+    (1 , 'Interviewed'),
+    (2 , 'Accepted'),
+    (3 , 'Decline'),
+    )
   id_jobs = models.IntegerField()
   id_applicant = models.IntegerField()
-  status = models.IntegerField(default = 0)
+  status = models.IntegerField(default = 0, choices = stat)
   descript = models.TextField()
-  create_at = models.DateTimeField(auto_now_add = True)
+  create_at = models.DateTimeField(auto_now = True)

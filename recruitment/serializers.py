@@ -6,6 +6,11 @@ class JobSerializer(serializers.ModelSerializer):
         model = Jobs
         fields = '__all__'
 
+class StatusApplySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Recruitment
+		fields = ('status',)
+
 class RecSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Recruitment
