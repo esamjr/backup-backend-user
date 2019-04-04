@@ -10,20 +10,19 @@ from business_account.models import Business
 
 @api_view(['GET'])
 def search_all_div(request):
-     try:
-
-            beacon = LicenseComp.objects.all().values_list('id', flat = True)
-            result = []
-            for one in beacon:
-                beaco = LicenseComp.objects.get(id = one)
-                serializer = LicenseCompSerializer(beaco)
-                dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
-                payload = {
-                'division': dive.division ,
-                'data' : serializer.data
-                }
-                result.append(payload)            
-            return Response(result, status = status.HTTP_201_CREATED)
+    try:
+        beacon = LicenseComp.objects.all().values_list('id', flat = True)
+        result = []
+        for one in beacon:
+            beaco = LicenseComp.objects.get(id = one)
+            serializer = LicenseCompSerializer(beaco)
+            dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+            payload = {
+            'division': dive.division ,
+            'data' : serializer.data
+            }
+            result.append(payload)            
+        return Response(result, status = status.HTTP_201_CREATED)
     except LicenseComp.DoesNotExist:
         return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
 
