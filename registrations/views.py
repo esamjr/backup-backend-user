@@ -30,7 +30,7 @@ def auto_migrate_to_domoo(request):
                     result.append(serializer.data)
                 else:
                     result.append('error in '+str(user))
-                return Response(result, status = status.HTTP_201_CREATED)
+            return Response(result, status = status.HTTP_201_CREATED)
         return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
     except Register.DoesNotExist:
         return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
