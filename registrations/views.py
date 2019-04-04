@@ -17,12 +17,24 @@ def auto_migrate_to_domoo(request):
         token_su = request.META.get('HTTP_AUTHORIZATION')
         superuser = Register.objects.get(token = token_su)
         if superuser.id == 0:
+            # user_id = request.data['id']
+            # user = Register.objects.get(id = user_id)
+            # payload = {
+            # 'id_user':user.id,
+            # 'status_domoo':0
+            # }
+            # serializer = DomoSerializer(data = payload)
+            # if serializer.is_valid():
+            #     serializer.save()
+            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
+            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+            #-----------------------WIP-----------------------
             users = Register.objects.all().values_list('id', flat = True)
             result = []
             for user in users:
                 payload_domo = {
                 'id_user': user,
-                'status' : 0
+                'status_domoo' : 0
                 }
                 serializer = DomoSerializer(data = payload_domo)
                 if serializer.is_valid():
@@ -31,7 +43,9 @@ def auto_migrate_to_domoo(request):
                 else:
                     result.append('error in '+str(user))
             return Response(result, status = status.HTTP_201_CREATED)
-        return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+            #--------------------------------------------------------
+        else:
+            return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
     except Register.DoesNotExist:
         return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
