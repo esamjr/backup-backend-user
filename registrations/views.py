@@ -128,7 +128,7 @@ def get_post_registrations(request):
             serializer.save()
             payload_domo = {
             'id_user': serializer.data['id'],
-            'status' : 1
+            'status' : 0
             }
             serialdomo = DomoSerializer(payload_domo)
             if serialdomo.is_valid():
