@@ -136,14 +136,14 @@ def get_post_registrations(request):
     elif request.method == 'POST':        
         email_var = request.data['email']
         password = request.data['password'] 
-        full_name = request.data['full_name']
-        salt_password = ''.join(str(ord(c))for c in full_name)
+        name = request.data['full_name']
+        salt_password = ''.join(str(ord(c))for c in name)
         id_type = 0
         banned_type = "0"
         token = make_password(str(time.time()))
         hs_pass = make_password(str(password)+str(salt_password))
         payload ={
-            'full_name' : full_name,
+            'full_name' : name,
             'email' : email_var,
             'salt_password' : salt_password,
             'password' : hs_pass,
@@ -173,7 +173,7 @@ def get_post_registrations(request):
                 serialdomo.save()
             subjects = 'Activation account'
             try:
-                send_email(request, email_var, token,full_name, subjects)
+                send_email(request, email_var, token,name, subjects)
             except:
                 return Response({'error in here'})
             return Response(serializer.data, status=status.HTTP_201_CREATED)

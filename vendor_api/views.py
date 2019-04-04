@@ -3,10 +3,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Vendor_api
-from rest_framework_jwt.settings import api_settings
+# from rest_framework_jwt.settings import api_settings
 from .serializers import VendorSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
-from registrations.models import Register
+from registrations.models import Register, Domoo
+# from registrations.serializers import DomoSerializer
 from join_company.models import Joincompany
 from business_account.models import Business
 from hierarchy.models import Hierarchy
@@ -159,3 +160,6 @@ def api_find_company_absensee(request):
 		return Response({'status':'User did not have any relation in the company'}, status = status.HTTP_202_ACCEPTED)
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+
+# @api_view(['POST','GET'])
+# def check_user_domoo(request):
