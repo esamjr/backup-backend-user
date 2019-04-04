@@ -13,41 +13,42 @@ import time
 
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
-    try:
-        token_su = request.META.get('HTTP_AUTHORIZATION')
-        superuser = Register.objects.get(token = token_su)
-        if superuser.id == 0:
-            # user_id = request.data['id']
-            # user = Register.objects.get(id = user_id)
-            # payload = {
-            # 'id_user':user.id,
-            # 'status_domoo':0
-            # }
-            # serializer = DomoSerializer(data = payload)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-            #-----------------------WIP-----------------------
-            users = Register.objects.all().values_list('id', flat = True)
-            result = []
-            for user in users:
-                payload_domo = {
-                'id_user': user,
-                'status_domoo' : 0
-                }
-                serializer = DomoSerializer(data = payload_domo)
-                if serializer.is_valid():
-                    serializer.save()
-                    result.append(serializer.data)
-                else:
-                    result.append('error in '+str(user))
-            return Response(result, status = status.HTTP_201_CREATED)
-            #--------------------------------------------------------
-        else:
-            return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
-    except Register.DoesNotExist:
-        return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'status':'UNDER CONSTRUCTIONS'}, status = status.HTTP_401_UNAUTHORIZED)
+    # try:
+    #     token_su = request.META.get('HTTP_AUTHORIZATION')
+    #     superuser = Register.objects.get(token = token_su)
+    #     if superuser.id == 0:
+    #         # user_id = request.data['id']
+    #         # user = Register.objects.get(id = user_id)
+    #         # payload = {
+    #         # 'id_user':user.id,
+    #         # 'status_domoo':0
+    #         # }
+    #         # serializer = DomoSerializer(data = payload)
+    #         # if serializer.is_valid():
+    #         #     serializer.save()
+    #         #     return Response(serializer.data, status = status.HTTP_201_CREATED)
+    #         # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+    #         #-----------------------WIP-----------------------
+    #         users = Register.objects.all().values_list('id', flat = True)
+    #         result = []
+    #         for user in users:
+    #             payload_domo = {
+    #             'id_user': user,
+    #             'status_domoo' : 0
+    #             }
+    #             serializer = DomoSerializer(data = payload_domo)
+    #             if serializer.is_valid():
+    #                 serializer.save()
+    #                 result.append(serializer.data)
+    #             else:
+    #                 result.append('error in '+str(user))
+    #         return Response(result, status = status.HTTP_201_CREATED)
+    #         #--------------------------------------------------------
+    #     else:
+    #         return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+    # except Register.DoesNotExist:
+    #     return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def get_user(request, pk):
@@ -164,13 +165,13 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            payload_domo = {
-            'id_user': serializer.data['id'],
-            'status' : 0
-            }
-            serialdomo = DomoSerializer(data = payload_domo)
-            if serialdomo.is_valid():
-                serialdomo.save()
+            # payload_domo = {
+            # 'id_user': serializer.data['id'],
+            # 'status' : 0
+            # }
+            # serialdomo = DomoSerializer(data = payload_domo)
+            # if serialdomo.is_valid():
+            #     serialdomo.save()
             subjects = 'Activation account'
             try:
                 send_email(request, email_var, token,name, subjects)
