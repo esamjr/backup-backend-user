@@ -24,7 +24,7 @@ def auto_migrate_to_domoo(request):
                 'id_user': user,
                 'status' : 0
                 }
-                serializer = DomoSerializer(payload_domo)
+                serializer = DomoSerializer(data = payload_domo)
                 if serializer.is_valid():
                     serializer.save()
                     result.append(serializer.data)
