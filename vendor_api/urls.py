@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-#from rest_framework_jwt.views import obtain_jwt_token
+# from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [ 
 	url(r'^api/api_login_absensee/$', views.api_login_absensee, name='api_login_absensee'),
