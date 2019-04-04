@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Vendor_api
-from rest_framework_jwt.settings import api_settings
+#from rest_framework_jwt.settings import api_settings
 from .serializers import VendorSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from registrations.models import Register
