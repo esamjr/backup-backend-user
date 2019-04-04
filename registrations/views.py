@@ -12,6 +12,29 @@ from django.contrib.auth.hashers import check_password, make_password, is_passwo
 import time
 
 @api_view(['GET'])
+def auto_migrate_to_domoo(request):
+    try:
+        token_su = request.META.get('HTTP_AUTHORIZATION')
+        superuser = Register.objects.get(token = token_su)
+        if superuser.id == '0':
+            users = Register.objects.all().values_list('id', flat = True)
+            result = []
+            for user in users:
+                payload_domo = {
+                'id_user': user,
+                'status' : 0
+                }
+                serializer = DomoSerializer(payload_domo)
+                if serializer.is_valid():
+                    serializer.save()
+                    result.append(serializer.data)
+                else:
+                    result.append('error in '+str(user))
+                return Response(result, status = status.HTTP_201_CREATED)
+    except Register.DoesNotExist:
+        return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
 def get_user(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION','')
     get_token = Register.objects.get(token = token)
