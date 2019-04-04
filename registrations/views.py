@@ -16,7 +16,7 @@ def auto_migrate_to_domoo(request):
     try:
         token_su = request.META.get('HTTP_AUTHORIZATION')
         superuser = Register.objects.get(token = token_su)
-        if superuser.id == '0':
+        if superuser.id == 0:
             users = Register.objects.all().values_list('id', flat = True)
             result = []
             for user in users:
@@ -31,6 +31,7 @@ def auto_migrate_to_domoo(request):
                 else:
                     result.append('error in '+str(user))
                 return Response(result, status = status.HTTP_201_CREATED)
+        return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
     except Register.DoesNotExist:
         return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
