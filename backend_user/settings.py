@@ -95,6 +95,12 @@ INSTALLED_APPS = [
     'goal_negotiation',
     'awards_BA',
     'certifications_BA',
+    'recruitment',
+    'interview',
+    'jobfair_online',
+    'test_form',
+    'chatapp',
+    'license_company',
 ]
 
 SITE_ID = 1
@@ -150,27 +156,27 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '10.148.0.3',
-#      'PORT': '5432',
-#      'NAME': 'userdbdev',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
-#     }
-# }
-
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '10.124.64.3',
+     'HOST': '10.148.0.3',
      'PORT': '5432',
      'NAME': 'userprod',
      'USER': 'user',
      'PASSWORD': 'U53rDB2016'
     }
 }
+
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '10.124.64.3',
+#      'PORT': '5432',
+#      'NAME': 'user',
+#      'USER': 'user',
+#      'PASSWORD': 'U53rDB2016'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -196,7 +202,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Jakarta'
 
 USE_I18N = True
 

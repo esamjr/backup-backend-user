@@ -7,6 +7,7 @@ from .models import CertificationBA
 from registrations.models import Register
 from .serializers import CertificationBASerializer
 from log_app.views import create_log, read_log, update_log, delete_log
+from business_account.models import Business
 from log_app.serializers import LoggingSerializer
 from log_app.models import Logging
 import time
@@ -14,62 +15,99 @@ import time
 @api_view(['GET','DELETE', 'PUT'])
 def get_delete_update_certification(request, pk):
     try:
-        Certification = CertificationBA.objects.get(pk=pk)
-        registrations = Register.objects.get(pk=Certification.id_user)
-        if (registrations.token == 'xxx'):
-            response = {'status':'LOGIN FIRST, YOU MUST...'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        else:    
-            try:
-                token = request.META.get('HTTP_AUTHORIZATION','')
-                get_token = Register.objects.get(token = token)
-                if (get_token.id == Certification.id_user):
-                    if request.method == 'GET':                        
-                        serializer = CertificationBASerializer(Certification) 
-                        act = 'Read certification by '                           
-                        read_log(request, registrations,act)
-                        return Response(serializer.data)
+        token = request.META.get('HTTP_AUTHORIZATION')
+        get_token = Register.objects.get(token = token)
+        awards = CertificationBA.objects.get(pk = pk)
+        admin = Business.objects.get(id = awards.id_user , id_user = get_token.id)
+       
+        if request.method == 'GET':
+            serializer = CertificationBASerializer(awards)
+            act = 'Read Award BA by '                           
+            read_log(request, get_token, act)
+            return Response(serializer.data)
 
-                    elif request.method == 'DELETE':
-                        if (Certification.verified == "0"):                                                    
-                            act = 'Delete certification by id : '                           
-                            delete_log(request, registrations, Certification.CertificationBA_name, act)                                
-                            Certification.delete()
-                            content = {
-                                'status' : 'NO CONTENT'
-                            }
-                            return Response(content, status=status.HTTP_204_NO_CONTENT)
+        elif request.method == 'DELETE':
+            act = 'Delete award by id : '                           
+            read_log(request, get_token, act)                                         
+            awards.delete()
+            content = {
+                'status' : 'NO CONTENT'
+            }
+            return Response(content, status=status.HTTP_204_NO_CONTENT)
+
+        elif request.method == 'PUT':
+            serializer = CertificationBASerializer(awards, data=request.data)
+            if serializer.is_valid():
+                act = 'Update certification by '
+                update_log(request, get_token, act)
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Register.DoesNotExist: 
+        return Response({'status':'User Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)           
+    except CertificationBA.DoesNotExist: 
+        return Response({'status':'Award Does Not Exist '}, status = status.HTTP_400_BAD_REQUEST)       
+    except Business.DoesNotExist: 
+        return Response({'status':'YOU ARE NOT THE ONE'}, status = status.HTTP_400_BAD_REQUEST)
+
+    # try:
+    #     Certification = CertificationBA.objects.get(pk=pk)
+    #     registrations = Register.objects.get(pk=Certification.id_user)
+    #     if (registrations.token == 'xxx'):
+    #         response = {'status':'LOGIN FIRST, YOU MUST...'}
+    #         return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+    #     else:    
+    #         try:
+    #             token = request.META.get('HTTP_AUTHORIZATION','')
+    #             get_token = Register.objects.get(token = token)
+    #             if (get_token.id == Business.id_user):
+    #                 if request.method == 'GET':                        
+    #                     serializer = CertificationBASerializer(Certification) 
+    #                     act = 'Read certification by '                           
+    #                     read_log(request, registrations,act)
+    #                     return Response(serializer.data)
+
+    #                 elif request.method == 'DELETE':
+    #                     if (Certification.verified == "0"):                                                    
+    #                         act = 'Delete certification by id : '                           
+    #                         delete_log(request, registrations, Certification.CertificationBA_name, act)                                
+    #                         Certification.delete()
+    #                         content = {
+    #                             'status' : 'NO CONTENT'
+    #                         }
+    #                         return Response(content, status=status.HTTP_204_NO_CONTENT)
                             
-                        else:
-                            content = {'status':'Cannot touch this, Your Ceritification is already verified' }
-                            return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    #                     else:
+    #                         content = {'status':'Cannot touch this, Your Ceritification is already verified' }
+    #                         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
                         
-                    elif request.method == 'PUT':
+    #                 elif request.method == 'PUT':
                        
-                            serializer = CertificationBASerializer(Certification, data=request.data)
-                            if serializer.is_valid():
-                                serializer.save()
-                                act = 'Update certification by '
-                                update_log(request, registrations, act)
-                                return Response(serializer.data, status=status.HTTP_201_CREATED)
-                            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    content = {
-                    'status': 'UNAUTHORIZED'
-                    }
-                    return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    #                         serializer = CertificationBASerializer(Certification, data=request.data)
+    #                         if serializer.is_valid():
+    #                             serializer.save()
+    #                             act = 'Update certification by '
+    #                             update_log(request, registrations, act)
+    #                             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #             else:
+    #                 content = {
+    #                 'status': 'UNAUTHORIZED'
+    #                 }
+    #                 return Response(content, status=status.HTTP_401_UNAUTHORIZED)
         
-            except Register.DoesNotExist:
-                content = {
-                    'status': 'Not Found user'
-                }
-                return Response(content, status=status.HTTP_404_NOT_FOUND)
+    #         except Register.DoesNotExist:
+    #             content = {
+    #                 'status': 'Not Found user'
+    #             }
+    #             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
-    except CertificationBA.DoesNotExist:
-        content = {
-            'status': 'Not Found CertificationBA'
-        }
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+    # except CertificationBA.DoesNotExist:
+    #     content = {
+    #         'status': 'Not Found CertificationBA'
+    #     }
+    #     return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET', 'POST'])
 

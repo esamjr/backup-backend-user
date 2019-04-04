@@ -4,12 +4,50 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
-from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
+from .models import Register, Domoo
+from .serializers import DomoSerializer, RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+
+@api_view(['GET'])
+def auto_migrate_to_domoo(request):
+    try:
+        token_su = request.META.get('HTTP_AUTHORIZATION')
+        superuser = Register.objects.get(token = token_su)
+        if superuser.id == 0:
+            # user_id = request.data['id']
+            # user = Register.objects.get(id = user_id)
+            # payload = {
+            # 'id_user':user.id,
+            # 'status_domoo':0
+            # }
+            # serializer = DomoSerializer(data = payload)
+            # if serializer.is_valid():
+            #     serializer.save()
+            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
+            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+            #-----------------------WIP-----------------------
+            users = Register.objects.all().values_list('id', flat = True)
+            result = []
+            for user in users:
+                payload_domo = {
+                'id_user': user,
+                'status_domoo' : 0
+                }
+                serializer = DomoSerializer(data = payload_domo)
+                if serializer.is_valid():
+                    serializer.save()
+                    result.append(serializer.data)
+                else:
+                    result.append('error in '+str(user))
+            return Response(result, status = status.HTTP_201_CREATED)
+            #--------------------------------------------------------
+        else:
+            return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+    except Register.DoesNotExist:
+        return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def get_user(request, pk):
@@ -126,6 +164,13 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
+            payload_domo = {
+            'id_user': serializer.data['id'],
+            'status' : 0
+            }
+            serialdomo = DomoSerializer(payload_domo)
+            if serialdomo.is_valid():
+                serialdomo.save()
             subjects = 'Activation account'
             try:
                 send_email(request, email_var, token,full_name, subjects)
@@ -191,7 +236,8 @@ def get_login(request):
         if request.method == 'POST':
             email = request.data['email']
             key = request.data['password']
-            salt = Register.objects.get(email=email).full_name
+            beacon = Register.objects.get(email=email)
+            salt = beacon.full_name
             salt_password = ''.join(str(ord(c)) for c in salt)
             password = key + salt_password
             token = make_password(str(time.time()))
@@ -205,7 +251,8 @@ def get_login(request):
             elif (get_login.banned_type == "0"):
                 response = {'status':'Account has not verified yet, check your email to verified'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-            elif (check_password(password, get_login.password)):                
+            elif (check_password(password, get_login.password)):   
+                    flag = beacon.banned_type                             
                     get_in = {
                         'email': get_login.email,
                         'password': get_login.password,
@@ -223,7 +270,8 @@ def get_login(request):
                         'status' : 'SUCCESSFULLY LOGIN',
                         'token' : get_login.token,
                         'id_user': get_login.id,
-                        'email' : get_login.email
+                        'email' : get_login.email,
+                        'flag ' : flag
                         }                                                
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -276,7 +324,7 @@ def verified_acc(request):
         try:            
             get_token = Register.objects.get(token=token)
             payload = {
-            'banned_type': "1"
+            'banned_type': "2"
             }
             serializer = ConfirmSerializer(get_token, data=payload)
             if serializer.is_valid():

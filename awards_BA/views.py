@@ -17,9 +17,10 @@ import time
 def get_delete_update_award(request, pk):
     try:
         token = request.META.get('HTTP_AUTHORIZATION')
-        get_token = Register.objects.get(token = token).id
-        admin = Business.objects.get(id_user = get_token)
+        get_token = Register.objects.get(token = token)
         awards = AwardBA.objects.get(pk = pk)
+        admin = Business.objects.get(id = awards.id_user , id_user = get_token.id)
+       
         if request.method == 'GET':
             serializer = AwardBASerializer(awards)
             act = 'Read Award BA by '                           
@@ -71,4 +72,23 @@ def get_post_award(request):
             create_log(request, registrations, act)                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+
+def get_post_award_user(request,pk):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    registrations = Register.objects.get(token =token)
+
+    try:
+        if request.method == 'GET':
+            network = AwardBA.objects.all().filter(id_user=pk)
+            serializer = AwardBASerializer(network, many=True)
+            act = 'Read all award by '                           
+            read_log(request, registrations,act)
+            return Response(serializer.data)
+    except award.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
 

@@ -34,3 +34,8 @@ class NameCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Jobcontract
         fields = '__all__'
+
+class VerBusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        fields = ('banned_type',)

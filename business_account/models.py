@@ -4,7 +4,7 @@ class Business(models.Model):
     id_user = models.IntegerField()    
     company_name = models.CharField(max_length=255)
     email = models.CharField (max_length=255, unique=True, null = True, blank=True)
-    primary_phone = models.IntegerField(null = True, blank=True)
+    primary_phone = models.CharField(max_length = 20, null = True, blank=True)
     primary_address = models.CharField(max_length=255, null = True, blank=True)
     id_country = models.IntegerField(null=True, blank=True)
     id_regions = models.IntegerField(null=True, blank=True)
