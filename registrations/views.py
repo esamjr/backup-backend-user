@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
-from .models import Register
-from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
+from .models import Register, Domoo
+from .serializers import DomoSerializer, RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
@@ -126,6 +126,13 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
+            payload_domo = {
+            'id_user': serializer.data['id'],
+            'status' : 1
+            }
+            serialdomo = DomoSerializer(payload_domo)
+            if serialdomo.is_valid():
+                serialdomo.save()
             subjects = 'Activation account'
             try:
                 send_email(request, email_var, token,name, subjects)

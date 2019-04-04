@@ -27,3 +27,7 @@ class Register(models.Model):
   delete_at = models.DateTimeField(auto_now=True)
   attempt = models.IntegerField(default = 0, null=True, blank=True)
   gender = models.CharField(max_length = 10, null = True,  blank = True) 
+
+class Domoo(models.Model):
+  id_user = models.IntegerField(unique = True)
+  status_domoo = models.IntegerField()
