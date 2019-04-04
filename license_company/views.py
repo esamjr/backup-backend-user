@@ -8,6 +8,26 @@ from registrations.models import Register
 from hierarchy.models import Hierarchy
 from business_account.models import Business
 
+@api_view(['GET'])
+def search_all_div(request):
+     try:
+
+            beacon = LicenseComp.objects.all().values_list('id', flat = True)
+            result = []
+            for one in beacon:
+                beaco = LicenseComp.objects.get(id = one)
+                serializer = LicenseCompSerializer(beaco)
+                dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+                payload = {
+                'division': dive.division ,
+                'data' : serializer.data
+                }
+                result.append(payload)            
+            return Response(result, status = status.HTTP_201_CREATED)
+    except LicenseComp.DoesNotExist:
+        return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET','PUT', 'POST'])
 def setting_license_company(request,pk):
     if request.method == 'POST':        
@@ -66,7 +86,7 @@ def setting_license_company(request,pk):
         try:
             # beacon = LicenseComp.objects.get(id = pk)
             # serializer = LicenseCompSerializer(beacon)
-            beacon = LicenseComp.objects.all().values_list('id', flat = True)
+            beacon = LicenseComp.objects.all().values_list('id', flat = True).filter(id_comp = pk)
             result = []
             for one in beacon:
                 beaco = LicenseComp.objects.get(id = one)
