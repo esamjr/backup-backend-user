@@ -7,11 +7,13 @@ from .models import Vendor_api
 from .serializers import VendorSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from registrations.models import Register, Domoo
-# from registrations.serializers import DomoSerializer
+from registrations.serializers import DomoSerializer
 from join_company.models import Joincompany
 from business_account.models import Business
 from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
+import requests
+import json
 
 @api_view(['GET', 'POST'])
 def generate(request):
@@ -161,5 +163,29 @@ def api_find_company_absensee(request):
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 
-# @api_view(['POST','GET'])
-# def check_user_domoo(request):
+@api_view(['POST','GET'])
+def check_user_domoo(request):
+	if request.method == 'POST':
+		phnoe = request.data['phone']
+		# url = 'http://api-staging.doomo.id/customers/infocustomer'
+		# payload = {
+		# 'mobile': '085655429959'
+		# # 'passcode': '111111',
+		# # 'device_active': '2e31df72-25a5-40eb-994d-6a5a3ae0e13a'
+		# }
+		# files = {}
+		# headers = {
+		#   'Accept': 'application/pasy.v1+json'
+		# }
+		# response = requests.request('POST', url, headers = headers, data = payload, files = files)
+		# # print(response.text)
+		# # res = response.text
+		# return Response(response.json())
+
+		r = requests.post('http://api-staging.doomo.id/customers/infocustomer', 
+			data = {'mobile': phnoe}, 
+			headers = {'Accept': 'application/pasy.v1+json'}
+			)
+		data = r.json()
+
+		return Response({'state':data['status']})

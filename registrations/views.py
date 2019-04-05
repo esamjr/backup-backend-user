@@ -168,7 +168,7 @@ def get_post_registrations(request):
             'id_user': serializer.data['id'],
             'status' : 0
             }
-            serialdomo = DomoSerializer(payload_domo)
+            serialdomo = DomoSerializer(data = payload_domo)
             if serialdomo.is_valid():
                 serialdomo.save()
             subjects = 'Activation account'
