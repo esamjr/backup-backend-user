@@ -12,6 +12,7 @@ from join_company.models import Joincompany
 from business_account.models import Business
 from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
+from django.conf import settings
 import requests
 import json
 
@@ -163,29 +164,167 @@ def api_find_company_absensee(request):
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 
-@api_view(['POST','GET'])
+@api_view(['PUT'])
+def change_status_domoo_user(request):
+	try:
+		token = request.META.get('HTTP_AUTHORIZATION')
+		user = Register.objects.get(token = token)
+		beacon = Domoo.objects.get(pk=user.id)
+		stat = request.data['status']
+		payload = {
+		'id_user':pk,
+		'status': stat
+		}
+		seralizer = DomoSerializer(data = beacon)
+		if seralizer.is_valid():
+			seralizer.save()
+			return Response(seralizer.data, status = status.HTTP_201_CREATED)
+		return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+	except Domoo.DoesNotExist:
+		return Response({'status': 'Not Domoo User'})
+
+@api_view(['POST'])
 def check_user_domoo(request):
 	if request.method == 'POST':
+
+		if settings.DEBUG == False:
+			url = 'http://api-staging.doomo.id/customers/infocustomer'
+		elif settings.DEBUG == True:
+			url = 'http://api-staging.doomo.id/customers/infocustomer'
+
 		phnoe = request.data['phone']
-		# url = 'http://api-staging.doomo.id/customers/infocustomer'
-		# payload = {
-		# 'mobile': '085655429959'
-		# # 'passcode': '111111',
-		# # 'device_active': '2e31df72-25a5-40eb-994d-6a5a3ae0e13a'
-		# }
-		# files = {}
-		# headers = {
-		#   'Accept': 'application/pasy.v1+json'
-		# }
-		# response = requests.request('POST', url, headers = headers, data = payload, files = files)
-		# # print(response.text)
-		# # res = response.text
-		# return Response(response.json())
-
-		r = requests.post('http://api-staging.doomo.id/customers/infocustomer', 
-			data = {'mobile': phnoe}, 
-			headers = {'Accept': 'application/pasy.v1+json'}
-			)
+		r = requests.post(url, data = {'mobile': phnoe}, headers = {'Accept': 'application/pasy.v1+json'})
 		data = r.json()
+		try:
+			cust = data['customers']
+			# return Response(cust)
+			if cust['status'] == '0':
+				# beacon = 
+				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_200_OK)
+			elif cust['status'] == '1':
+				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_200_OK)			
+		except Exception:
+			return Response(data, status = status.HTTP_401_UNAUTHORIZED)
 
-		return Response({'state':data['status']})
+@api_view(['POST'])
+def registrations_domoo(request):
+	if settings.FLAG == 1:
+		url = 'http://api-staging.doomo.id/customers'
+	elif settings.FLAG == 0:
+		url = 'http://api-staging.doomo.id/customers'
+
+	payload = {
+	'name': request.data['name'],
+	'mobile' : request.data['phone'],
+	'email': request.data['email']
+	}
+
+	Req = requests.post(url, data = payload, headers = {'Accept': 'application/pasy.v1+json'})
+	Res = Req.json()
+	try:
+		resp = Res['customers']
+		return Response(resp, status = status.HTTP_200_OK)
+	except Exception:
+		resp = Res['message']
+		return Response(resp, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def verify_otp_domoo(request):
+	if settings.FLAG == 1:
+		url = 'http://api-staging.doomo.id/customers/verify'
+	elif settings.FLAG == 0:
+		url = 'http://api-staging.doomo.id/customers/verify'
+	payload = {
+	'mobile': request.data['phone'],
+	'code': request.data['otp']
+	}
+	req = requests.post(url, data = payload, headers= {'Accept': 'application/pasy.v1+json'})
+	Res = req.json()
+	try:
+		resp = Res['customers']
+		return Response(resp, status = status.HTTP_200_OK)
+	except Exception:
+		resp = Res['message']
+		return Response(resp, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def set_passcode_domoo(request):
+	if settings.FLAG == 1:
+		url = 'http://api-staging.doomo.id/customers/passcode'
+	elif settings.FLAG == 0:
+		url = 'http://api-staging.doomo.id/customers/passcode'
+
+	payload  = {
+	'passcode': request.data['password'],
+	'passcode_confirmation': request.data['confirmation']
+	}
+
+	headers = {
+	'Accept': 'application/pasy.v1+json',
+	'AccessToken': request.data['token_domoo']
+	}
+
+	Req = requests.put(url, data = payload, headers = headers)
+	Res = Req.json()	
+	return Response(Res['message'])
+
+@api_view(['POST'])
+def forget_passcode_domoo(request):
+	if settings.FLAG == 1:
+		url = 'http://api-staging.doomo.id/customers/passcode/'
+	elif settings.FLAG == 0:
+		url = 'http://api-staging.doomo.id/customers/passcode/'
+
+	phone = request.data['phone']
+	headers = {
+	'Accept': 'application/pasy.v1+json'
+	}
+	Req = requests.get(url+str(phone), headers = headers)
+	Res = Req.json()
+	return Response(Res['message'])
+
+@api_view(['POST','PUT'])
+def login_logout_domoo(request):
+	if request.method == 'POST':
+		if settings.FLAG == 1:
+			url = 'http://api-staging.doomo.id/customers/auth?'
+		elif settings.FLAG == 0:
+			url = 'http://api-staging.doomo.id/customers/auth?'
+
+		payload = {
+		'mobile': request.data['phone'],
+		'passcode' : request.data['password']
+		# 'device_active'
+		}
+
+		headers = {
+		'Accept': 'application/pasy.v1+json'
+		}
+
+		Req = requests.post(url, data = payload, headers = headers)
+		Res = Req.json()
+
+		try:
+			resp = Res['customers']
+			token = resp['access_token']
+			return Response(resp, status = status.HTTP_202_ACCEPTED)
+		except Exception:
+			resp = Res['message']
+			return Response(resp, status = status.HTTP_401_UNAUTHORIZED)
+
+	elif request.method == 'PUT':
+		if settings.FLAG == 1:
+			url = 'http://api-staging.doomo.id/customers/auth?'
+		elif settings.FLAG == 0:
+			url = 'http://api-staging.doomo.id/customers/auth?'
+
+			token = request.data['token']		
+
+			headers = {
+			'Accept': 'application/pasy.v1+json',
+			'AccessToken': token
+			}
+
+			Req = requests.put(url, headers = headers)
+			Res = Req.json()
+			return Response(Res['message'])

@@ -3,6 +3,12 @@ from . import views
 # from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [ 
+	url(r'^api/changeuserstatus/$',  views.change_status_domoo_user, name='change_status_domoo_user'),
+	url(r'^api/logindomoo/$',  views.login_logout_domoo, name='login_logout_domoo'),
+	url(r'^api/verifyotpdomoo/$',  views.verify_otp_domoo, name='verify_otp_domoo'),
+	url(r'^api/forgetpassdomoo/$',  views.forget_passcode_domoo, name='forget_passcode_domoo'),
+	url(r'^api/setpasscodedomoo/$',  views.set_passcode_domoo, name='set_passcode_domoo'),
+	url(r'^api/registrations_domoo/$',  views.registrations_domoo, name='registrations_domoo'),
 	url(r'^api/checkuserdomoo/$',  views.check_user_domoo, name='check_user_domoo'),
 	url(r'^api/api_login_absensee/$', views.api_login_absensee, name='api_login_absensee'),
 	url(r'^api/api_find_company_absensee/$', views.api_find_company_absensee, name='api_find_company_absensee'),
