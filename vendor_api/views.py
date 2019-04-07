@@ -243,16 +243,32 @@ def registrations_domoo(request):
 	elif settings.FLAG == 0:
 		url = 'http://api-staging.doomo.id/customers'
 
+	email = request.data['email']
 	payload = {
 	'name': request.data['name'],
 	'mobile' : request.data['phone'],
-	'email': request.data['email']
+	'email': email
 	}
 
 	Req = requests.post(url, data = payload, headers = {'Accept': 'application/pasy.v1+json'})
 	Res = Req.json()
 	try:
 		resp = Res['customers']
+		# try:			
+		# 	user = Register.objects.get(email = email)
+		# 	beacon = Domoo.objects.get(pk=user.id)
+		# 	stat = 1
+		# 	payload = {
+		# 	'id_user':user.id,
+		# 	'status': stat
+		# 	}
+		# 	seralizer = DomoSerializer(beacon, data = payload)
+		# if seralizer.is_valid():
+		# 	seralizer.save()
+		# 	return Response(seralizer.data, status = status.HTTP_201_CREATED)
+		# return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+		# except Domoo.DoesNotExist:
+		# 	return Response({'status': 'Not Domoo User'})
 		return Response(resp, status = status.HTTP_200_OK)
 	except Exception:
 		resp = Res['message']
