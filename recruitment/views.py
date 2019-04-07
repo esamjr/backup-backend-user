@@ -94,15 +94,10 @@ def apply(request,pk):
             admin = Register.objects.get(id = busines.id_user)
 
             if admin.token == get_token:
-                # payload = {
-                # 'id': rec.id,
-                # 'id_jobs': rec.id_jobs,
-                # 'id_applicant': rec.id_applicant,
-                # 'descript': rec.descript,
-                # 'status':request.data['status']
-                # }
-                # serializer = RecSerializer(data = payload)
-                serializer = RecSerializer(data = request.data)
+                payload = {                
+                'status':request.data['status']
+                }                
+                serializer = StatusApplySerializer(rec, data = request.data)
                 if serializer.is_valid():
                     serializer.save()
                     return Response(serializer.data, status = status.HTTP_200_OK)

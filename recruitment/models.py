@@ -1,11 +1,11 @@
 from django.db import models
 
 class Jobs(models.Model):
-  position = models.CharField(max_length = 30)
+  position = models.CharField(max_length = 1000)
   comp_id = models.IntegerField()
   descript = models.TextField()
   sallary = models.IntegerField(blank = True, null = True)
-  location = models.CharField(max_length=100)
+  location = models.TextField()
   deadline = models.DateField()
   pref_language = models.CharField(max_length=30)
   dresscode = models.CharField(max_length=20)

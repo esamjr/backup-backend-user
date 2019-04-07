@@ -3,11 +3,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Vendor_api
-# from rest_framework_jwt.settings import api_settings
 from .serializers import VendorSerializer
+from registrations.serializers import TokenSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from registrations.models import Register, Domoo
 from registrations.serializers import DomoSerializer
+from registrations.views import attempt_login, forget_attempt
 from join_company.models import Joincompany
 from business_account.models import Business
 from hierarchy.models import Hierarchy
@@ -15,6 +16,7 @@ from license_company.models import LicenseComp
 from django.conf import settings
 import requests
 import json
+import time
 
 @api_view(['GET', 'POST'])
 def generate(request):
@@ -95,6 +97,7 @@ def login_logout_vendors(request):
 				serializer.save()
 				return Response({'status':'YOU HAS LOGOUT'}, status = status.HTTP_202_ACCEPTED)
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
@@ -109,18 +112,44 @@ def api_login_absensee(request):
 		email = request.data['email']
 		password = request.data['password']
 		user = Register.objects.get(email = email)
-		companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-		comp = []
-		for company in companies:
-			beacon = Business.objects.get(id = company)
-			payload = {
-			'token_user': user.token,
-			'image': beacon.logo_path,
-			'comp_id': beacon.id,
-			'comp_name': beacon.company_name
-			}
-			comp.append(payload)
-		return Response(comp, status = status.HTTP_201_CREATED)
+		attempt = user.attempt
+		salt = user.full_name
+		salt_password = ''.join(str(ord(c)) for c in salt)
+		thepassword = password + salt_password
+
+		if (check_password(thepassword, user.password)):			
+			token = make_password(str(time.time()))
+			payload = {'token':token}
+			serializer = TokenSerializer(user, data = payload)
+			if serializer.is_valid():
+				serializer.save()
+				companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+				comp = []
+				for company in companies:
+					beacon = Business.objects.get(id = company)
+					payload = {
+					'token_user': user.token,
+					'image': beacon.logo_path,
+					'comp_id': beacon.id,
+					'comp_name': beacon.company_name
+					}
+					comp.append(payload)
+				return Response(comp, status = status.HTTP_201_CREATED)
+			else:
+				return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+		else: 
+			if (attempt == 0):
+				attempt_login(request, email)
+				response = {'status' : 'Wrong Username / Password'}
+				return Response(response, status=status.HTTP_400_BAD_REQUEST)
+			elif(attempt % 5 == 0):
+				forget_attempt(request, email)
+				return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
+			else:
+				attempt_login(request, email)
+				response = {'status' : 'Wrong Username / Password'}
+				return Response(response, status=status.HTTP_400_BAD_REQUEST)
+		# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
 
 	except Vendor_api.DoesNotExist:
 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -152,7 +181,8 @@ def api_find_company_absensee(request):
 		'fullname': user.full_name,
 		'division': hierarchy.division,
 		'company_name': company.company_name,
-		'absensee_auth': auth
+		'client_auth': auth,
+		'client_token' : user.token
 		}
 		return Response(payload, status = status.HTTP_202_ACCEPTED)
 	except Vendor_api.DoesNotExist:
@@ -175,7 +205,7 @@ def change_status_domoo_user(request):
 		'id_user':pk,
 		'status': stat
 		}
-		seralizer = DomoSerializer(data = beacon)
+		seralizer = DomoSerializer(beacon, data = payload)
 		if seralizer.is_valid():
 			seralizer.save()
 			return Response(seralizer.data, status = status.HTTP_201_CREATED)

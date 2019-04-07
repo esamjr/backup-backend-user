@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
@@ -10,6 +11,7 @@ from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+import json
 
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
@@ -17,6 +19,7 @@ def auto_migrate_to_domoo(request):
         token_su = request.META.get('HTTP_AUTHORIZATION')
         superuser = Register.objects.get(token = token_su)
         if superuser.id == 0:
+            # --------------------TESTING----------------------------
             # user_id = request.data['id']
             # user = Register.objects.get(id = user_id)
             # payload = {
@@ -28,7 +31,7 @@ def auto_migrate_to_domoo(request):
             #     serializer.save()
             #     return Response(serializer.data, status = status.HTTP_201_CREATED)
             # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-            #-----------------------WIP-----------------------
+            #-----------------------FINALE-----------------------
             users = Register.objects.all().values_list('id', flat = True)
             result = []
             for user in users:
@@ -316,6 +319,7 @@ def get_login(request):
     except Register.DoesNotExist:
         response = {'status':'NOT FOUND 3'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def verified_acc(request):
