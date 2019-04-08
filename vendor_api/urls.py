@@ -3,6 +3,7 @@ from . import views
 # from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [ 
+	url(r'^api/businesspayroll/(?P<pk>[0-9]+)$',  views.api_payroll, name='api_payroll'),
 	url(r'^api/changeuserstatus/$',  views.change_status_domoo_user, name='change_status_domoo_user'),
 	url(r'^api/logindomoo/$',  views.login_logout_domoo, name='login_logout_domoo'),
 	url(r'^api/verifyotpdomoo/$',  views.verify_otp_domoo, name='verify_otp_domoo'),

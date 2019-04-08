@@ -14,9 +14,9 @@ def update_lookone_approval(request,pk):
 	try:
 		if request.method == 'PUT':
 			token = request.META.get('HTTP_AUTHORIZATION')
-			user = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = user.id)
+			user = Register.objects.get(token = token)			
 			approv = Approval.objects.get(id = pk)
+			comp = Business.objects.get(id_user = approv.id_comp)
 			serializers = ApprovalSerializer(approv, data = request.data)
 			if serializers.is_valid():
 				serializers.save()
@@ -27,15 +27,15 @@ def update_lookone_approval(request,pk):
 		elif request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = user.id)
 			approv = Approval.objects.get(id = pk)
+			comp = Business.objects.get(id_user = approv.id_comp)			
 			serializers = ApprovalSerializer(approv)
 			return Response(serializers.data, status = status.HTTP_200_OK)
 		elif request.method == 'DELETE':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = user.id)
 			approv = Approval.objects.get(id = pk)
+			comp = Business.objects.get(id_user = approv.id_comp)			
 			approv.DELETE()
 			act = 'delete approval id : '+str(pk)
 			read_log(request,token,act)
@@ -51,30 +51,32 @@ def update_lookone_approval(request,pk):
 
 @api_view(['POST', 'GET'])
 def migrate_to_approval(request):
-	try:
+	try: # masih kurang parameter, jika satu user manjadi admin di lebih dari 2 company
 		if request.method == 'POST':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = user.id)
-			hiers = Hierarchy.objects.all().values_list('id').filter(id_comp = comp.id)
+			# comp = Business.objects.get(id_user = user.id)
+			comps = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
 			result = []
-			for hie in hiers:
-				payload = {
-				'id_comp' : comp.id,
-				'id_hierarchy' : hie,
-				'approval1' : 0,
-				'approval2' : 0
-				}
-				serializers = ApprovalSerializer(data = payload)
-				if serializers.is_valid():
-					serializers.save()
-					act = 'Migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
-					read_log(request,token,act)
-					result.append(serializer.data)
-				else:
-					act = 'Failed to migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
-					read_log(request,token,act)
-					result.append(serializers.errors)
+			for comp in comps:
+				hiers = Hierarchy.objects.all().values_list('id', flat = True).filter(id_comp = comp)				
+				for hie in hiers:
+					payload = {
+					'id_comp' : comp,
+					'id_hierarchy' : hie,
+					'approval1' : 0,
+					'approval2' : 0
+					}
+					serializers = ApprovalSerializer(data = payload)
+					if serializers.is_valid():
+						serializers.save()
+						act = 'Migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
+						read_log(request,token,act)
+						result.append(serializer.data)
+					else:
+						act = 'Failed to migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
+						read_log(request,token,act)
+						result.append(serializers.errors)
 			return Response(result, status = status.HTTP_201_CREATED)
 		elif request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')

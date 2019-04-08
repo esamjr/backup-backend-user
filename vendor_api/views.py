@@ -18,6 +18,22 @@ import requests
 import json
 import time
 
+@api_view(['GET']):
+def api_payroll(request, pk):
+	try:
+		token = request.META.get('HTTP_AUTHORIZATION')
+		IsAdmin = Register.objects.get(token = token)
+		comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
+		payload = {
+		'status': "Authenticated",
+		'id_comp':comp.id
+		}
+		return Response(payload, status = status.HTTP_200_OK)
+	except Register.DoesNotExist:
+		return Response({'status':'User is not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Business.DoesNotExist:
+		return Response({'status':'User is not admin company.'}, status = status.HTTP_401_UNAUTHORIZED)
+
 @api_view(['GET', 'POST'])
 def generate(request):
 	if request.method == 'POST':
