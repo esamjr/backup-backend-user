@@ -117,55 +117,67 @@ def login_logout_vendors(request):
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def api_login_absensee(request):	
 	try:
-		token_vendor = request.META.get('HTTP_AUTHORIZATION')
-		if token_vendor == 'xxx':
-			return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
-		vendor = Vendor_api.objects.get(token = token_vendor)
+		if request.method == 'POST':
+			token_vendor = request.META.get('HTTP_AUTHORIZATION')
+			if token_vendor == 'xxx':
+				return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
+			vendor = Vendor_api.objects.get(token = token_vendor)
 
-		email = request.data['email']
-		password = request.data['password']
-		user = Register.objects.get(email = email)
-		attempt = user.attempt
-		salt = user.full_name
-		salt_password = ''.join(str(ord(c)) for c in salt)
-		thepassword = password + salt_password
+			email = request.data['email']
+			password = request.data['password']
+			user = Register.objects.get(email = email)
+			attempt = user.attempt
+			salt = user.full_name
+			salt_password = ''.join(str(ord(c)) for c in salt)
+			thepassword = password + salt_password
 
-		if (check_password(thepassword, user.password)):			
-			token = make_password(str(time.time()))
-			payload = {'token':token}
+			if (check_password(thepassword, user.password)):			
+				token = make_password(str(time.time()))
+				payload = {'token':token}
+				serializer = TokenSerializer(user, data = payload)
+				if serializer.is_valid():
+					serializer.save()
+					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+					comp = []
+					for company in companies:
+						beacon = Business.objects.get(id = company)
+						payload = {
+						'token_user': user.token,
+						'image': beacon.logo_path,
+						'comp_id': beacon.id,
+						'comp_name': beacon.company_name
+						}
+						comp.append(payload)
+					return Response(comp, status = status.HTTP_201_CREATED)
+				else:
+					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			else: 
+				if (attempt == 0):
+					attempt_login(request, email)
+					response = {'status' : 'Wrong Username / Password'}
+					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+				elif(attempt % 5 == 0):
+					forget_attempt(request, email)
+					return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
+				else:
+					attempt_login(request, email)
+					response = {'status' : 'Wrong Username / Password'}
+					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+		elif request.method == 'GET':
+			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
+			token_user = request.data['token_user']
+			vendor = Vendor_api.objects.get(token = token_vendor)
+			user = Register.objects.get(token = token_user)
+			payload = {'token':'xxx'}
 			serializer = TokenSerializer(user, data = payload)
 			if serializer.is_valid():
 				serializer.save()
-				companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-				comp = []
-				for company in companies:
-					beacon = Business.objects.get(id = company)
-					payload = {
-					'token_user': user.token,
-					'image': beacon.logo_path,
-					'comp_id': beacon.id,
-					'comp_name': beacon.company_name
-					}
-					comp.append(payload)
-				return Response(comp, status = status.HTTP_201_CREATED)
-			else:
-				return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-		else: 
-			if (attempt == 0):
-				attempt_login(request, email)
-				response = {'status' : 'Wrong Username / Password'}
-				return Response(response, status=status.HTTP_400_BAD_REQUEST)
-			elif(attempt % 5 == 0):
-				forget_attempt(request, email)
-				return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
-			else:
-				attempt_login(request, email)
-				response = {'status' : 'Wrong Username / Password'}
-				return Response(response, status=status.HTTP_400_BAD_REQUEST)
-		# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
+			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 	except Vendor_api.DoesNotExist:
 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
