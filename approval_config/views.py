@@ -81,10 +81,14 @@ def migrate_to_approval(request):
 		elif request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = user.id)
-			result = Approval.objects.all().filter(id_comp = comp.id)
-			serializer = ApprovalSerializer(result, many = True)
-			return Response(serializer.data, status = status.HTTP_200_OK)
+			comps = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
+			result = []
+			for comp in comps:
+				result = Approval.objects.all().filter(id_comp = comp)
+				serializer = ApprovalSerializer(result, many = True)
+				result.append(serializer.data)
+			return Response(result, status = status.HTTP_200_OK)
+
 	except Register.DoesNotExist:
 		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Business.DoesNotExist:
