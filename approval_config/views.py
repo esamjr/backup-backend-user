@@ -21,7 +21,7 @@ def update_lookone_approval(request,pk):
 			if serializers.is_valid():
 				serializers.save()
 				act = 'Edit approval id : '+str(pk)
-				read_log(request,token,act)
+				read_log(request,user,act)
 				return Response(serializers.data, status = status.HTTP_200_OK)
 			return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'GET':
@@ -38,7 +38,7 @@ def update_lookone_approval(request,pk):
 			comp = Business.objects.get(id_user = approv.id_comp)			
 			approv.DELETE()
 			act = 'delete approval id : '+str(pk)
-			read_log(request,token,act)
+			read_log(request,user,act)
 			return Response({'status':'Deleted'}, status = status.HTTP_204_NO_CONTENT)
 	except Register.DoesNotExist:
 		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -59,7 +59,7 @@ def migrate_to_approval(request):
 			comps = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
 			result = []
 			for comp in comps:
-				hiers = Hierarchy.objects.all().values_list('id', flat = True).filter(id_comp = comp)				
+				hiers = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = comp)				
 				for hie in hiers:
 					payload = {
 					'id_comp' : comp,
@@ -71,11 +71,11 @@ def migrate_to_approval(request):
 					if serializers.is_valid():
 						serializers.save()
 						act = 'Migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
-						read_log(request,token,act)
-						result.append(serializer.data)
+						read_log(request,user,act)
+						result.append(serializers.data)
 					else:
 						act = 'Failed to migrate approval by hierarchy id : '+str(serializers.data['id_hierarchy'])
-						read_log(request,token,act)
+						read_log(request,user,act)
 						result.append(serializers.errors)
 			return Response(result, status = status.HTTP_201_CREATED)
 		elif request.method == 'GET':

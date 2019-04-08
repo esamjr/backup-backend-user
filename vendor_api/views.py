@@ -18,7 +18,7 @@ import requests
 import json
 import time
 
-@api_view(['GET']):
+@api_view(['GET'])
 def api_payroll(request, pk):
 	try:
 		token = request.META.get('HTTP_AUTHORIZATION')
