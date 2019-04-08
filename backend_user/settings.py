@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     'test_form',
     'chatapp',
     'license_company',
+    'approval_config',
 ]
 
 SITE_ID = 1

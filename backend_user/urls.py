@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    url(r'^approval/', include('approval_config.urls')),
     url(r'^licensecomp/', include('license_company.urls')),
     url(r'^chatapp/', include('chatapp.urls')),
     url(r'^test/', include('test_form.urls')),
