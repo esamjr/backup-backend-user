@@ -77,13 +77,14 @@ def api_payroll(request, pk):
 		hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = IsAdmin.id)
 		license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
 		if license.payroll == '1':
-			status = 'IsAdmin'
+			state = 'IsAdmin'
 		elif license.payroll == '2':
-			status = 'IsUser'
+			state = 'IsUser'
 		else:
-			status = 'IsNothing'
+			state = 'IsNothing'
+
 		payload = {
-		'status': status,
+		'status': state,
 		'id_comp': comp.id
 		}
 		return Response(payload, status = status.HTTP_200_OK)
