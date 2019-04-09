@@ -19,20 +19,82 @@ import json
 import time
 
 @api_view(['GET'])
+def search_by_token(request, stri):	
+	try:
+		token = requests.META.get('HTTP_AUTHORIZATION')
+		user = Register.objects.get(token = token)
+		if stri == 'admincompany':			
+			admins = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
+			result = []
+			for id_comp in admins:
+				company = Business.objects.get(id = id_comp)
+				payload = {
+				'id':company.id,
+				'name':company.company_name,
+				'logo':company.logo_path,
+				'parent_company':company.parent_company,
+				'email':company.email
+				}
+				result.append(payload)
+			return Response(result, status = status.HTTP_200_OK)
+
+		elif stri == 'usertoken':
+			payload = {
+			'id': user.id,
+			'fullname':user.full_name,
+			'token': user.token
+			}
+			return Response(payload, status = status.HTTP_200_OK)
+
+		elif stri == 'join_company':
+			joins = Joincompany.objects.all().values_list('id', flat = True).filter(id_user = user.id, status = '2')
+			result = []
+			for join in joins:
+				beacon = Joincompany.objects.get(id = join)
+				payload = {
+				'id':beacon.id,
+				'id_company':beacon.id_company,
+				'id_rec':beacon.id_rec
+				}
+				result.append(payload)
+			return Response(result, status = status.HTTP_200_OK)
+		else:
+			return Response({'status':'The URL is Invalid, Please Check Again'}, status = status.HTTP_400_BAD_REQUEST)
+
+	except Register.DoesNotExist:
+		return Response({'status': 'Your Credential is Invalid, Please Login Again'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Business.DoesNotExist:
+		return Response({'status': 'You are not an admin company'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Joincompany.DoesNotExist:
+		return Response({'status': 'You dont have any employer'}, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
 def api_payroll(request, pk):
 	try:
 		token = request.META.get('HTTP_AUTHORIZATION')
 		IsAdmin = Register.objects.get(token = token)
 		comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
+		hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = IsAdmin.id)
+		license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
+		if license.payroll == '1':
+			status = 'IsAdmin'
+		elif license.payroll == '2':
+			status = 'IsUser'
+		else:
+			status = 'IsNothing'
 		payload = {
-		'status': "Authenticated",
-		'id_comp':comp.id
+		'status': status,
+		'id_comp': comp.id
 		}
 		return Response(payload, status = status.HTTP_200_OK)
 	except Register.DoesNotExist:
 		return Response({'status':'User is not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Business.DoesNotExist:
 		return Response({'status':'User is not admin company.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except LicenseComp.DoesNotExist:
+		return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET', 'POST'])
 def generate(request):
