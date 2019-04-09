@@ -403,7 +403,19 @@ def set_passcode_domoo(request):
 	}
 
 	Req = requests.put(url, data = payload, headers = headers)
-	Res = Req.json()	
+	Res = Req.json()
+
+	token = request.META.get('HTTP_AUTHORIZATION')
+	user = Register.objects.get(token = token)
+	domo = Domoo.objects.get(id_user = user.id)
+	payload = {
+	'id_user':user.id,
+	'status':2
+	}
+	serializerdomo = DomoSerializer(domo, data = payload)
+	if serializerdomo.is_valid():
+		serializerdomo.save()
+		
 	return Response(Res['message'])
 
 @api_view(['POST'])
