@@ -58,7 +58,7 @@ def migrate_to_approval(request):
 			user = Register.objects.get(token = token)
 			comp = Business.objects.get(id_user = user.id, id = id_comp)
 			# comps = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
-			# result = []
+			result = []
 			# for comp in comps:
 			hiers = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = comp.id)				
 			for hie in hiers:
