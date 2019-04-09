@@ -63,7 +63,7 @@ def migrate_to_approval(request):
 			hiers = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = comp)				
 			for hie in hiers:
 				payload = {
-				'id_comp' : comp,
+				'id_comp' : comp.id,
 				'id_hierarchy' : hie,
 				'approval1' : 0,
 				'approval2' : 0
