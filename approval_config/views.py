@@ -50,7 +50,7 @@ def update_lookone_approval(request,pk):
 
 
 @api_view(['POST', 'GET'])
-def migrate_to_approval(request, pk):
+def migrate_to_approval(request):
 	try: # masih kurang parameter, jika satu user manjadi admin di lebih dari 2 company
 		if request.method == 'POST':
 			token = request.META.get('HTTP_AUTHORIZATION')
