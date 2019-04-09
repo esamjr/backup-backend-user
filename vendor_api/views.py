@@ -70,32 +70,33 @@ def search_by_token(request, stri):
 
 @api_view(['GET'])
 def api_payroll(request, pk):
-	try:
-		token = request.META.get('HTTP_AUTHORIZATION')
-		IsAdmin = Register.objects.get(token = token)
-		comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
-		hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = IsAdmin.id)
-		license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
-		if license.payroll == '1':
-			state = 'IsAdmin'
-		elif license.payroll == '2':
-			state = 'IsUser'
-		else:
-			state = 'IsNothing'
+	if request.method == 'GET':
+		try:
+			token = request.META.get('HTTP_AUTHORIZATION')
+			IsAdmin = Register.objects.get(token = token)
+			comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
+			hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = IsAdmin.id)
+			license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
+			if license.payroll == '1':
+				state = 'IsAdmin'
+			elif license.payroll == '2':
+				state = 'IsUser'
+			else:
+				state = 'IsNothing'
 
-		payload = {
-		'status': state,
-		'id_comp': comp.id
-		}
-		return Response(payload, status = status.HTTP_200_OK)
-	except Register.DoesNotExist:
-		return Response({'status':'User is not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Business.DoesNotExist:
-		return Response({'status':'User is not admin company.'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Hierarchy.DoesNotExist:
-		return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
-	except LicenseComp.DoesNotExist:
-		return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+			payload = {
+			'status': state,
+			'id_comp': comp.id
+			}
+			return Response(payload, status = status.HTTP_200_OK)
+		except Register.DoesNotExist:
+			return Response({'status':'User is not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Business.DoesNotExist:
+			return Response({'status':'User is not admin company.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Hierarchy.DoesNotExist:
+			return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except LicenseComp.DoesNotExist:
+			return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET', 'POST'])
 def generate(request):
@@ -345,21 +346,21 @@ def registrations_domoo(request):
 	Res = Req.json()
 	try:
 		resp = Res['customers']
-		# try:			
-		# 	user = Register.objects.get(email = email)
-		# 	beacon = Domoo.objects.get(pk=user.id)
-		# 	stat = 1
-		# 	payload = {
-		# 	'id_user':user.id,
-		# 	'status': stat
-		# 	}
-		# 	seralizer = DomoSerializer(beacon, data = payload)
-		# if seralizer.is_valid():
-		# 	seralizer.save()
-		# 	return Response(seralizer.data, status = status.HTTP_201_CREATED)
-		# return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
-		# except Domoo.DoesNotExist:
-		# 	return Response({'status': 'Not Domoo User'})
+		try:
+			user = Register.objects.get(email = email)
+			beacon = Domoo.objects.get(pk=user.id)
+			stat = 1
+			payload = {
+			'id_user':user.id,
+			'status': stat
+			}
+			seralizer = DomoSerializer(beacon, data = payload)
+		if seralizer.is_valid():
+			seralizer.save()
+			return Response(seralizer.data, status = status.HTTP_201_CREATED)
+		return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+		except Domoo.DoesNotExist:
+			return Response({'status': 'Not Domoo User'})
 		return Response(resp, status = status.HTTP_200_OK)
 	except Exception:
 		resp = Res['message']
