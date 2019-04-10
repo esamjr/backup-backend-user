@@ -4,8 +4,8 @@ from django.db import models
 class LicenseComp (models.Model):
   Auth = (
       ('0','IsNothing'),
-      ('1','IsAdmin'),
-      ('2','IsUser'),
+      ('1','IsUser'),
+      ('2','IsAdmin'),
     )
   stat = (
       ('0', 'Unactive'),

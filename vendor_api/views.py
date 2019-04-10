@@ -264,9 +264,9 @@ def api_find_company_absensee(request):
 		hierarchy = Hierarchy.objects.get(id_user = user.id, id_company = id_comp)
 		license = LicenseComp.objects.get(id_hierarchy = hierarchy.id, id_comp = hierarchy.id_company)
 		if license.attendance == '1':
-			auth = 'IsAdmin'
-		elif license.attendance == '2':
 			auth = 'IsUser'
+		elif license.attendance == '2':
+			auth = 'IsAdmin'
 		else:
 			return Response({'status':'User is Unauthorized to Attendance.'}, status = status.HTTP_401_UNAUTHORIZED)
 		payload = {
@@ -355,10 +355,10 @@ def registrations_domoo(request):
 			'status': stat
 			}
 			seralizer = DomoSerializer(beacon, data = payload)
-		if seralizer.is_valid():
-			seralizer.save()
-			return Response(seralizer.data, status = status.HTTP_201_CREATED)
-		return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+			if seralizer.is_valid():
+				seralizer.save()
+				return Response(seralizer.data, status = status.HTTP_201_CREATED)
+			return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
 		except Domoo.DoesNotExist:
 			return Response({'status': 'Not Domoo User'})
 		return Response(resp, status = status.HTTP_200_OK)
@@ -415,7 +415,7 @@ def set_passcode_domoo(request):
 	serializerdomo = DomoSerializer(domo, data = payload)
 	if serializerdomo.is_valid():
 		serializerdomo.save()
-		
+
 	return Response(Res['message'])
 
 @api_view(['POST'])
