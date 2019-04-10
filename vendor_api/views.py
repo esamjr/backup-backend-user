@@ -74,19 +74,19 @@ def api_payroll(request, pk):
 		try:
 			token = request.META.get('HTTP_AUTHORIZATION')
 			IsAdmin = Register.objects.get(token = token)
-			comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
-			hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = IsAdmin.id)
-			license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
-			if license.payroll == '1':
+			# comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
+			hierarki = Hierarchy.objects.get(id_company = pk, id_user = IsAdmin.id)
+			license = LicenseComp.objects.get(id_comp = pk, status = '1', id_hierarchy = hierarki.id)
+			if license.payroll == '2':
 				state = 'IsAdmin'
-			elif license.payroll == '2':
+			elif license.payroll == '1':
 				state = 'IsUser'
 			else:
 				state = 'IsNothing'
 
 			payload = {
 			'status': state,
-			'id_comp': comp.id
+			'id_comp': pk
 			}
 			return Response(payload, status = status.HTTP_200_OK)
 		except Register.DoesNotExist:
@@ -182,7 +182,7 @@ def login_logout_vendors(request):
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST', 'GET'])
-def api_login_absensee(request):	
+def api_login_absensee_v2(request):	
 	try:
 		if request.method == 'POST':
 			token_vendor = request.META.get('HTTP_AUTHORIZATION')
@@ -192,6 +192,36 @@ def api_login_absensee(request):
 
 			email = request.data['email']
 			password = request.data['password']
+
+			#------------------tambahan ----------------------
+			# token = request.META.get('HTTP_AUTHORIZATION')
+			user = Register.objects.get(email = email)
+			comp = Business.objects.get(id_user = user.id, id = pk)
+			hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = user.id)
+			license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
+			if vendor.username == 'Absensee':
+				if license.attendance == '1':
+					state = 'IsAdmin'
+				elif license.attendance == '2':
+					state = 'IsUser'
+				else:
+					state = 'IsNothing'
+					
+			elif vendor.username == 'Payroll':					
+				if license.payroll == '1':
+					state = 'IsAdmin'
+				elif license.payroll == '2':
+					state = 'IsUser'
+				else:
+					state = 'IsNothing'
+
+				payload = {
+				'status': state,
+				'id_comp': comp.id
+				}
+				return Response(payload, status = status.HTTP_200_OK)
+			#---------------------------------------------------------
+
 			user = Register.objects.get(email = email)
 			attempt = user.attempt
 			salt = user.full_name
@@ -251,6 +281,84 @@ def api_login_absensee(request):
 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except LicenseComp.DoesNotExist:
+		return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST', 'GET'])
+def api_login_absensee(request):	
+	try:
+		if request.method == 'POST':
+			token_vendor = request.META.get('HTTP_AUTHORIZATION')
+			if token_vendor == 'xxx':
+				return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
+			vendor = Vendor_api.objects.get(token = token_vendor)
+
+			email = request.data['email']
+			password = request.data['password']			
+			user = Register.objects.get(email = email)
+			attempt = user.attempt
+			salt = user.full_name
+			salt_password = ''.join(str(ord(c)) for c in salt)
+			thepassword = password + salt_password
+
+			if (check_password(thepassword, user.password)):			
+				token = make_password(str(time.time()))
+				payload = {'token':token}
+				serializer = TokenSerializer(user, data = payload)
+				if serializer.is_valid():
+					serializer.save()
+					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+					comp = []
+					for company in companies:
+						beacon = Business.objects.get(id = company)
+						payload = {
+						'token_user': user.token,
+						'image': beacon.logo_path,
+						'comp_id': beacon.id,
+						'comp_name': beacon.company_name
+						}
+						comp.append(payload)
+					return Response(comp, status = status.HTTP_201_CREATED)
+				else:
+					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+			else: 
+				if (attempt == 0):
+					attempt_login(request, email)
+					response = {'status' : 'Wrong Username / Password'}
+					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+				elif(attempt % 5 == 0):
+					forget_attempt(request, email)
+					return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
+				else:
+					attempt_login(request, email)
+					response = {'status' : 'Wrong Username / Password'}
+					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+		elif request.method == 'GET':
+			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
+			token_user = request.data['token_user']
+			vendor = Vendor_api.objects.get(token = token_vendor)
+			user = Register.objects.get(token = token_user)
+			payload = {'token':'xxx'}
+			serializer = TokenSerializer(user, data = payload)
+			if serializer.is_valid():
+				serializer.save()
+				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
+			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+	except Vendor_api.DoesNotExist:
+		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Joincompany.DoesNotExist:
+		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
+	except Business.DoesNotExist:
+		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+
+
 
 @api_view(['GET'])
 def api_find_company_absensee(request):

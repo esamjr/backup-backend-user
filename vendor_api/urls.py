@@ -12,6 +12,7 @@ urlpatterns = [
 	url(r'^api/setpasscodedomoo/$',  views.set_passcode_domoo, name='set_passcode_domoo'),
 	url(r'^api/registrations_domoo/$',  views.registrations_domoo, name='registrations_domoo'),
 	url(r'^api/checkuserdomoo/$',  views.check_user_domoo, name='check_user_domoo'),
+	url(r'^api/api_login_absenseev2/$', views.api_login_absensee_v2, name='api_login_absensee_v2'),
 	url(r'^api/api_login_absensee/$', views.api_login_absensee, name='api_login_absensee'),
 	url(r'^api/api_find_company_absensee/$', views.api_find_company_absensee, name='api_find_company_absensee'),
 	url(r'^api/login_out/$',  views.login_logout_vendors, name='login_logout_vendors'),
