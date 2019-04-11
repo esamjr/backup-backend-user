@@ -241,6 +241,7 @@ def api_login_absensee_v2(request, pk):
 					state = 'IsNothing'
 
 				payload = {
+				'token':user.token,
 				'status': state,
 				'id_comp': comp.id,
 				'masa':masa
