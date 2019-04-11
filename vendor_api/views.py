@@ -16,6 +16,7 @@ from license_company.models import LicenseComp
 from django.conf import settings
 import requests
 import json
+import datetime
 import time
 
 @api_view(['GET'])
@@ -98,7 +99,7 @@ def api_payroll(request, pk):
 		except LicenseComp.DoesNotExist:
 			return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 def generate(request):
 	if request.method == 'POST':
 		# jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -124,6 +125,23 @@ def generate(request):
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	elif request.method == 'DELETE':
+		token = request.META.get('HTTP_AUTHORIZATION')
+		try:
+			user = Register.objects.get(token = token)		
+			if user.id == 0:
+				comp_token = request.data['token_comp']			
+				comp = Vendor_api.objects.get(token = comp_token)
+				comp.delete()
+				return Response({'status':'Deleted'}, status = status.HTTP_204_NO_CONTENT)			
+			else:
+				return Response({'status':'Hold up, you are not authorized to access this'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Vendor_api.DoesNotExist:
+			return Response({'status':'Vendor Not Found'}, status = status.HTTP_404_NOT_FOUND)
+		except Register.DoesNotExist:
+			return Response({'status':'YOU DONT HAVE ACCESS.'}, status = status.HTTP_400_BAD_REQUEST)
+
 	elif request.method == 'GET':
 		try:
 			token = request.META.get('HTTP_AUTHORIZATION')
@@ -135,7 +153,7 @@ def generate(request):
 			else:
 				return Response({'status':'YOU DONT HAVE ACCESS'}, status = status.HTTP_401_UNAUTHORIZED)
 		except Register.DoesNotExist:
-			return Response({'status':'YOU DONT HAVE ACCESS.'}, status = status.HTTP_400_BAD_REQUEST)
+			return Response({'status':'YOU ARE NOTHING.'}, status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 def login_logout_vendors(request):
@@ -181,8 +199,8 @@ def login_logout_vendors(request):
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['POST', 'GET'])
-def api_login_absensee_v2(request):	
+@api_view(['POST', 'PUT'])
+def api_login_absensee_v2(request, pk):	
 	try:
 		if request.method == 'POST':
 			token_vendor = request.META.get('HTTP_AUTHORIZATION')
@@ -199,6 +217,13 @@ def api_login_absensee_v2(request):
 			comp = Business.objects.get(id_user = user.id, id = pk)
 			hierarki = Hierarchy.objects.get(id_company = comp.id, id_user = user.id)
 			license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
+			sekarang = datetime.datetime.now().date()
+			
+			if license.expr_date >= sekarang:
+				masa = 'Masih bisa'
+			else:
+				return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
+			
 			if vendor.username == 'Absensee':
 				if license.attendance == '1':
 					state = 'IsAdmin'
@@ -207,7 +232,7 @@ def api_login_absensee_v2(request):
 				else:
 					state = 'IsNothing'
 					
-			elif vendor.username == 'Payroll':					
+			elif vendor.username == 'payroll':					
 				if license.payroll == '1':
 					state = 'IsAdmin'
 				elif license.payroll == '2':
@@ -217,9 +242,14 @@ def api_login_absensee_v2(request):
 
 				payload = {
 				'status': state,
-				'id_comp': comp.id
+				'id_comp': comp.id,
+				'masa':masa
 				}
 				return Response(payload, status = status.HTTP_200_OK)
+			else:
+				return Response({'status':'Vendor Belum Terintegrasi Dengan Mindzzle'})	
+
+				
 			#---------------------------------------------------------
 
 			user = Register.objects.get(email = email)
@@ -232,22 +262,36 @@ def api_login_absensee_v2(request):
 				token = make_password(str(time.time()))
 				payload = {'token':token}
 				serializer = TokenSerializer(user, data = payload)
+				#----------------------TESTING (tambahan v2)----------------------
 				if serializer.is_valid():
 					serializer.save()
-					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-					comp = []
-					for company in companies:
-						beacon = Business.objects.get(id = company)
-						payload = {
-						'token_user': user.token,
-						'image': beacon.logo_path,
-						'comp_id': beacon.id,
-						'comp_name': beacon.company_name
-						}
-						comp.append(payload)
-					return Response(comp, status = status.HTTP_201_CREATED)
-				else:
-					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+					beacon = Business.objects.get(id = pk)
+					payload = {
+					'token_user': user.token,
+					'image': beacon.logo_path,
+					'comp_id': beacon.id,
+					'comp_name': beacon.company_name,
+					'masa':masa
+					}
+					return Response(payload, status = status.HTTP_200_OK)
+				return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+				#---------------------------------------------------
+				# if serializer.is_valid():
+				# 	serializer.save()
+				# 	companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+				# 	comp = []
+				# 	for company in companies:
+				# 		beacon = Business.objects.get(id = company)
+				# 		payload = {
+				# 		'token_user': user.token,
+				# 		'image': beacon.logo_path,
+				# 		'comp_id': beacon.id,
+				# 		'comp_name': beacon.company_name
+				# 		}
+				# 		comp.append(payload)
+				# 	return Response(comp, status = status.HTTP_201_CREATED)
+				# else:
+				# 	return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			else: 
 				if (attempt == 0):
 					attempt_login(request, email)
@@ -261,7 +305,7 @@ def api_login_absensee_v2(request):
 					response = {'status' : 'Wrong Username / Password'}
 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
-		elif request.method == 'GET':
+		elif request.method == 'PUT':
 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
 			token_user = request.data['token_user']
 			vendor = Vendor_api.objects.get(token = token_vendor)
@@ -274,7 +318,7 @@ def api_login_absensee_v2(request):
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 	except Vendor_api.DoesNotExist:
-		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+		return Response({'status':'Vendor Token, is Does Not Exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Register.DoesNotExist:
 		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
