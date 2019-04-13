@@ -232,6 +232,14 @@ def api_login_absensee_v2(request, pk):
 				else:
 					state = 'IsNothing'
 					
+			elif vendor.username == 'ERP':
+				if license.attendance == '1':
+					state = 'IsAdmin'
+				elif license.attendance == '2':
+					state = 'IsUser'
+				else:
+					state = 'IsNothing'
+					
 			elif vendor.username == 'payroll':					
 				if license.payroll == '1':
 					state = 'IsAdmin'
