@@ -30,7 +30,7 @@ def search_all_div(request):
 @api_view(['GET','PUT', 'POST'])
 def setting_license_company(request,pk):
     try:
-        if request.method == 'POST':        
+        if request.method == 'POST': 
         
             token = request.META.get('HTTP_AUTHORIZATION')
             user = Register.objects.get(token = token)
@@ -51,21 +51,7 @@ def setting_license_company(request,pk):
                     serializer.save()
                     result.append(serializer.data)
             return Response(result, status = status.HTTP_201_CREATED)
-            # -----------------START TESTING CODE---------------
-            # hierarchy_comp = Hierarchy.objects.get(id_company = company.id, division = 'CTO').id
-            # payload = {
-            #             'id_hierarchy': hierarchy_comp,
-            #             'attendance':'0',
-            #             'payroll':'0',
-            #             'status':'0',
-            #             'id_comp':company.id
-            #         }          
-            # serializer = LicenseCompSerializer(data = payload)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-            #-----------------END TESTING CODE------------------
+            
         elif request.method == 'PUT':
             license_company = LicenseComp.objects.get(id = pk)
             serializer = LicenseCompSerializer(license_company, data = request.data)
@@ -76,8 +62,7 @@ def setting_license_company(request,pk):
 
         elif request.method == 'GET':
             try:
-                # beacon = LicenseComp.objects.get(id = pk)
-                # serializer = LicenseCompSerializer(beacon)
+               
                 beacon = LicenseComp.objects.all().values_list('id', flat = True).filter(id_comp = pk)
                 result = []
                 for one in beacon:
