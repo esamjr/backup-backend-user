@@ -374,7 +374,17 @@ def api_login_absensee(request):
 						'comp_name': beacon.company_name
 						}
 						comp.append(payload)
-					return Response(comp, status = status.HTTP_201_CREATED)
+					# payloads = {
+					# 	'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"	}]",
+					# 	'company' : "'companies'=>"+str(comp)
+					# }
+					payloads = {
+						'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"}'companies'=>"+str(comp)+"]"
+					}
+					
+
+					return Response(payloads, status = status.HTTP_201_CREATED)
+
 				else:
 					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			else: 
