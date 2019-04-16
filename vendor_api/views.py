@@ -387,11 +387,7 @@ def api_login_absensee(request):
 						'profile': profil,
 						'companies':comp
 					}
-					# payloads = {
-					# 	'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"}'companies'=>"+str(comp)+"]"
-					# }
 					
-
 					return Response(payloads, status = status.HTTP_201_CREATED)
 
 				else:
@@ -658,3 +654,14 @@ def login_logout_domoo(request):
 			Req = requests.put(url, headers = headers)
 			Res = Req.json()
 			return Response(Res['message'])
+
+@api_view(['GET'])
+def timesheets_absensee(request):
+	if settings.FLAG == 0:
+		url = 'http://dev-attandance.mindzzle.com/api/timesheets'
+	elif settings.FLAG == 1:
+		url = 'http://dev-attandance.mindzzle.com/api/timesheets'
+
+	Req = requests.get(url)
+	Res = Req.json()
+	return Response(Res, status = status.HTTP_200_OK)
