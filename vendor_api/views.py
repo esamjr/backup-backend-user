@@ -374,13 +374,22 @@ def api_login_absensee(request):
 						'comp_name': beacon.company_name
 						}
 						comp.append(payload)
-					# payloads = {
-					# 	'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"	}]",
-					# 	'company' : "'companies'=>"+str(comp)
-					# }
-					payloads = {
-						'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"}'companies'=>"+str(comp)+"]"
+
+					profil = {
+					'id':user.id,
+					'name':user.full_name,
+					'photo':user.url_photo
 					}
+
+					payloads = {
+						'api_status':1,
+						'api_message':'success',
+						'profile': profil,
+						'companies':comp
+					}
+					# payloads = {
+					# 	'nama':"['api_status'=>1,'api_message'=>'success','profile'=>{'id'=>1,'name'=>"+user.full_name+",'photo'=>"+user.url_photo+"}'companies'=>"+str(comp)+"]"
+					# }
 					
 
 					return Response(payloads, status = status.HTTP_201_CREATED)
