@@ -2,13 +2,14 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Vendor_api
-from .serializers import VendorSerializer
+from .models import Vendor_api,MultipleLogin
+from .serializers import VendorSerializer, MultipleSerializer
 from registrations.serializers import TokenSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from registrations.models import Register, Domoo
 from registrations.serializers import DomoSerializer
 from registrations.views import attempt_login, forget_attempt
+from log_app.views import read_log
 from join_company.models import Joincompany
 from business_account.models import Business
 from hierarchy.models import Hierarchy
@@ -199,7 +200,7 @@ def login_logout_vendors(request):
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['POST', 'PUT'])
+@api_view(['POST', 'PUT', 'GET'])
 def api_login_absensee_v2(request, pk):	
 	try:
 		if request.method == 'POST':
@@ -254,6 +255,8 @@ def api_login_absensee_v2(request, pk):
 				'id_comp': comp.id,
 				'masa':masa
 				}
+				act = "this user accessing Payroll app"
+				read_log(request, user, act)
 				return Response(payload, status = status.HTTP_200_OK)
 			else:
 				return Response({'status':'Vendor Belum Terintegrasi Dengan Mindzzle'})	
@@ -262,6 +265,11 @@ def api_login_absensee_v2(request, pk):
 			#---------------------------------------------------------
 
 			user = Register.objects.get(email = email)
+			multiple_login = MultipleLogin.objects.get(id_user = user.id)
+			#-------------------only single phone-------------------
+			if multiple_login.token_phone != 'xxx':
+				return Response({'status':'You Have Login In Multiple Phone Devices, Please Logout first'},status = status.HTTP_401_UNAUTHORIZED)
+			#-------------------------------------------------------
 			attempt = user.attempt
 			salt = user.full_name
 			salt_password = ''.join(str(ord(c)) for c in salt)
@@ -269,8 +277,12 @@ def api_login_absensee_v2(request, pk):
 
 			if (check_password(thepassword, user.password)):			
 				token = make_password(str(time.time()))
-				payload = {'token':token}
-				serializer = TokenSerializer(user, data = payload)
+				payload = {
+				'id_user':user.id,
+				'token_web':user.token,
+				'token_phone':token
+				}
+				serializer = MultipleSerializer(multiple_login, data = payload)
 				#----------------------TESTING (tambahan v2)----------------------
 				if serializer.is_valid():
 					serializer.save()
@@ -282,6 +294,8 @@ def api_login_absensee_v2(request, pk):
 					'comp_name': beacon.company_name,
 					'masa':masa
 					}
+					act = "this user accessing "+vendor.username+" app"
+					read_log(request, user, act)
 					return Response(payload, status = status.HTTP_200_OK)
 				return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 				#---------------------------------------------------
@@ -314,15 +328,39 @@ def api_login_absensee_v2(request, pk):
 					response = {'status' : 'Wrong Username / Password'}
 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+		elif request.method == 'GET':
+			token = request.META.get('HTTP_AUTHORIZATION')
+			user = Register.objects.get(token = token)
+			if user.id == 0:
+				migrates = Register.objects.all().values_list('id', 'token').filter(verfied = 1)
+				result = []
+				for id_user, token in migrates:
+					payload = {
+					'id_user':id_user,
+					'token_web':token,
+					'token_phone':'xxx'
+					}
+					serializer = MultipleSerializer(data = payload)
+					if serializer.is_valid():
+						serializer.save()
+						result.append(serializer.data)
+				return Response({'status':result}, status = status.HTTP_201_CREATED)
+			return Response({'status':'You Do Not Have Super Admin Credentials'}, status = status.HTTP_401_UNAUTHORIZED)
 		elif request.method == 'PUT':
 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
 			token_user = request.data['token_user']
 			vendor = Vendor_api.objects.get(token = token_vendor)
 			user = Register.objects.get(token = token_user)
-			payload = {'token':'xxx'}
-			serializer = TokenSerializer(user, data = payload)
+			multiple_login = MultipleLogin.objects.get(id_user = user.id)
+			payload = {
+			'id_user':user.id,
+			'token_web':user.token,
+			'token_phone':'xxx'}
+			serializer = MultipleSerializer(multiple_login, data = payload)
 			if serializer.is_valid():
 				serializer.save()
+				act = "this user Logout "+vendor.username+" app"
+				read_log(request, user, act)
 				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
@@ -338,6 +376,8 @@ def api_login_absensee_v2(request, pk):
 		return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except LicenseComp.DoesNotExist:
 		return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except MultipleLogin.DoesNotExist:
+		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST', 'GET'])

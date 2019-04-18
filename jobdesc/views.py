@@ -17,8 +17,8 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 			company = Business.objects.get(id = pk)
 			hirarki = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
 			result = {}
-			for idh in hirarki:
-				i = 0
+			i = 1
+			for idh in hirarki:				
 				payload = {
 				'id_hierarchy': idh,
 				'desc':'Input Your Description Here'
@@ -29,7 +29,8 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 					result[idh] = serializer.data
 					# return Response(serializer.data, status =status.HTTP_201_CREATED)
 				else:
-					result[idh] = 'Error input pada id hirarki : '+str(idh)
+					result[idh] = str(i) + '. Error input pada id hirarki : '+str(idh)
+					i = i+1
 					# return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			return Response(result, status = status.HTTP_201_CREATED)
 		elif request.method == 'PUT':
@@ -56,123 +57,3 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 		return Response({'status' : 'Company Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
 	except Hierarchy.DoesNotExist:
 		return Response({'status' : 'Hierarchy Does Not Exist, Please Create The Hierarchy First'}, status = status.HTTP_404_NOT_FOUND)
-
-
-
-# @api_view(['GET'])
-# def Logview(request):
-#     network = Logging.objects.all()
-#     serializer = LoggingSerializer(network, many=True)
-#     return Response(serializer.data)
-
-# @csrf_exempt
-# def create_log(request, modelDB, act):
-# 	db = modelDB
-# 	times = time.asctime(time.localtime(time.time()))
-# 	executors = db.full_name
-# 	activities = act + executors
-# 	payload = {
-# 		'date_time' : times,
-# 		'executor' : executors,
-# 		'activity' : activities,
-# 		'vendor' : None
-# 		}
-# 	connection = LoggingSerializer(data = payload)
-# 	if connection.is_valid():
-# 		connection.save()
-# 		response = {'Log created'}
-# 		return HttpResponse(response, status = status.HTTP_201_CREATED)
-# 	else:
-# 		response = {'Failed to create log'}
-# 		return HttpResponse(response, status = status.HTTP_400_BAD_REQUEST)
-
-# @csrf_exempt
-# def read_log(request, modelDB, act):
-# 	db = modelDB
-# 	times = time.asctime(time.localtime(time.time()))
-# 	executors = db.full_name
-# 	activities = act + executors
-# 	payload = {
-# 		'date_time' : times,
-# 		'executor' : executors,
-# 		'activity' : activities,
-# 		'vendor' : None
-# 		}
-# 	connection = LoggingSerializer(data = payload)
-# 	if connection.is_valid():
-# 		connection.save()
-# 		response = {'Log created'}
-# 		return HttpResponse(response, status = status.HTTP_201_CREATED)
-# 	else:
-# 		response = {'Failed to create log'}
-# 		return HttpResponse(response, status = status.HTTP_400_BAD_REQUEST)
-
-# @csrf_exempt
-# def update_log(request, modelDB, act):
-# 	db = modelDB
-# 	times = time.asctime(time.localtime(time.time()))
-# 	executors = db.full_name
-# 	activities = act + executors
-# 	payload = {
-# 		'date_time' : times,
-# 		'executor' : executors,
-# 		'activity' : activities,
-# 		'vendor' : None
-# 		}
-# 	connection = LoggingSerializer(data = payload)
-# 	if connection.is_valid():
-# 		connection.save()
-# 		response = {'Log created'}
-# 		return HttpResponse(response, status = status.HTTP_201_CREATED)
-# 	else:
-# 		response = {'Failed to create log'}
-# 		return HttpResponse(response, status = status.HTTP_400_BAD_REQUEST)
-
-# @csrf_exempt
-# def delete_log(request, modelDB, deleteDB, act):
-# 	db = modelDB
-# 	times = time.asctime(time.localtime(time.time()))
-# 	executors = modelDB.full_name
-# 	activities = act + deleteDB + 'by' + executors
-# 	payload = {
-# 		'date_time' : times,
-# 		'executor' : executors,
-# 		'activity' : activities,
-# 		'vendor' : None
-# 		}
-# 	connection = LoggingSerializer(data = payload)
-# 	if connection.is_valid():
-# 		connection.save()
-# 		response = {'Log created'}
-# 		return HttpResponse(response, status = status.HTTP_201_CREATED)
-# 	else:
-# 		response = {'Failed to create log'}
-# 		return HttpResponse(response, status = status.HTTP_400_BAD_REQUEST)
-
-
-
-# debug code
- # try: 
- #                            serializer = CertificationSerializer(Certification)
- #                            dbase = registrations
- #                            times = time.asctime(time.localtime(time.time()))
- #                            executors = dbase.full_name
- #                            activities = 'read by '+ executors
- #                            payload = {
- #                                'date_time' : times,
- #                                'executor' : executors,
- #                                'activity' : activities,
- #                                'vendor' : None
- #                                }
- #                        except:
- #                            response = {'Failed to create lo x'}
- #                            return HttpResponse(response, status=status.HTTP_400_BAD_REQUEST)
-                            
- #                        connection = LoggingSerializer(data = payload)
- #                        if connection.is_valid():
- #                            connection.save()
- #                            response = {'Log created'}
- #                            return Response(response, status = status.HTTP_201_CREATED)
- #                        else:
- #                            response = {'Failed to create log'}
- #                            return Response(connection.errors, status=status.HTTP_400_BAD_REQUEST)
