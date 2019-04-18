@@ -33,7 +33,8 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 					# return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			return Response(result, status = status.HTTP_201_CREATED)
 		elif request.method == 'PUT':
-			beacon = jobdesc.objects.get(id = pk)
+			hirarki = Hierarchy.objects.get(id = pk)
+			beacon = jobdesc.objects.get(id_hierarchy = hirarki.id)			
 			serializer = JobdescSerialiser(beacon, data = request.data)
 			if serializer.is_valid():
 				serializer.save()
@@ -45,11 +46,11 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 			return Response(serializer.data, status = status.HTTP_200_OK)
 			
 	except jobdesc.DoesNotExist:
-		return Response({'status' : 'Job Description Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+		return Response({'status' : 'Job Description Does Not Exist, Please input your company Jobs Descriptions'}, status = status.HTTP_404_NOT_FOUND)
 	except Business.DoesNotExist:
 		return Response({'status' : 'Company Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
 	except Hierarchy.DoesNotExist:
-		return Response({'status' : 'Hierarchy Does Not Exist, PLease Create The Hierarchy First'}, status = status.HTTP_404_NOT_FOUND)
+		return Response({'status' : 'Hierarchy Does Not Exist, Please Create The Hierarchy First'}, status = status.HTTP_404_NOT_FOUND)
 
 
 

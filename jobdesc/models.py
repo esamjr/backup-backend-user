@@ -1,7 +1,8 @@
 from django.db import models
 
 class jobdesc(models.Model):
-	id_hierarchy = models.IntegerField()
+	id_comp = models.IntegerField(default = 0)
+	id_hierarchy = models.IntegerField(unique = True)
 	desc = models.CharField(max_length = 10000)
 
 # class Logging(models.Model):
