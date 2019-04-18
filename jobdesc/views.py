@@ -34,8 +34,13 @@ def automigrate_hierarchy_to_jobdesc(request, pk):
 			return Response(result, status = status.HTTP_201_CREATED)
 		elif request.method == 'PUT':
 			hirarki = Hierarchy.objects.get(id = pk)
-			beacon = jobdesc.objects.get(id_hierarchy = hirarki.id)			
-			serializer = JobdescSerialiser(beacon, data = request.data)
+			beacon = jobdesc.objects.get(id_hierarchy = hirarki.id)
+			payload = {
+			'id_comp':beacon.id_comp,
+			'id_hierarchy': beacon.id_hierarchy,
+			'desc':request.data['desc']
+			}
+			serializer = JobdescSerialiser(beacon, data = payload)
 			if serializer.is_valid():
 				serializer.save()
 				return Response(serializer.data, status = status.HTTP_200_OK)
