@@ -6,6 +6,7 @@ class Vendor_api(models.Model):
 	username = models.CharField(max_length = 255)
 	password = models.CharField(max_length = 255)
 	token = models.CharField(max_length = 10000, null=True, blank = True)
+	last_login = models.DateTimeField(auto_now = True)
 
 class MultipleLogin(models.Model):
 	id_user = models.IntegerField(unique = True)

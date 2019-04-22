@@ -15,7 +15,7 @@ from business_account.models import Business
 from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
 from django.conf import settings
-from email_app.views import multidevices_email
+from email_app.views import multidevices_email, vendors_login_alert
 import requests
 import json
 import datetime
@@ -176,6 +176,8 @@ def login_logout_vendors(request):
 				serializer = VendorSerializer(beacon,data = payloads)
 				if serializer.is_valid():
 					serializer.save()
+					vendors = serializer.data['vendor_name']
+					vendors_login_alert(request,vendors)
 					return Response( serializer.data, status = status.HTTP_202_ACCEPTED)
 				return Response( serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			else:
@@ -195,6 +197,8 @@ def login_logout_vendors(request):
 			serializer = VendorSerializer(beacon, data = payload)
 			if serializer.is_valid():
 				serializer.save()
+				vendors = beacon.vendor_name
+				vendors_login_alert(request,vendors)
 				return Response({'status':'YOU HAS LOGOUT'}, status = status.HTTP_202_ACCEPTED)
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 			
