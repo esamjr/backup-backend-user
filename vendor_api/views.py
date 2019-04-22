@@ -15,6 +15,7 @@ from business_account.models import Business
 from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
 from django.conf import settings
+from email_app.views import multidevices_email
 import requests
 import json
 import datetime
@@ -296,6 +297,7 @@ def api_login_absensee_v2(request, pk):
 					}
 					act = "this user accessing "+vendor.username+" app"
 					read_log(request, user, act)
+					multidevices_email(request, user)
 					return Response(payload, status = status.HTTP_200_OK)
 				return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 				#---------------------------------------------------
@@ -405,13 +407,23 @@ def api_login_absensee(request):
 					serializer.save()
 					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
 					comp = []
+
 					for company in companies:
 						beacon = Business.objects.get(id = company)
+						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
+						license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
+						if license.attendance == '1':
+							level = 'IsAdmin'
+						elif license.attendance == '2':
+							level = 'IsUser'
+						else:
+							level = 'User / Company Belum Mengaktifkan Fitur Ini'
 						payload = {
 						'token_user': user.token,
 						'image': beacon.logo_path,
 						'comp_id': beacon.id,
-						'comp_name': beacon.company_name
+						'comp_name': beacon.company_name,
+						'level' : level
 						}
 						comp.append(payload)
 

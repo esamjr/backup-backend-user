@@ -13,6 +13,7 @@ from business_account.models import Business
 from log_app.views import create_log, read_log, update_log, delete_log
 from log_app.serializers import LoggingSerializer
 from log_app.models import Logging
+from email_app.views import intervied_email
 import time
 
 @api_view(['GET', 'POST'])
@@ -75,7 +76,7 @@ def apply(request,pk):
         desc = request.data['desc']
         payload = {
             'id_jobs': pk,
-            'id_applicant' : id_user,
+            'id_applicant' : id_user,  
             'status': 0,
             'descript':desc
         }
@@ -100,6 +101,13 @@ def apply(request,pk):
                 serializer = StatusApplySerializer(rec, data = request.data)
                 if serializer.is_valid():
                     serializer.save()
+                    if serializer.data['status'] == 1:
+                        mail = Register.objects.get(id = id_applicant).email
+                        date = request.data['tanggal']
+                        time = request.data['waktu']
+                        place = request.data['tempat']
+                        compname = busines.company_name
+                        intervied_email(request, compname, mail, date, time, place)
                     return Response(serializer.data, status = status.HTTP_200_OK)
                 return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
             return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -111,7 +119,6 @@ def apply(request,pk):
             return Response({'status':'Business Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
         except Register.DoesNotExist:
             return Response({'status':'User Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
-
 
 @api_view(['GET'])
 def search_by_id_rec(request,pk):
