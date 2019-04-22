@@ -260,12 +260,10 @@ def api_login_absensee_v2(request, pk):
 				read_log(request, user, act)
 				return Response(payload, status = status.HTTP_200_OK)
 			else:
-				return Response({'status':'Vendor Belum Terintegrasi Dengan Mindzzle'})	
-
-				
+				return Response({'status':'Vendor Belum Terintegrasi Dengan Mindzzle'})					
 			#---------------------------------------------------------
 
-			user = Register.objects.get(email = email)
+			# user = Register.objects.get(email = email)
 			multiple_login = MultipleLogin.objects.get(id_user = user.id)
 			#-------------------only single phone-------------------
 			if multiple_login.token_phone != 'xxx':
