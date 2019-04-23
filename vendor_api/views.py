@@ -231,25 +231,25 @@ def api_login_absensee_v2(request, pk):
 				return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
 			
 			if vendor.username == 'Absensee':
-				if license.attendance == '1':
+				if license.attendance == '2':
 					state = 'IsAdmin'
-				elif license.attendance == '2':
+				elif license.attendance == '1':
 					state = 'IsUser'
 				else:
 					state = 'IsNothing'
 					
 			elif vendor.username == 'ERP':
-				if license.attendance == '1':
+				if license.attendance == '2':
 					state = 'IsAdmin'
-				elif license.attendance == '2':
+				elif license.attendance == '1':
 					state = 'IsUser'
 				else:
 					state = 'IsNothing'
 					
 			elif vendor.username == 'payroll':					
-				if license.payroll == '1':
+				if license.payroll == '2':
 					state = 'IsAdmin'
-				elif license.payroll == '2':
+				elif license.payroll == '1':
 					state = 'IsUser'
 				else:
 					state = 'IsNothing'
@@ -424,21 +424,26 @@ def api_login_absensee(request):
 					for company in companies:
 						beacon = Business.objects.get(id = company)
 						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
-						license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
-						if license.attendance == '1':
-							level = 'IsAdmin'
-						elif license.attendance == '2':
-							level = 'IsUser'
-						else:
-							level = 'User / Company Belum Mengaktifkan Fitur Ini'
-						payload = {
-						'token_user': user.token,
-						'image': beacon.logo_path,
-						'comp_id': beacon.id,
-						'comp_name': beacon.company_name,
-						'level' : level
-						}
-						comp.append(payload)
+						try:
+							license = LicenseComp.objects.get(id_hierarchy = hirarki.id, status = '1')
+
+							if license.attendance == '2':
+								level = 'IsAdmin'
+							elif license.attendance == '1':
+								level = 'IsUser'
+							else:
+								level = 'User / Company Belum Mengaktifkan Fitur Ini'
+							payload = {
+							'token_user': user.token,
+							'image': beacon.logo_path,
+							'comp_id': beacon.id,
+							'comp_name': beacon.company_name,
+							'comp_logo':beacon.logo_path,
+							'level' : level
+							}
+							comp.append(payload)
+						except LicenseComp.DoesNotExist:
+							pass
 
 					profil = {
 					'id':user.id,
@@ -495,10 +500,87 @@ def api_login_absensee(request):
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 	except LicenseComp.DoesNotExist:
-		return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+		return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except MultipleLogin.DoesNotExist:
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
+@api_view(['GET'])
+def check_token(request):
+	if request.method == 'GET':
+		try:
+			token_ven = request.META.get('HTTP_AUTHORIZATION')
+			token = request.data['token_user']
+			beacon_vendor = Vendor_api.objects.get(token = token_ven)
+			beacon = Register.objects.get(token = token)
+			return Response({'status':'Okay','token':beacon.token,'id':beacon.id},status = status.HTTP_200_OK)
+		except Vendor_api.DoesNotExist:
+			return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Register.DoesNotExist:
+			return Response({'status':'User Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+def check_admin_attendace(request):
+	if request.method == 'POST':
+		token = request.META.get('HTTP_AUTHORIZATION')
+		try:
+			vendor = Vendor_api.objects.get(token = token)
+			token_user = request.data['token_user']
+			id_comp = request.data['id_company']
+			user = Register.objects.get(token = token_user)
+			company = Business.objects.get(id = id_comp)
+			hirarki = Hierarchy.objects.get(id_user = user.id, id_company = company.id)
+			license_comp = LicenseComp.objects.get(id_comp = id_comp, status = '1', id_hierarchy = hirarki.id)
+			if license_comp.attendance == '1':
+				return Response({'status':'User is not Admin'}, status = status.HTTP_401_UNAUTHORIZED)
+			elif license_comp.attendance == '2':
+				return Response({'status':'User IsAdmin'}, status = status.HTTP_200_OK)
+			else:
+				return Response({'status':'User is unauthorized at all in this page'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Vendor_api.DoesNotExist:
+			return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Register.DoesNotExist:
+			return Response({'status':'User token is Invalid.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Business.DoesNotExist:
+			return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+		except LicenseComp.DoesNotExist:
+			return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Hierarchy.DoesNotExist:
+			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def cloning_data_reprime(request):
+	if request.method == 'GET':
+		try:
+			token = request.META.get('HTTP_AUTHORIZATION')
+			vendor = Vendor_api.objects.get(token = token)
+			id_company = request.data['id_company']
+			company = Business.objects.get(id = id_company)
+			hirarki = Hierarchy.objects.all().values_list('id_user', flat = True).filter(id_company = company.id)
+			result = []
+			for employee in hirarki:
+				user = Register.objects.get(id  = employee)
+				payload = {
+				'id' : user.id,
+				'fullname' : user.full_name,
+				'photo' : user.url_photo
+				}
+				result.append(payload)
+
+			payloads = {
+			'company_id': company.id,
+			'company_name':company.company_name,
+			'logo':company.logo_path,
+			'employees':result
+			}
+			return Response(payloads, status = status.HTTP_200_OK)
+		except Vendor_api.DoesNotExist:
+			return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Business.DoesNotExist:
+			return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+		except Hierarchy.DoesNotExist:
+			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 # @api_view(['POST', 'GET'])
 # def api_login_absensee(request):	

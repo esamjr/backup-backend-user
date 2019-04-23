@@ -11,7 +11,7 @@ class Business(models.Model):
     id_city = models.IntegerField(null=True, blank=True)
     id_business_type = models.IntegerField(null=True, blank=True)
     tax_num = models.IntegerField(null=True, blank=True)
-    logo_path = models.TextField(blank = True, null=True)
+    logo_path = models.TextField(default = 'http://dev-user-admin.mindzzle.com/static/img/blank_business.503c6c8.jpg',blank = True, null=True)
     description = models.TextField(blank=True, null = True)
     banned_type = models.CharField(max_length=500, blank = True)
     create_at = models.DateTimeField(auto_now_add=True)

@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [ 
 	url(r'^api/search/(?P<stri>[a-zA-Z0-9]+)$',  views.search_by_token, name='search_by_token'),
+	url(r'^api/checktoken/$',  views.check_token, name='check_token'),
+	url(r'^api/adminattendance/$',  views.check_admin_attendace, name='check_admin_attendace'),
+	url(r'^api/clonedatamindzzle/$',  views.cloning_data_reprime, name='cloning_data_reprime'),
 	url(r'^api/dashboardreprime/$',  views.timesheets_absensee, name='timesheets_absensee'),
 	url(r'^api/businesspayroll/(?P<pk>[0-9]+)$',  views.api_payroll, name='api_payroll'),
 	url(r'^api/changeuserstatus/$',  views.change_status_domoo_user, name='change_status_domoo_user'),
