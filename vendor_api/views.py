@@ -535,7 +535,21 @@ def check_admin_attendace(request):
 			if license_comp.attendance == '1':
 				return Response({'status':'User is not Admin'}, status = status.HTTP_401_UNAUTHORIZED)
 			elif license_comp.attendance == '2':
-				return Response({'status':'User IsAdmin'}, status = status.HTTP_200_OK)
+				persona = {
+				'id':user.id,
+				'name':user.full_name
+				}
+
+				bisnis = {
+				'id' : company.id,
+				'name':company.company_name
+				}
+				payload = {
+				'status':'IsAdmin',
+				'User':persona,
+				'Company':bisnis
+				}
+				return Response(payload, status = status.HTTP_200_OK)
 			else:
 				return Response({'status':'User is unauthorized at all in this page'}, status = status.HTTP_401_UNAUTHORIZED)
 		except Vendor_api.DoesNotExist:
