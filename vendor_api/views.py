@@ -384,7 +384,7 @@ def api_login_absensee_v2(request, pk):
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST', 'GET'])
+@api_view(['POST', 'PUT'])
 def api_login_absensee(request):	
 	try:
 		if request.method == 'POST':
@@ -475,7 +475,7 @@ def api_login_absensee(request):
 					response = {'status' : 'Wrong Username / Password'}
 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
-		elif request.method == 'GET':
+		elif request.method == 'PUT':
 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
 			token_user = request.data['token_user']
 			vendor = Vendor_api.objects.get(token = token_vendor)
