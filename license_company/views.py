@@ -17,9 +17,15 @@ def search_all_div(request):
             beaco = LicenseComp.objects.get(id = one)
             serializer = LicenseCompSerializer(beaco)
             dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+            user = Register.objects.get(id = dive.id_user)
+            persona = {
+            'id_user' : user.id,
+            'name' : user.full_name
+            }
             payload = {
             'division': dive.division ,
-            'data' : serializer.data
+            'data' : serializer.data,
+            'user' : persona
             }
             result.append(payload)            
         return Response(result, status = status.HTTP_201_CREATED)
@@ -69,9 +75,15 @@ def setting_license_company(request,pk):
                     beaco = LicenseComp.objects.get(id = one)
                     serializer = LicenseCompSerializer(beaco)
                     dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+                    user = Register.objects.get(id = dive.id_user)
+                    persona = {
+                    'id_user' : user.id,
+                    'name' : user.full_name
+                    }
                     payload = {
                     'division': dive.division ,
-                    'data' : serializer.data
+                    'data' : serializer.data,
+                    'user':persona
                     }
                     result.append(payload)            
                 return Response(result, status = status.HTTP_201_CREATED)
