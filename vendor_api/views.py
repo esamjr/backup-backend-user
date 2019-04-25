@@ -426,6 +426,11 @@ def api_login_absensee(request):
 						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
 						try:
 							license = LicenseComp.objects.get(id_hierarchy = hirarki.id, status = '1')
+							sekarang = datetime.datetime.now().date()			
+							if license.expr_date >= sekarang:
+								masa = 'Masih bisa'
+							else:
+								return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
 
 							if license.attendance == '2':
 								level = 'IsAdmin'
