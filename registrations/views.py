@@ -331,15 +331,18 @@ def get_login(request):
                         read_log(request, get_token, act)
                         serializer.save()
                         response = {'status':'SUCCESSFULLY LOGOUT'}
-                        beacon_multi = MultipleLogin.objects.get(id_user = get_token.id)
-                        payload_multilogin = {
-                        'id_user':Registration,
-                        'token_web':'xxx',
-                        'token_phone':'xxx'
-                        }
-                        serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
-                        if serializer_multi.is_valid():
-                            serializer_multi.save()
+                        try:
+                            beacon_multi = MultipleLogin.objects.get(id_user = get_token.id)
+                            payload_multilogin = {
+                            'id_user':Registration,
+                            'token_web':'xxx',
+                            'token_phone':'xxx'
+                            }
+                            serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
+                            if serializer_multi.is_valid():
+                                serializer_multi.save()
+                        except MultipleLogin.DoesNotExist:
+                            pass
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 response = {'status':'NOT FOUND 1'}
