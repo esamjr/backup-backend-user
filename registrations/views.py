@@ -286,15 +286,18 @@ def get_login(request):
                         'email' : get_login.email,
                         'flag ' : flag
                         }
-                        beacon_multi = MultipleLogin.objects.get(id_user = get_login.id)
-                        payload_multilogin = {
-                        'id_user':get_login.id,
-                        'token_web':serializer.data['token'],
-                        'token_phone':'xxx'
-                        }
-                        serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
-                        if serializer_multi.is_valid():
-                            serializer_multi.save()
+                        try:
+                            beacon_multi = MultipleLogin.objects.get(id_user = get_login.id)
+                            payload_multilogin = {
+                            'id_user':get_login.id,
+                            'token_web':serializer.data['token'],
+                            'token_phone':'xxx'
+                            }
+                            serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
+                            if serializer_multi.is_valid():
+                                serializer_multi.save()
+                        except MultipleLogin.DoesNotExist:
+                            pass
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
