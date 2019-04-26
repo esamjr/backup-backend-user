@@ -103,8 +103,8 @@ def get_delete_update_registrations(request, pk):
                         serializer.save()
                         payload = {
                         'id':serializer.data['id'],
-                        'name':serializer.data['fullname'],
-                        'photo':serilanizer.data['url_photo']
+                        'name':serializer.data['full_name'],
+                        'photo':serializer.data['url_photo']
                         }
                         url = 'http://dev-attandance.mindzzle.com/api/user_update'
                         Req = requests.post(url, data = payload)
