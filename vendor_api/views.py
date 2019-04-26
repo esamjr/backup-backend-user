@@ -439,7 +439,7 @@ def api_login_absensee(request):
 							else:
 								level = 'User / Company Belum Mengaktifkan Fitur Ini'
 							payload = {
-							'token_user': user.token,
+							'token_user': token,
 							'image': beacon.logo_path,
 							'comp_id': beacon.id,
 							'comp_name': beacon.company_name,
@@ -484,8 +484,9 @@ def api_login_absensee(request):
 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
 			token_user = request.data['token_user']
 			vendor = Vendor_api.objects.get(token = token_vendor)
-			user = Register.objects.get(token = token_user)
-			multiple_login = MultipleLogin.objects.get(id_user = user.id)
+			# user = Register.objects.get(token = token_user)
+			multiple_login = MultipleLogin.objects.get(token_phone = token_user)
+			user = Register.objects.get(id = multiple_login.id_user)
 			payload = {
 			'id_user':user.id,
 			'token_web':user.token,
@@ -516,7 +517,9 @@ def check_token(request):
 	if request.method == 'GET':
 		try:
 			token_ven = request.META.get('HTTP_AUTHORIZATION')
-			token = request.data['token_user']
+			tokenhp = request.data['token_user']
+			beaconhp = MultipleLogin.objects.get(token_phone = tokenhp)
+			token = beaconhp.token_web
 			beacon_vendor = Vendor_api.objects.get(token = token_ven)
 			beacon = Register.objects.get(token = token)
 			return Response({'status':'Okay','token':beacon.token,'id':beacon.id},status = status.HTTP_200_OK)
@@ -531,7 +534,9 @@ def check_admin_attendace(request):
 		token = request.META.get('HTTP_AUTHORIZATION')
 		try:
 			vendor = Vendor_api.objects.get(token = token)
-			token_user = request.data['token_user']
+			tokenhp = request.data['token_user']
+			beacon = MultipleLogin.objects.get(token_phone = tokenhp)
+			token_user = beacon.token_web
 			id_comp = request.data['id_company']
 			user = Register.objects.get(token = token_user)
 			company = Business.objects.get(id = id_comp)
@@ -702,7 +707,9 @@ def api_find_company_absensee(request):
 	try:
 		token_vendor = request.META.get('HTTP_AUTHORIZATION')
 		vendor = Vendor_api.objects.get(token = token_vendor)
-		token = request.data['token_user']
+		tokenhp = request.data['token_user']
+		beacon = MultipleLogin.objects.get(token_phone = tokenhp)
+		token = beacon.token_web
 		id_comp = request.data['id_comp']
 		user = Register.objects.get(token = token)
 		company = Business.objects.get(id = id_comp)
@@ -934,3 +941,4 @@ def timesheets_absensee(request):
 	Req = requests.get(url)
 	Res = Req.json()
 	return Response(Res, status = status.HTTP_200_OK)
+

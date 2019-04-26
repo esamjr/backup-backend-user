@@ -14,6 +14,7 @@ from vendor_api.serializers import MultipleSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
 import json
+import requests
 
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
@@ -100,11 +101,18 @@ def get_delete_update_registrations(request, pk):
                         act = 'Update registrations by'
                         update_log(request, get_token, act)
                         serializer.save()
+                        payload = {
+                        'id':serializer.data['id'],
+                        'name':serializer.data['fullname'],
+                        'photo':serilanizer.data['url_photo']
+                        }
+                        url = 'http://dev-attandance.mindzzle.com/api/user_update'
+                        Req = requests.post(url, data = payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
             except Register.DoesNotExist:
-                    response = {'status': 'NAME NOT FOUND'}
+                    response = {'status': 'Invalid Token'}
                     return Response(response, status=status.HTTP_404_NOT_FOUND)
         
     except Register.DoesNotExist:
