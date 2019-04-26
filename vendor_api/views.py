@@ -403,6 +403,34 @@ def api_login_absensee(request):
 
 			if (check_password(thepassword, user.password)):			
 				token = make_password(str(time.time()))
+				#-------------------automigrate multipleuser WIP---------------------------
+				# try:
+				# 	beaconMultiple = MultipleLogin.objects.get(id_user = user.id)
+				# except MultipleLogin.DoesNotExist:
+				# 	try:
+				# 		beacon_joins = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+				# 		beacon_result = []
+				# 		for join in beacon_joins:
+				# 			beacon_hirarki = Hierarchy.objects.get(id_company = join, id_user = user.id)
+				# 			beacon_license = LicenseComp.objects.get(id_hierarchy = beacon_hirarki.id, status = '1')
+				# 			sekarang = datetime.datetime.now().date()
+				# 			if beacon_license.expr_date >=sekarang:
+				# 				masa = 'masih bisa'
+				# 				payload = {
+				# 				'id_user':beacon_hirarki.id_user,
+				# 				'token_web':user.token,
+				# 				'token_phone':xxx
+				# 				}
+				# 			else:
+				# 				pass
+				# 				# return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
+				# 	except Joincompany.DoesNotExist:
+				# 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)					
+				# 	except LicenseComp.DoesNotExist:
+				# 		return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+				# 	except Hierarchy.DoesNotExist:
+				# 		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+				#-----------------------------------------------------------------------------------
 				#------------------------multiple login--------------------------------
 				payload = {
 				'id_user':user.id,
@@ -411,8 +439,8 @@ def api_login_absensee(request):
 				}
 				multiple_login = MultipleLogin.objects.get(id_user = user.id)
 				#-------------------only single phone-------------------
-				if multiple_login.token_phone != 'xxx':
-					return Response({'status':'You Have Login In Multiple Phone Devices, Please Logout first'},status = status.HTTP_401_UNAUTHORIZED)
+				# if multiple_login.token_phone != 'xxx':
+				# 	return Response({'status':'You Have Login In Multiple Phone Devices, Please Logout first'},status = status.HTTP_401_UNAUTHORIZED)
 				#-------------------------------------------------------
 				serializer = MultipleSerializer(multiple_login, data = payload)
 				#----------------------------------------------------------------------
@@ -511,6 +539,47 @@ def api_login_absensee(request):
 		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except MultipleLogin.DoesNotExist:
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def migrate_multiuser_company(request, pk):
+	try:
+		result = []
+		token = request.META.get('HTTP_AUTHORIZATION')
+		suser = Register.objects.get(token = token)
+		if suser.id == 0:
+			join = Joincompany.objects.all().values_list('id_user', flat = True).filter(id_company = pk, status = '2')
+			for id_user in join:
+				user = Register.objects.get(id = id_user)
+				hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
+				license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
+				if license.attendance == '0':
+					return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
+				payload = {
+				'id_user':user.id,
+				'name':user.full_name,
+				'photo':user.url_photo
+				}
+				serializer = MultipleSerializer(data = payload)
+				if serializer.is_valid():
+					try:
+						serializer.save()
+						rest = serializer.data
+						result.append(rest)
+					except Exception:
+						pass
+						rest = serializer.errors
+						result.append(rest)		
+			return Response({'status':result}, status = status.HTTP_201_CREATED)
+		else:
+			return Response({'status':'You Are Not Super User'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'Token is Invalid'}, status = status.HTTP_401_UNAUTHORIZED)
+	except LicenseComp.DoesNotExist:
+		return Response({'status':'Your License is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Joincompany.DoesNotExist:
+		return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def check_token(request):

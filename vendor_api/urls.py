@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [ 
 	url(r'^api/search/(?P<stri>[a-zA-Z0-9]+)$',  views.search_by_token, name='search_by_token'),
 	url(r'^api/checktoken/$',  views.check_token, name='check_token'),
+	url(r'^api/migratemultidevice/(?P<pk>[0-9]+)$',  views.migrate_multiuser_company, name='migrate_multiuser_company'),
 	url(r'^api/adminattendance/$',  views.check_admin_attendace, name='check_admin_attendace'),
 	url(r'^api/clonedatamindzzle/$',  views.cloning_data_reprime, name='cloning_data_reprime'),
 	url(r'^api/dashboardreprime/$',  views.timesheets_absensee, name='timesheets_absensee'),

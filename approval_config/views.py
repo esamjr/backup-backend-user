@@ -39,7 +39,7 @@ def update_lookone_approval(request,pk):
 			approv.DELETE()
 			act = 'delete approval id : '+str(pk)
 			read_log(request,user,act)
-			return Response({'status':'Deleted'}, status = status.HTTP_204_NO_CONTENT)
+			return Response({'status':'Deleted'}, status = status.HTTP_204_NO_CONTENT)		
 	except Register.DoesNotExist:
 		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Business.DoesNotExist:
