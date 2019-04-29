@@ -16,6 +16,7 @@ from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
 from django.conf import settings
 from email_app.views import multidevices_email, vendors_login_alert
+from random import randint
 import requests
 import json
 import datetime
@@ -205,6 +206,11 @@ def login_logout_vendors(request):
 		except Vendor_api.DoesNotExist:
 			return Response({'status':'YOU MOST LOGIN FIRST.'}, status = status.HTTP_401_UNAUTHORIZED)
 
+def ERP_token_generator():
+	range_start = 10**(6-1)
+	range_end = (10**6)-1
+	return randint(range_start,range_end)
+
 @api_view(['POST', 'PUT', 'GET'])
 def api_login_absensee_v2(request, pk):	
 	try:
@@ -245,6 +251,17 @@ def api_login_absensee_v2(request, pk):
 					state = 'IsUser'
 				else:
 					state = 'IsNothing'
+
+				token = ERP_token_generator()		 
+
+				payload = {
+				'id_user':user.id,
+				'name':user.full_name,
+				'state':state,
+				'token':token
+				}
+
+				return Response(payload, status = status.HTTP_200_OK)
 					
 			elif vendor.username == 'payroll':					
 				if license.payroll == '2':
