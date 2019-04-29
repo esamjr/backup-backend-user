@@ -250,7 +250,7 @@ def api_login_absensee_v2(request, pk):
 				elif license.attendance == '1':
 					state = 'IsUser'
 				else:
-					state = 'IsNothing'
+					return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
 
 				token = ERP_token_generator()		 
 
@@ -260,6 +260,19 @@ def api_login_absensee_v2(request, pk):
 				'state':state,
 				'token':token
 				}
+
+				if settings.FLAG == 0:
+					url = 'dev-erp-api.mindzzle.com'
+				elif settings.FLAG == 1:
+					url = 'erp-api.mindzzle.com'
+
+				payload_erp = {
+				'id_user':user.id,
+				'username':user.full_name,
+				'token':token
+				}
+
+				Req = requests.post(url, data = payload_erp)
 
 				return Response(payload, status = status.HTTP_200_OK)
 					

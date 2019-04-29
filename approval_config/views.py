@@ -50,11 +50,11 @@ def update_lookone_approval(request,pk):
 
 
 @api_view(['POST', 'GET'])
-def migrate_to_approval(request,pk):
+def migrate_to_approval(request):
 	try: # masih kurang parameter, jika satu user manjadi admin di lebih dari 2 company
 		if request.method == 'POST':
 			token = request.META.get('HTTP_AUTHORIZATION')
-			id_comp = pk
+			id_comp = request.data['id_comp']
 			user = Register.objects.get(token = token)
 			comp = Business.objects.get(id_user = user.id, id = id_comp)
 			# comps = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
@@ -82,8 +82,9 @@ def migrate_to_approval(request,pk):
 
 		elif request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
-			user = Register.objects.get(token = token)			
-			result = Approval.objects.all().filter(id_comp = pk)
+			user = Register.objects.get(token = token)
+			id_comp = request.data['id_comp']
+			result = Approval.objects.all().filter(id_comp = id_comp)
 			serializer = ApprovalSerializer(result, many = True)			
 			return Response(serializer.data, status = status.HTTP_200_OK)
 
