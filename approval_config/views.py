@@ -49,7 +49,7 @@ def update_lookone_approval(request,pk):
 
 
 
-@api_view(['POST', 'GET'])
+@api_view(['POST'])
 def migrate_to_approval(request):
 	try: # masih kurang parameter, jika satu user manjadi admin di lebih dari 2 company
 		if request.method == 'POST':
@@ -80,7 +80,17 @@ def migrate_to_approval(request):
 					result.append(serializers.errors)
 			return Response(result, status = status.HTTP_201_CREATED)
 
-		elif request.method == 'GET':
+	except Register.DoesNotExist:
+		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Business.DoesNotExist:
+		return Response({'status':'Company Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'Hierarchy Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def get_all_approval_by_comp(request,pk):
+	try:
+		if request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
 			id_comp = request.data['id_comp']
