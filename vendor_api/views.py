@@ -254,17 +254,19 @@ def api_login_absensee_v2(request, pk):
 
 				token = ERP_token_generator()		 
 
-				payload = {
-				'id_user':user.id,
-				'name':user.full_name,
-				'state':state,
-				'token':token
-				}
+				# payload = {
+				# 'id_user':user.id,
+				# 'name':user.full_name,
+				# 'state':state,
+				# 'token':token
+				# }
 
 				if settings.FLAG == 0:
-					url = 'dev-erp-api.mindzzle.com'
+					url = 'http://dev-erp-api.mindzzle.com/login/savetoken/'
 				elif settings.FLAG == 1:
-					url = 'erp-api.mindzzle.com'
+					url = 'https://erp-api.mindzzle.com/login/savetoken/'
+				elif settings.FLAG == 3:
+					url = 'http://127.0.0.1:8088/login/savetoken/'
 
 				payload_erp = {
 				'id_user':user.id,
@@ -272,9 +274,10 @@ def api_login_absensee_v2(request, pk):
 				'token':token
 				}
 
-				Req = requests.post(url, data = payload_erp)
+				Req = requests.post(url + str(user.id), data = payload_erp)
+				Res = Req.json()
 
-				return Response(payload, status = status.HTTP_200_OK)
+				return Response(Res, status = status.HTTP_200_OK)
 					
 			elif vendor.username == 'payroll':					
 				if license.payroll == '2':
