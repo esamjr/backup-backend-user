@@ -320,22 +320,7 @@ def api_login_absensee_v2(request, pk):
 					return Response(payload, status = status.HTTP_200_OK)
 				return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 				#---------------------------------------------------
-				# if serializer.is_valid():
-				# 	serializer.save()
-				# 	companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-				# 	comp = []
-				# 	for company in companies:
-				# 		beacon = Business.objects.get(id = company)
-				# 		payload = {
-				# 		'token_user': user.token,
-				# 		'image': beacon.logo_path,
-				# 		'comp_id': beacon.id,
-				# 		'comp_name': beacon.company_name
-				# 		}
-				# 		comp.append(payload)
-				# 	return Response(comp, status = status.HTTP_201_CREATED)
-				# else:
-				# 	return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+				
 			else: 
 				if (attempt == 0):
 					attempt_login(request, email)
@@ -348,7 +333,7 @@ def api_login_absensee_v2(request, pk):
 					attempt_login(request, email)
 					response = {'status' : 'Wrong Username / Password'}
 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
-			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+			
 		elif request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
@@ -419,35 +404,7 @@ def api_login_absensee(request):
 			thepassword = password + salt_password
 
 			if (check_password(thepassword, user.password)):			
-				token = make_password(str(time.time()))
-				#-------------------automigrate multipleuser WIP---------------------------
-				# try:
-				# 	beaconMultiple = MultipleLogin.objects.get(id_user = user.id)
-				# except MultipleLogin.DoesNotExist:
-				# 	try:
-				# 		beacon_joins = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-				# 		beacon_result = []
-				# 		for join in beacon_joins:
-				# 			beacon_hirarki = Hierarchy.objects.get(id_company = join, id_user = user.id)
-				# 			beacon_license = LicenseComp.objects.get(id_hierarchy = beacon_hirarki.id, status = '1')
-				# 			sekarang = datetime.datetime.now().date()
-				# 			if beacon_license.expr_date >=sekarang:
-				# 				masa = 'masih bisa'
-				# 				payload = {
-				# 				'id_user':beacon_hirarki.id_user,
-				# 				'token_web':user.token,
-				# 				'token_phone':xxx
-				# 				}
-				# 			else:
-				# 				pass
-				# 				# return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
-				# 	except Joincompany.DoesNotExist:
-				# 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)					
-				# 	except LicenseComp.DoesNotExist:
-				# 		return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
-				# 	except Hierarchy.DoesNotExist:
-				# 		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
-				#-----------------------------------------------------------------------------------
+				token = make_password(str(time.time()))				
 				#------------------------multiple login--------------------------------
 				payload = {
 				'id_user':user.id,
@@ -694,101 +651,6 @@ def cloning_data_reprime(request):
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-# @api_view(['POST', 'GET'])
-# def api_login_absensee(request):	
-# 	try:
-# 		if request.method == 'POST':
-# 			token_vendor = request.META.get('HTTP_AUTHORIZATION')
-# 			if token_vendor == 'xxx':
-# 				return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
-# 			vendor = Vendor_api.objects.get(token = token_vendor)
-
-# 			email = request.data['email']
-# 			password = request.data['password']			
-# 			user = Register.objects.get(email = email)
-# 			attempt = user.attempt
-# 			salt = user.full_name
-# 			salt_password = ''.join(str(ord(c)) for c in salt)
-# 			thepassword = password + salt_password
-
-# 			if (check_password(thepassword, user.password)):			
-# 				token = make_password(str(time.time()))
-# 				payload = {'token':token}
-# 				serializer = TokenSerializer(user, data = payload)
-# 				if serializer.is_valid():
-# 					serializer.save()
-# 					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-# 					comp = []
-
-# 					for company in companies:
-# 						beacon = Business.objects.get(id = company)
-# 						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
-# 						license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
-# 						if license.attendance == '1':
-# 							level = 'IsAdmin'
-# 						elif license.attendance == '2':
-# 							level = 'IsUser'
-# 						else:
-# 							level = 'User / Company Belum Mengaktifkan Fitur Ini'
-# 						payload = {
-# 						'token_user': user.token,
-# 						'image': beacon.logo_path,
-# 						'comp_id': beacon.id,
-# 						'comp_name': beacon.company_name,
-# 						'level' : level
-# 						}
-# 						comp.append(payload)
-
-# 					profil = {
-# 					'id':user.id,
-# 					'name':user.full_name,
-# 					'photo':user.url_photo
-# 					}
-
-# 					payloads = {
-# 						'api_status':1,
-# 						'api_message':'success',
-# 						'profile': profil,
-# 						'companies':comp
-# 					}
-					
-# 					return Response(payloads, status = status.HTTP_201_CREATED)
-
-# 				else:
-# 					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-# 			else: 
-# 				if (attempt == 0):
-# 					attempt_login(request, email)
-# 					response = {'status' : 'Wrong Username / Password'}
-# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
-# 				elif(attempt % 5 == 0):
-# 					forget_attempt(request, email)
-# 					return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
-# 				else:
-# 					attempt_login(request, email)
-# 					response = {'status' : 'Wrong Username / Password'}
-# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
-# 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
-# 		elif request.method == 'GET':
-# 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
-# 			token_user = request.data['token_user']
-# 			vendor = Vendor_api.objects.get(token = token_vendor)
-# 			user = Register.objects.get(token = token_user)
-# 			payload = {'token':'xxx'}
-# 			serializer = TokenSerializer(user, data = payload)
-# 			if serializer.is_valid():
-# 				serializer.save()
-# 				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
-# 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-# 	except Vendor_api.DoesNotExist:
-# 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
-# 	except Register.DoesNotExist:
-# 		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
-# 	except Joincompany.DoesNotExist:
-# 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
-# 	except Business.DoesNotExist:
-# 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 
 @api_view(['GET'])
 def api_find_company_absensee(request):
@@ -1030,3 +892,99 @@ def timesheets_absensee(request):
 	Res = Req.json()
 	return Response(Res, status = status.HTTP_200_OK)
 
+
+# @api_view(['POST', 'GET'])
+# def api_login_absensee(request):	
+# 	try:
+# 		if request.method == 'POST':
+# 			token_vendor = request.META.get('HTTP_AUTHORIZATION')
+# 			if token_vendor == 'xxx':
+# 				return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
+# 			vendor = Vendor_api.objects.get(token = token_vendor)
+
+# 			email = request.data['email']
+# 			password = request.data['password']			
+# 			user = Register.objects.get(email = email)
+# 			attempt = user.attempt
+# 			salt = user.full_name
+# 			salt_password = ''.join(str(ord(c)) for c in salt)
+# 			thepassword = password + salt_password
+
+# 			if (check_password(thepassword, user.password)):			
+# 				token = make_password(str(time.time()))
+# 				payload = {'token':token}
+# 				serializer = TokenSerializer(user, data = payload)
+# 				if serializer.is_valid():
+# 					serializer.save()
+# 					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
+# 					comp = []
+
+# 					for company in companies:
+# 						beacon = Business.objects.get(id = company)
+# 						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
+# 						license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
+# 						if license.attendance == '1':
+# 							level = 'IsAdmin'
+# 						elif license.attendance == '2':
+# 							level = 'IsUser'
+# 						else:
+# 							level = 'User / Company Belum Mengaktifkan Fitur Ini'
+# 						payload = {
+# 						'token_user': user.token,
+# 						'image': beacon.logo_path,
+# 						'comp_id': beacon.id,
+# 						'comp_name': beacon.company_name,
+# 						'level' : level
+# 						}
+# 						comp.append(payload)
+
+# 					profil = {
+# 					'id':user.id,
+# 					'name':user.full_name,
+# 					'photo':user.url_photo
+# 					}
+
+# 					payloads = {
+# 						'api_status':1,
+# 						'api_message':'success',
+# 						'profile': profil,
+# 						'companies':comp
+# 					}
+					
+# 					return Response(payloads, status = status.HTTP_201_CREATED)
+
+# 				else:
+# 					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+# 			else: 
+# 				if (attempt == 0):
+# 					attempt_login(request, email)
+# 					response = {'status' : 'Wrong Username / Password'}
+# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+# 				elif(attempt % 5 == 0):
+# 					forget_attempt(request, email)
+# 					return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
+# 				else:
+# 					attempt_login(request, email)
+# 					response = {'status' : 'Wrong Username / Password'}
+# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
+# 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
+# 		elif request.method == 'GET':
+# 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
+# 			token_user = request.data['token_user']
+# 			vendor = Vendor_api.objects.get(token = token_vendor)
+# 			user = Register.objects.get(token = token_user)
+# 			payload = {'token':'xxx'}
+# 			serializer = TokenSerializer(user, data = payload)
+# 			if serializer.is_valid():
+# 				serializer.save()
+# 				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
+# 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+# 	except Vendor_api.DoesNotExist:
+# 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+# 	except Register.DoesNotExist:
+# 		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+# 	except Joincompany.DoesNotExist:
+# 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
+# 	except Business.DoesNotExist:
+# 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
