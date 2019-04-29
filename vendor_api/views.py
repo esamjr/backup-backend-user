@@ -621,7 +621,7 @@ def check_admin_attendace(request):
 		try:
 			vendor = Vendor_api.objects.get(token = token)
 			tokenhp = request.data['token_user']
-			beacon = MultipleLogin.objects.get(token_phone = tokenhp)
+			beacon = MultipleLogin.objects.get(token_web = tokenhp)
 			token_user = beacon.token_web
 			id_comp = request.data['id_company']
 			user = Register.objects.get(token = token_user)
@@ -657,6 +657,8 @@ def check_admin_attendace(request):
 		except LicenseComp.DoesNotExist:
 			return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
 		except Hierarchy.DoesNotExist:
+			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+		except MultipleLogin.DoesNotExist:
 			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
