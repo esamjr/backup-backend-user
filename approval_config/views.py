@@ -93,7 +93,7 @@ def get_all_approval_by_comp(request,pk):
 		if request.method == 'GET':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			id_comp = request.data['id_comp']
+			id_comp =pk
 			result = Approval.objects.all().filter(id_comp = id_comp)
 			serializer = ApprovalSerializer(result, many = True)			
 			return Response(serializer.data, status = status.HTTP_200_OK)
