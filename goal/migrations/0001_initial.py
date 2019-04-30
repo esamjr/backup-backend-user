@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('parent_goal', models.IntegerField()),
                 ('id_hierarchy', models.IntegerField()),
                 ('id_type_goal', models.IntegerField()),
-                ('mox_jobdesk', models.IntegerField()),
+                ('max_jobdesk', models.IntegerField()),
                 ('max_bonus', models.IntegerField()),
                 ('status', models.CharField(max_length=3)),
                 ('id_review_scheduler', models.IntegerField()),
