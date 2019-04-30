@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RenameField(
             model_name='goal',
-            old_name='parent',
+            old_name='percent',
             new_name='percent',
         ),
     ]
