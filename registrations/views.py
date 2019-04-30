@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
@@ -8,47 +9,51 @@ from .models import Register, Domoo
 from .serializers import DomoSerializer, RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, SearchSerializer
 from email_app.views import send_email, send_forget_email
 from log_app.views import create_log, update_log, delete_log, read_log
+from vendor_api.models import MultipleLogin
+from vendor_api.serializers import MultipleSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 import time
+import json
+import requests
 
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
-    return Response({'status':'UNDER CONSTRUCTIONS'}, status = status.HTTP_401_UNAUTHORIZED)
-    # try:
-    #     token_su = request.META.get('HTTP_AUTHORIZATION')
-    #     superuser = Register.objects.get(token = token_su)
-    #     if superuser.id == 0:
-    #         # user_id = request.data['id']
-    #         # user = Register.objects.get(id = user_id)
-    #         # payload = {
-    #         # 'id_user':user.id,
-    #         # 'status_domoo':0
-    #         # }
-    #         # serializer = DomoSerializer(data = payload)
-    #         # if serializer.is_valid():
-    #         #     serializer.save()
-    #         #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-    #         # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-    #         #-----------------------WIP-----------------------
-    #         users = Register.objects.all().values_list('id', flat = True)
-    #         result = []
-    #         for user in users:
-    #             payload_domo = {
-    #             'id_user': user,
-    #             'status_domoo' : 0
-    #             }
-    #             serializer = DomoSerializer(data = payload_domo)
-    #             if serializer.is_valid():
-    #                 serializer.save()
-    #                 result.append(serializer.data)
-    #             else:
-    #                 result.append('error in '+str(user))
-    #         return Response(result, status = status.HTTP_201_CREATED)
-    #         #--------------------------------------------------------
-    #     else:
-    #         return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
-    # except Register.DoesNotExist:
-    #     return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        token_su = request.META.get('HTTP_AUTHORIZATION')
+        superuser = Register.objects.get(token = token_su)
+        if superuser.id == 0:
+            # --------------------TESTING----------------------------
+            # user_id = request.data['id']
+            # user = Register.objects.get(id = user_id)
+            # payload = {
+            # 'id_user':user.id,
+            # 'status_domoo':0
+            # }
+            # serializer = DomoSerializer(data = payload)
+            # if serializer.is_valid():
+            #     serializer.save()
+            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
+            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+            #-----------------------FINALE-----------------------
+            users = Register.objects.all().values_list('id', flat = True)
+            result = []
+            for user in users:
+                payload_domo = {
+                'id_user': user,
+                'status_domoo' : 0
+                }
+                serializer = DomoSerializer(data = payload_domo)
+                if serializer.is_valid():
+                    serializer.save()
+                    result.append(serializer.data)
+                else:
+                    result.append('error in '+str(user))
+            return Response(result, status = status.HTTP_201_CREATED)
+            #--------------------------------------------------------
+        else:
+            return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+    except Register.DoesNotExist:
+        return Response({'status':'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def get_user(request, pk):
@@ -96,11 +101,18 @@ def get_delete_update_registrations(request, pk):
                         act = 'Update registrations by'
                         update_log(request, get_token, act)
                         serializer.save()
+                        payload = {
+                        'id':serializer.data['id'],
+                        'name':serializer.data['full_name'],
+                        'photo':serializer.data['url_photo']
+                        }
+                        url = 'http://dev-attandance.mindzzle.com/api/user_update'
+                        Req = requests.post(url, data = payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                     
             except Register.DoesNotExist:
-                    response = {'status': 'NAME NOT FOUND'}
+                    response = {'status': 'Invalid Token'}
                     return Response(response, status=status.HTTP_404_NOT_FOUND)
         
     except Register.DoesNotExist:
@@ -165,13 +177,21 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            # payload_domo = {
-            # 'id_user': serializer.data['id'],
-            # 'status' : 0
-            # }
-            # serialdomo = DomoSerializer(data = payload_domo)
-            # if serialdomo.is_valid():
-            #     serialdomo.save()
+            payload_domo = {
+            'id_user': serializer.data['id'],
+            'status' : 0
+            }
+            serialdomo = DomoSerializer(data = payload_domo)
+            if serialdomo.is_valid():
+                serialdomo.save()
+                payload_multilogin = {
+                'id_user':serializer.data['id'],
+                'token_web':serializer.data['token'],
+                'token_phone':'xxx'
+                }
+                serializer_multi = MultipleSerializer(data = payload_multilogin)
+                if serializer_multi.is_valid():
+                    serializer_multi.save()
             subjects = 'Activation account'
             try:
                 send_email(request, email_var, token,name, subjects)
@@ -273,7 +293,19 @@ def get_login(request):
                         'id_user': get_login.id,
                         'email' : get_login.email,
                         'flag ' : flag
-                        }                                                
+                        }
+                        try:
+                            beacon_multi = MultipleLogin.objects.get(id_user = get_login.id)
+                            payload_multilogin = {
+                            'id_user':get_login.id,
+                            'token_web':serializer.data['token'],
+                            'token_phone':'xxx'
+                            }
+                            serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
+                            if serializer_multi.is_valid():
+                                serializer_multi.save()
+                        except MultipleLogin.DoesNotExist:
+                            pass
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -306,7 +338,19 @@ def get_login(request):
                         act = 'user has logout by '
                         read_log(request, get_token, act)
                         serializer.save()
-                        response = {'status':'SUCCESSFULLY LOGOUT'}                        
+                        response = {'status':'SUCCESSFULLY LOGOUT'}
+                        try:
+                            beacon_multi = MultipleLogin.objects.get(id_user = get_token.id)
+                            payload_multilogin = {
+                            'id_user':Registration,
+                            'token_web':'xxx',
+                            'token_phone':'xxx'
+                            }
+                            serializer_multi = MultipleSerializer(beacon_multi, data = payload_multilogin)
+                            if serializer_multi.is_valid():
+                                serializer_multi.save()
+                        except MultipleLogin.DoesNotExist:
+                            pass
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 response = {'status':'NOT FOUND 1'}
@@ -317,6 +361,7 @@ def get_login(request):
     except Register.DoesNotExist:
         response = {'status':'NOT FOUND 3'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def verified_acc(request):

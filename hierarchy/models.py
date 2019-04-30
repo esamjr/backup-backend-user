@@ -4,6 +4,7 @@ class Hierarchy(models.Model):
     id_level = models.IntegerField()
     id_company = models.IntegerField()
     id_user = models.IntegerField(default = 0)
+    assistant = models.IntegerField(default = 0)
     id_hirarchy = models.IntegerField()
     id_hirarchy_history = models.IntegerField()
     level = models.CharField(max_length=100)

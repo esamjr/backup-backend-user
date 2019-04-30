@@ -17,9 +17,15 @@ def search_all_div(request):
             beaco = LicenseComp.objects.get(id = one)
             serializer = LicenseCompSerializer(beaco)
             dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+            user = Register.objects.get(id = dive.id_user)
+            persona = {
+            'id_user' : user.id,
+            'name' : user.full_name
+            }
             payload = {
             'division': dive.division ,
-            'data' : serializer.data
+            'data' : serializer.data,
+            'user' : persona
             }
             result.append(payload)            
         return Response(result, status = status.HTTP_201_CREATED)
@@ -29,8 +35,9 @@ def search_all_div(request):
 
 @api_view(['GET','PUT', 'POST'])
 def setting_license_company(request,pk):
-    if request.method == 'POST':        
-        try:
+    try:
+        if request.method == 'POST': 
+        
             token = request.META.get('HTTP_AUTHORIZATION')
             user = Register.objects.get(token = token)
             company = Business.objects.get(id = pk ,id_user = user.id)
@@ -50,124 +57,46 @@ def setting_license_company(request,pk):
                     serializer.save()
                     result.append(serializer.data)
             return Response(result, status = status.HTTP_201_CREATED)
-            # -----------------START TESTING CODE---------------
-            # hierarchy_comp = Hierarchy.objects.get(id_company = company.id, division = 'CTO').id
-            # payload = {
-            #             'id_hierarchy': hierarchy_comp,
-            #             'attendance':'0',
-            #             'payroll':'0',
-            #             'status':'0',
-            #             'id_comp':company.id
-            #         }          
-            # serializer = LicenseCompSerializer(data = payload)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-            #-----------------END TESTING CODE------------------
             
-        except Register.DoesNotExist:
-            return Response({'status':'User Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
-        except Business.DoesNotExist:
-            return Response({'status':'Company Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
-        except Hierarchy.DoesNotExist:
-            return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'PUT':
+            license_company = LicenseComp.objects.get(id = pk)
+            serializer = LicenseCompSerializer(license_company, data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status = status.HTTP_201_CREATED)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+        elif request.method == 'GET':
+            try:
+               
+                beacon = LicenseComp.objects.all().values_list('id', flat = True).filter(id_comp = pk)
+                result = []
+                for one in beacon:
+                    beaco = LicenseComp.objects.get(id = one)
+                    serializer = LicenseCompSerializer(beaco)
+                    dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
+                    user = Register.objects.get(id = dive.id_user)
+                    persona = {
+                    'id_user' : user.id,
+                    'name' : user.full_name
+                    }
+                    payload = {
+                    'division': dive.division ,
+                    'data' : serializer.data,
+                    'user':persona
+                    }
+                    result.append(payload)            
+                return Response(result, status = status.HTTP_201_CREATED)
+            except LicenseComp.DoesNotExist:
+                return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+            
+    except Register.DoesNotExist:
+        return Response({'status':'User Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+    except Business.DoesNotExist:
+        return Response({'status':'Company Does Not Exist'}, status = status.HTTP_404_NOT_FOUND)
+    except Hierarchy.DoesNotExist:
+        return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
+    except LicenseComp.DoesNotExist:
+        return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
     
-    elif request.method == 'PUT':
-        license_company = LicenseComp.objects.get(id = pk)
-        serializer = LicenseCompSerializer(license_company, data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'GET':
-        try:
-            # beacon = LicenseComp.objects.get(id = pk)
-            # serializer = LicenseCompSerializer(beacon)
-            beacon = LicenseComp.objects.all().values_list('id', flat = True).filter(id_comp = pk)
-            result = []
-            for one in beacon:
-                beaco = LicenseComp.objects.get(id = one)
-                serializer = LicenseCompSerializer(beaco)
-                dive = Hierarchy.objects.get(id = serializer.data['id_hierarchy'])
-                payload = {
-                'division': dive.division ,
-                'data' : serializer.data
-                }
-                result.append(payload)            
-            return Response(result, status = status.HTTP_201_CREATED)
-        except LicenseComp.DoesNotExist:
-            return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
-
-
-
-
-# @api_view(['GET', 'DELETE', 'PUT'])
-# def get_delete_update_historyhierarchy(request, pk):
-#     try:
-#         history_hierarchy = Historyhierarchy.objects.get(pk=pk)
-#     except Historyhierarchy.DoesNotExist:
-#         content = {
-#             'status': 'Not Found'
-#         }
-#         return Response(content, status=status.HTTP_404_NOT_FOUND)
     
-#     if request.method == 'GET':
-        
-#         serializer = HistoryhierarchySerializer(history_hierarchy)
-#         users = Register.objects.get(id = serializer.data['id_user'])
-
-#         return Response({'nama':users.full_name,'data':serializer.data})
-
-#     elif request.method == 'DELETE':
-        
-#             history_hierarchy.delete()
-#             content = {
-#                 'status' : 'NO CONTENT'
-#             }
-      
-#     elif request.method == 'PUT':
-        
-#             serializer = HistoryhierarchySerializer(history_hierarchy, data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-      
-
-# @api_view(['GET', 'POST'])
-# def get_post_historyhierarchy(request):
-#     if request.method == 'GET':
-#         network = Historyhierarchy.objects.all()        
-#         datas = []
-#         for nets in network:
-#             serializer = HistoryhierarchySerializer(nets)
-#             users = Register.objects.get(id = serializer.data['id_user'])
-#             sets = {'nama':users.full_name,'data':serializer.data}
-#             datas.append(sets)
-#         return Response(datas)
-
-#     elif request.method == 'POST':
-#         serializer = HistoryhierarchySerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['GET'])
-# def get_all_historyhierarchy(request, pk):
-#     try:
-#         network = Historyhierarchy.objects.all().filter(id_company=pk)
-#         datas = []
-#         for nets in network:
-#             serializer = HistoryhierarchySerializer(nets)
-#             users = Register.objects.get(id = serializer.data['id_user'])
-#             sets = {'nama':users.full_name,'data':serializer.data}
-#             datas.append(sets)
-#         return Response(datas)
-#     except Historyhierarchy.DoesNotExist:
-#         content = {
-#             'status': 'Not Found'
-#         }
-#         return Response(content, status=status.HTTP_404_NOT_FOUND)

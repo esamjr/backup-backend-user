@@ -26,7 +26,7 @@ SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+FLAG = 0
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
@@ -97,6 +97,8 @@ INSTALLED_APPS = [
     'test_form',
     'chatapp',
     'license_company',
+    'approval_config',
+    'jobdesc',
 ]
 
 SITE_ID = 1
@@ -151,7 +153,7 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '127.0.0.1',
+     'HOST': '10.148.0.3',
      'PORT': '5432',
      'NAME': 'userdbdev',
      'USER': 'postgres',

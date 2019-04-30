@@ -24,7 +24,7 @@ SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+FLAG = 3
 ALLOWED_HOSTS = ['*']
 
 EMAIL_HOST = 'mail.mindzzle.com'
@@ -101,6 +101,8 @@ INSTALLED_APPS = [
     'test_form',
     'chatapp',
     'license_company',
+    'approval_config',
+    'jobdesc',
 ]
 
 SITE_ID = 1
@@ -149,24 +151,25 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '10.148.0.3',
-#      'PORT': '5432',
-#      'NAME': 'userdbdev',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
 
+DATABASES = {
+    'default': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'HOST': '35.198.248.235',
+     'PORT': '5432',
+     'NAME': 'userdbdev',
+     'USER': 'postgres',
+     'PASSWORD': 'your_password'
+    }
+}
+# 35.198.248.235
+# 10.148.0.3
 # DATABASES = {
 #     'default': {
 #      'ENGINE': 'django.db.backends.postgresql',
