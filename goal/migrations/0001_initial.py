@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id_company', models.IntegerField()),
                 ('title', models.CharField(max_length=30)),
                 ('description', models.TextField()),
-                ('parent', models.IntegerField()),
+                ('percent', models.IntegerField()),
                 ('parent_goal', models.IntegerField()),
                 ('id_hierarchy', models.IntegerField()),
                 ('id_type_goal', models.IntegerField()),
