@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RenameField(
             model_name='goal',
-            old_name='mox_jobdesk',
+            old_name='max_jobdesk',
             new_name='max_jobdesk',
         ),
         migrations.RenameField(
