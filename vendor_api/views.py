@@ -402,7 +402,7 @@ def api_login_absensee_v2(request, pk):
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST', 'PUT','GET'])
+@api_view(['POST', 'PUT'])
 def api_login_absensee(request):	
 	try:
 		if request.method == 'POST':
