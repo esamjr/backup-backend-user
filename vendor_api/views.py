@@ -646,10 +646,8 @@ def cloning_data_reprime(request):
 			result = []
 			for id_hirar in hirarki:
 				hier = Hierarchy.objects.get(id = id_hirar)
-				if hier.id_user == 0:
-				    pass
 				user = Register.objects.get(id  = hier.id_user)
-				license = LicenseComp.objects.get(id_hierarchy = hier.id)				
+				license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
 				if license.attendance == '2':
 					level = 'IsAdmin'
 				elif license.attendance == '1':
