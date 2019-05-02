@@ -647,7 +647,7 @@ def cloning_data_reprime(request):
 			for id_hirar in hirarki:
 				# hier = Hierarchy.objects.get(id = id_hirar)
 				# user = Register.objects.get(id  = hier.id_user)
-				# license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
+				license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
 				# if license.attendance == '2':
 				# 	level = 'IsAdmin'
 				# elif license.attendance == '1':
@@ -662,7 +662,7 @@ def cloning_data_reprime(request):
 				# }
 				# result.append(payload)
                 #----------------asdasd-------------
-				result.append(id_hirar)
+				result.append(license.id)
 			return Response({'status':result}, status = status.HTTP_200_OK)
 			payloads = {
 			'company_id': company.id,
