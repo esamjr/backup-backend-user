@@ -305,7 +305,14 @@ def get_login(request):
                             if serializer_multi.is_valid():
                                 serializer_multi.save()
                         except MultipleLogin.DoesNotExist:
-                            pass
+                            payload_multilogin = {
+                            'id_user':get_login.id,
+                            'token_web':serializer.data['token'],
+                            'token_phone':'xxx'
+                            }
+                            serializer_multi = MultipleSerializer(data = payload_multilogin)
+                            if serializer_multi.is_valid():
+                                serializer_multi.save()
                         return Response(response, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
