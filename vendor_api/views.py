@@ -642,7 +642,7 @@ def cloning_data_reprime(request):
 			vendor = Vendor_api.objects.get(token = token)
 			id_company = request.data['id_company']
 			company = Business.objects.get(id = id_company)
-			hirarki = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
+			hirarki = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id, status = '1')
 			result = []
 			for id_hirar in hirarki:
 				hier = Hierarchy.objects.get(id = id_hirar)
