@@ -594,10 +594,10 @@ def check_admin_attendace(request):
 		try:
 			vendor = Vendor_api.objects.get(token = token)
 			tokenhp = request.data['token_user']
-			beacon = MultipleLogin.objects.get(token_web = tokenhp)
-			token_user = beacon.token_web
+			# beacon = MultipleLogin.objects.get(token_web = tokenhp)
+			# token_user = beacon.token_web
 			id_comp = request.data['id_company']
-			user = Register.objects.get(token = token_user)
+			user = Register.objects.get(token = tokenhp)
 			company = Business.objects.get(id = id_comp)
 			hirarki = Hierarchy.objects.get(id_user = user.id, id_company = company.id)
 			license_comp = LicenseComp.objects.get(id_comp = id_comp, status = '1', id_hierarchy = hirarki.id)
