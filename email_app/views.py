@@ -230,5 +230,9 @@ def percobaan(request):
   elif settings.DEBUG == False:
     link = 'http://api.ipstack.com/check?access_key=67748e6db2cfd5a87ceb197e7caa581a'
   Req = requests.get(link)
+  payload = {
+  'status':Req.json(),
+  'Time':datetime.datetime.now()
+  }
 
-  return Response(Req.json())
+  return Response(payload)
