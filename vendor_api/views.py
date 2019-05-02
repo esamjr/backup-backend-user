@@ -646,21 +646,24 @@ def cloning_data_reprime(request):
 			result = []
 			for id_hirar in hirarki:
 				hier = Hierarchy.objects.get(id = id_hirar)
-				user = Register.objects.get(id  = hier.id_user)
-				license = LicenseComp.objects.get(id_hierarchy = hier.id, status = "1")				
-				if license.attendance == '2':
-					level = 'IsAdmin'
-				elif license.attendance == '1':
-					level = 'IsUser'
+				if hier.id_user == 0:
+				    pass
 				else:
-					level = 'User / Company Belum Mengaktifkan Fitur Ini'
-				payload = {
-				'id' : user.id,
-				'fullname' : user.full_name,
-				'photo' : user.url_photo,
-				'level':level
-				}
-				result.append(payload)
+    				user = Register.objects.get(id  = hier.id_user)
+    				license = LicenseComp.objects.get(id_hierarchy = hier.id)				
+    				if license.attendance == '2':
+    					level = 'IsAdmin'
+    				elif license.attendance == '1':
+    					level = 'IsUser'
+    				else:
+    					level = 'User / Company Belum Mengaktifkan Fitur Ini'
+    				payload = {
+    				'id' : user.id,
+    				'fullname' : user.full_name,
+    				'photo' : user.url_photo,
+    				'level':level
+    				}
+    				result.append(payload)
                 #----------------asdasd-------------
 # 				result.append(license.id)
 # 			return Response({'status':result}, status = status.HTTP_200_OK)
