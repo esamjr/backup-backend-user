@@ -538,9 +538,10 @@ def migrate_multiuser_company(request, pk):
 		suser = Register.objects.get(token = token)
 		if suser.id == 0:
 			join = Joincompany.objects.all().values_list('id_user', flat = True).filter(id_company = pk, status = '2')
+			
 			for id_user in join:
 				user = Register.objects.get(id = id_user)
-				hirarki = Hierarchy.objects.get(id_user = user.id, id_company = pk)
+				hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
 				license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
 				if license.attendance == '0':
 					return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -594,8 +595,8 @@ def check_admin_attendace(request):
 		try:
 			vendor = Vendor_api.objects.get(token = token)
 			tokenhp = request.data['token_user']
-# 			beacon = MultipleLogin.objects.get(token_web = tokenhp)
-# 			token_user = beacon.token_web
+			# beacon = MultipleLogin.objects.get(token_web = tokenhp)
+			# token_user = beacon.token_web
 			id_comp = request.data['id_company']
 			user = Register.objects.get(token = tokenhp)
 			company = Business.objects.get(id = id_comp)
@@ -677,9 +678,8 @@ def cloning_data_reprime(request):
 			return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
-
-
-
+		except LicenseComp.DoesNotExist:
+			return Response({'status':'License Company does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['GET'])
@@ -921,6 +921,30 @@ def timesheets_absensee(request):
 	Req = requests.get(url)
 	Res = Req.json()
 	return Response(Res, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
+def email_forget_blast(request):
+	awal = request.data['awal']
+	akhir = request.data['akhir']
+	# token = request.META.get('HTTP_AUTHORIZATION')
+	# admin = Register.objects.get(token = token)
+	respon = []
+	try:
+		# if admin.id == 0:
+		for id_user in range(int(awal),int(akhir)):
+			user = Register.objects.get(id = id_user)
+			url = 'http://dev-user-api.mindzzle.com/registrations/api/forget/'
+			payload = {
+			'email': user.email
+			}
+			Req = requests.post(url, data = payload)
+			Res = Req.json()
+			respon.append(payload)
+		return Response(respon, status = status.HTTP_200_OK)
+		# else:
+		# 	return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User Not Found'}, status = status.HTTP_404_NOT_FOUND)
 
 
 # @api_view(['POST', 'GET'])
