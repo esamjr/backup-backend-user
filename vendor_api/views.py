@@ -538,6 +538,7 @@ def migrate_multiuser_company(request, pk):
 		suser = Register.objects.get(token = token)
 		if suser.id == 0:
 			join = Joincompany.objects.all().values_list('id_user', flat = True).filter(id_company = pk, status = '2')
+			
 			for id_user in join:
 				user = Register.objects.get(id = id_user)
 				hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
@@ -907,6 +908,30 @@ def timesheets_absensee(request):
 	Req = requests.get(url)
 	Res = Req.json()
 	return Response(Res, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
+def email_forget_blast(request):
+	awal = request.data['awal']
+	akhir = request.data['akhir']
+	# token = request.META.get('HTTP_AUTHORIZATION')
+	# admin = Register.objects.get(token = token)
+	respon = []
+	try:
+		# if admin.id == 0:
+		for id_user in range(int(awal),int(akhir)):
+			user = Register.objects.get(id = id_user)
+			url = 'http://dev-user-api.mindzzle.com/registrations/api/forget/'
+			payload = {
+			'email': user.email
+			}
+			Req = requests.post(url, data = payload)
+			Res = Req.json()
+			respon.append(payload)
+		return Response(respon, status = status.HTTP_200_OK)
+		# else:
+		# 	return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User Not Found'}, status = status.HTTP_404_NOT_FOUND)
 
 
 # @api_view(['POST', 'GET'])

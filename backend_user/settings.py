@@ -158,27 +158,27 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '35.198.248.235',
-#      'PORT': '5432',
-#      'NAME': 'userdbdev',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
-#     }
-# }
-
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.postgresql',
      'HOST': '35.198.248.235',
      'PORT': '5432',
-     'NAME': 'userdbstaging',
+     'NAME': 'userdbdev',
      'USER': 'postgres',
      'PASSWORD': 'your_password'
     }
 }
+
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '35.198.248.235',
+#      'PORT': '5432',
+#      'NAME': 'userdbstaging',
+#      'USER': 'postgres',
+#      'PASSWORD': 'your_password'
+#     }
+# }
 
 
 # DATABASES = {
