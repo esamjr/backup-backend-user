@@ -540,7 +540,7 @@ def migrate_multiuser_company(request, pk):
 			join = Joincompany.objects.all().values_list('id_user', flat = True).filter(id_company = pk, status = '2')
 			for id_user in join:
 				user = Register.objects.get(id = id_user)
-				hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
+				hirarki = Hierarchy.objects.get(id_user = user.id, id_company = pk)
 				license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
 				if license.attendance == '0':
 					return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
