@@ -645,7 +645,8 @@ def cloning_data_reprime(request):
 			hirarki = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
 			result = []
 			for id_hirar in hirarki:
-			    hier = Hierarchy.objects.get(id = id_hirar)
+				
+				hier = Hierarchy.objects.get(id = id_hirar)
 				user = Register.objects.get(id  = hier.id_user)
 				license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
 				if license.attendance == '2':
