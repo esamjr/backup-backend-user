@@ -645,26 +645,25 @@ def cloning_data_reprime(request):
 			hirarki = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
 			result = []
 			for id_hirar in hirarki:
-				
-				hier = Hierarchy.objects.get(id = id_hirar)
-				user = Register.objects.get(id  = hier.id_user)
-				license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
-				if license.attendance == '2':
-					level = 'IsAdmin'
-				elif license.attendance == '1':
-					level = 'IsUser'
-				else:
-					level = 'User / Company Belum Mengaktifkan Fitur Ini'
-				payload = {
-				'id' : user.id,
-				'fullname' : user.full_name,
-				'photo' : user.url_photo,
-				'level':level
-				}
-				result.append(payload)
+				# hier = Hierarchy.objects.get(id = id_hirar)
+				# user = Register.objects.get(id  = hier.id_user)
+				# license = LicenseComp.objects.get(id_hierarchy = hier.id, status = '1')				
+				# if license.attendance == '2':
+				# 	level = 'IsAdmin'
+				# elif license.attendance == '1':
+				# 	level = 'IsUser'
+				# else:
+				# 	level = 'User / Company Belum Mengaktifkan Fitur Ini'
+				# payload = {
+				# 'id' : user.id,
+				# 'fullname' : user.full_name,
+				# 'photo' : user.url_photo,
+				# 'level':level
+				# }
+				# result.append(payload)
                 #----------------asdasd-------------
-# 				result.append(hirar)
-# 			return Response({'status':result}, status = status.HTTP_200_OK)
+				result.append(id_hirar)
+			return Response({'status':result}, status = status.HTTP_200_OK)
 			payloads = {
 			'company_id': company.id,
 			'company_name':company.company_name,
