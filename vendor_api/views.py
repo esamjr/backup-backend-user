@@ -661,7 +661,7 @@ def cloning_data_reprime(request):
 # 				}
 # 				result.append(payload)
                 #----------------asdasd-------------
-				result.append(id_user)
+				result.append(hirar)
 			return Response({'status':result}, status = status.HTTP_200_OK)
 			payloads = {
 			'company_id': company.id,
