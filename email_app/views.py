@@ -226,13 +226,7 @@ def email_get(request):
 @api_view(['GET'])
 def percobaan(request):
   if settings.DEBUG == True:
-    link = 'http://api.ipstack.com/check?access_key=67748e6db2cfd5a87ceb197e7caa581a'
+    link = 'http://dev-user.mindzzle.com/register/confirmation?token='
   elif settings.DEBUG == False:
-    link = 'http://api.ipstack.com/check?access_key=67748e6db2cfd5a87ceb197e7caa581a'
-  Req = requests.get(link)
-  payload = {
-  'status':Req.json(),
-  'Time':datetime.datetime.now()
-  }
-
-  return Response(payload)
+    link = 'http://user.mindzzle.com/register/confirmation?token='
+  return Response({'status':link})

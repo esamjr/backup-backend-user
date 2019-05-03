@@ -16,6 +16,19 @@ import time
 import json
 import requests
 
+@api_view(['POST'])
+def upload_xls(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    admin = Register.objects.get(token = token)
+    if admin.id == 0:
+        serializer = RegisterSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'status':'User Is Unauthorized, because its not admin id'}, status = status.HTTP_401_UNAUTHORIZED)
+
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
     try:
@@ -305,7 +318,6 @@ def get_login(request):
                             if serializer_multi.is_valid():
                                 serializer_multi.save()
                         except MultipleLogin.DoesNotExist:
-                            
                             payload_multilogin = {
                             'id_user':get_login.id,
                             'token_web':serializer.data['token'],
