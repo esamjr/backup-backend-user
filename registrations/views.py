@@ -18,16 +18,19 @@ import requests
 
 @api_view(['POST'])
 def upload_xls(request):
-    token = request.META.get('HTTP_AUTHORIZATION')
-    admin = Register.objects.get(token = token)
-    if admin.id == 0:
-        serializer = RegisterSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({'status':'User Is Unauthorized, because its not admin id'}, status = status.HTTP_401_UNAUTHORIZED)
+    try:
+        token = request.META.get('HTTP_AUTHORIZATION')
+        admin = Register.objects.get(token = token)
+        if admin.id == 0:
+            serializer = RegisterSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status = status.HTTP_201_CREATED)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'status':'User Is Unauthorized, because its not admin id'}, status = status.HTTP_401_UNAUTHORIZED)
+    except Register.DoesNotExist:
+        return Response({'status':'User Is Does not exist'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def auto_migrate_to_domoo(request):
