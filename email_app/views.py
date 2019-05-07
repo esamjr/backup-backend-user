@@ -248,7 +248,7 @@ def percobaan(request):
     
   # else:
   #   ip = request.META.get('REMOTE_ADDR')
-  return Response({'status':resp})
+  return Response({'status':resp, 'status2':res})
   # if settings.DEBUG == True:
   #   link = 'http://dev-user.mindzzle.com/register/confirmation?token='
   # elif settings.DEBUG == False:
