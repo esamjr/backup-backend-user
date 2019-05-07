@@ -225,8 +225,20 @@ def email_get(request):
 
 @api_view(['GET'])
 def percobaan(request):
-  if settings.DEBUG == True:
-    link = 'http://dev-user.mindzzle.com/register/confirmation?token='
-  elif settings.DEBUG == False:
-    link = 'http://user.mindzzle.com/register/confirmation?token='
-  return Response({'status':link})
+
+  x_forward_for = request.META.get('HTTP_X_FORWARDED_FOR')
+  if x_forward_for:
+    ips = x_forward_for.split(',')[0]    
+    token = '67748e6db2cfd5a87ceb197e7caa581a'
+    url_geo = 'http://api.ipstack.com/'+str(ips)+'?access_key='
+    req_geo = requests.get(url_geo+token)
+    ip = req_geo.json()
+    
+  else:
+    ip = request.META.get('REMOTE_ADDR')
+  return Response({'status':ip})
+  # if settings.DEBUG == True:
+  #   link = 'http://dev-user.mindzzle.com/register/confirmation?token='
+  # elif settings.DEBUG == False:
+  #   link = 'http://user.mindzzle.com/register/confirmation?token='
+  # return Response({'status':link})
