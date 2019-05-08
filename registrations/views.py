@@ -27,7 +27,7 @@ def upload_xls(request):
         serializer.save()
         payload_domo = {
             'id_user': serializer.data['id'],
-            'status' : 0
+            'status_domoo' : 0
         }
         serialdomo = DomoSerializer(data = payload_domo)
         if serialdomo.is_valid():
@@ -217,7 +217,7 @@ def get_post_registrations(request):
             serializer.save()
             payload_domo = {
             'id_user': serializer.data['id'],
-            'status' : 0
+            'status_domoo' : 0
             }
             serialdomo = DomoSerializer(data = payload_domo)
             if serialdomo.is_valid():
