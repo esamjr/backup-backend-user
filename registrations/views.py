@@ -45,7 +45,9 @@ def upload_xls(request):
                     send_email(request, serializer.data['email'], serializer.data['token'],serializer.data['full_name'], subjects)
                 except:
                     return Response({'error in here'})
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
+                return Response(serializer.data, status = status.HTTP_201_CREATED)
+            return Response(serializer_multi.errors, status = status.HTTP_400_BAD_REQUEST)
+        return Response(serialdomo.errors, status = status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     #     else:
     #         return Response({'status':'User Is Unauthorized, because its not admin id'}, status = status.HTTP_401_UNAUTHORIZED)
