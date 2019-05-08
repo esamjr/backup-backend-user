@@ -28,23 +28,23 @@ def upload_xls(request):
         payload_domo = {
             'id_user': serializer.data['id'],
             'status' : 0
+        }
+        serialdomo = DomoSerializer(data = payload_domo)
+        if serialdomo.is_valid():
+            serialdomo.save()
+            payload_multilogin = {
+            'id_user':serializer.data['id'],
+            'token_web':serializer.data['token'],
+            'token_phone':'xxx'
             }
-            serialdomo = DomoSerializer(data = payload_domo)
-            if serialdomo.is_valid():
-                serialdomo.save()
-                payload_multilogin = {
-                'id_user':serializer.data['id'],
-                'token_web':serializer.data['token'],
-                'token_phone':'xxx'
-                }
-                serializer_multi = MultipleSerializer(data = payload_multilogin)
-                if serializer_multi.is_valid():
-                    serializer_multi.save()
-            subjects = 'Activation account'
-            try:
-                send_email(request, serializer.data['email'], serializer.data['token'],serializer.data['full_name'], subjects)
-            except:
-                return Response({'error in here'})
+            serializer_multi = MultipleSerializer(data = payload_multilogin)
+            if serializer_multi.is_valid():
+                serializer_multi.save()
+                subjects = 'Activation account'
+                try:
+                    send_email(request, serializer.data['email'], serializer.data['token'],serializer.data['full_name'], subjects)
+                except:
+                    return Response({'error in here'})
         return Response(serializer.data, status = status.HTTP_201_CREATED)
     return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     #     else:
