@@ -235,24 +235,4 @@ def percobaan(request):
   resp = req_geo.json()
   xfor = request.META.get('HTTP_X_REAL_IP')
 
-
-
-  # x_forward_for = request.META.get('HTTP_X_FORWARDED_FOR')
-  # if x_forward_for:
-  #   ips = x_forward_for.split(',')[0]    
-  #   token = '67748e6db2cfd5a87ceb197e7caa581a'
-  #   url_geo = 'http://api.ipstack.com/'+str(ips)+'?access_key='
-  #   req_geo = requests.get(url_geo+token)
-  #   ip = req_geo.json()
-  #   isp = requests.get('http://httpbin.org/ip')
-  #   res = isp.json()
-  #   ip = res['origin']
-    
-  # else:
-  #   ip = request.META.get('REMOTE_ADDR')
   return Response({'status':resp, 'status2':res, 'status3':xfor})
-  # if settings.DEBUG == True:
-  #   link = 'http://dev-user.mindzzle.com/register/confirmation?token='
-  # elif settings.DEBUG == False:
-  #   link = 'http://user.mindzzle.com/register/confirmation?token='
-  # return Response({'status':link})

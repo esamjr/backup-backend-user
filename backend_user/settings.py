@@ -119,9 +119,8 @@ MIDDLEWARE = [
     
 ]
 ROOT_URLCONF = 'backend_user.urls'
-
 CORS_ORIGIN_ALLOW_ALL=True
-
+CORS_ALLOW_CREDENTIALS = True
 PROJECT_ROOT = os.path.dirname
 
 
