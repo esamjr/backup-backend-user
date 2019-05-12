@@ -6,6 +6,7 @@ from .models import Vendor_api,MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer
 from registrations.serializers import TokenSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
+from django.views.decorators.clickjacking import xframe_options_deny, xframe_options_sameorigin,xframe_options_exempt
 from registrations.models import Register, Domoo
 from registrations.serializers import DomoSerializer
 from registrations.views import attempt_login, forget_attempt
@@ -741,6 +742,7 @@ def change_status_domoo_user(request):
 	except Domoo.DoesNotExist:
 		return Response({'status': 'Not Domoo User'})
 
+@xframe_options_exempt
 @api_view(['POST'])
 def check_user_domoo(request):
 	if request.method == 'POST':
