@@ -7,10 +7,11 @@ from .serializers import EmailSerializer
 from .models import Email
 from registrations.models import Register
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.clickjacking import xframe_options_deny, xframe_options_sameorigin,xframe_options_exempt
 from django.http import HttpResponse
 from django.template import loader
 from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
@@ -223,16 +224,36 @@ def email_get(request):
     return Response(serializer.data)
 
 
+@xframe_options_exempt
 @api_view(['GET'])
 def percobaan(request):
-  isp = requests.get('http://httpbin.org/ip')
-  res = isp.json()
-  ips = res['origin']
-  ip = ips.split(',')[0]
-  token = '67748e6db2cfd5a87ceb197e7caa581a'
-  url_geo = 'http://api.ipstack.com/'+str(ip)+'?access_key='
-  req_geo = requests.get(url_geo+token)
-  resp = req_geo.json()
-  xfor = request.META.get('HTTP_X_REAL_IP')
+  if request.method == 'GET':
+    recipient = 'v.maniac271@mailinator.com'
+    file = 'https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwjhxduh75biAhWK6nMBHRh5Bq8QjRx6BAgBEAU&url=https%3A%2F%2Fen.bandainamcoent.eu%2Fone-piece%2Fnews%2Fone-piece-thousand-storm-celebrates-first-anniversary-special-events-and-rewards&psig=AOvVaw32Czsq-pRcbGeaz0t33SAN&ust=1557780644708755'
+    # try:
+    msg = EmailMessage(
+      'test attach email',
+      'Hallo',
+      'admin@mindzzle.com',
+      [recipient],
+      
+      )
+    msg.content_subtype = 'html'
+    msg.attach_file(file)
+    msg.send()
+    return Response({'status':'BERHASIL'})
+    # except Exception:
+    #   return Response({'status':'GAGAL'})
+    # isp = requests.get('http://httpbin.org/ip')
+    # res = isp.json()
+    # ips = res['origin']
+    # ip = ips.split(',')[0]
+    # token = '67748e6db2cfd5a87ceb197e7caa581a'
+    # url_geo = 'http://api.ipstack.com/'+str(ip)+'?access_key='
+    # req_geo = requests.get(url_geo+token)
+    # resp = req_geo.json()
+    # xfor = request.META.get('HTTP_X_REAL_IP')
 
-  return Response({'status':resp, 'status2':res, 'status3':xfor})
+    # return Response({'status':resp, 'status2':res, 'status3':xfor})
+  else:
+    return Response({'status':'Your Request Method id Denied'})
