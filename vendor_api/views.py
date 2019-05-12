@@ -662,6 +662,7 @@ def cloning_data_reprime(request):
 					'id' : user.id,
 					'fullname' : user.full_name,
 					'photo' : user.url_photo,
+					'email':user.email,
 					'level':level
 					}
 					result.append(payload)
