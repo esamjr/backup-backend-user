@@ -229,7 +229,7 @@ def email_get(request):
 def percobaan(request):
   if request.method == 'GET':
     recipient = 'v.maniac271@mailinator.com'
-    file = 'https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwjhxduh75biAhWK6nMBHRh5Bq8QjRx6BAgBEAU&url=https%3A%2F%2Fen.bandainamcoent.eu%2Fone-piece%2Fnews%2Fone-piece-thousand-storm-celebrates-first-anniversary-special-events-and-rewards&psig=AOvVaw32Czsq-pRcbGeaz0t33SAN&ust=1557780644708755'
+    file = "C:\\Users\\ERP\\Downloads\\level_level.csv"
     # try:
     msg = EmailMessage(
       'test attach email',
