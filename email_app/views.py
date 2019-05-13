@@ -228,8 +228,10 @@ def email_get(request):
 @api_view(['GET'])
 def percobaan(request):
   if request.method == 'GET':
-    recipient = 'v.maniac271@mailinator.com'
-    file = "C:\\Users\\ERP\\Downloads\\level_level.csv"
+    recipient = request.data['Recipient']
+    file = request.data['Files']
+    # recipient = 'v.maniac271@mailinator.com'
+    # file = "C:\\Users\\ERP\\Downloads\\level_level.csv"
     # try:
     msg = EmailMessage(
       'test attach email',
