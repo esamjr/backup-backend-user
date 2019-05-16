@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
+    'sipromo_api',
 ]
 
 SITE_ID = 1
