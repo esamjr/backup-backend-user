@@ -481,7 +481,7 @@ def api_login_absensee(request):
 						'profile': profil,
 						'companies':comp
 					}
-					multidevices_email(request, user)
+					multidevices_email(request, user, serializer.data['token_phone'])
 					return Response(payloads, status = status.HTTP_201_CREATED)
 
 				else:
@@ -530,6 +530,25 @@ def api_login_absensee(request):
 		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except MultipleLogin.DoesNotExist:
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['GET'])
+def logout_by_email(request):
+	if request.method == 'GET':
+		if settings.FLAG == 0:
+			url = 'http://dev-user-api.mindzzle.com/vendor/api/api_login_absensee/'
+		elif settings.FLAG == 1:
+			url = 'https://user-api.mindzzle.com/vendor/api/api_login_absensee/'
+		elif settings.FLAG == 2:
+			url = 'http://staging-user-api.mindzzle.com/vendor/api/api_login_absensee/'
+		elif settings.FLAG == 3:
+			url = 'http://127.0.0.1:8000/vendor/api/api_login_absensee/'
+
+		header = {'Authorization' : 'pbkdf2_sha256$120000$I2BCKb0Nflgy$96qeihph6v7Ibpy4st7u5WAFBIRxOUKxHB28r8NlM5U='}
+		token = request.query_params.get('token')
+		payload = {'token_user':token}
+		req = requests.put(url, headers = header, data = payload)
+		res = req.json()
+		return Response(res, status = status.HTTP_200_OK)
 
 @api_view(['GET'])
 def migrate_multiuser_company(request, pk):
@@ -742,7 +761,7 @@ def change_status_domoo_user(request):
 	except Domoo.DoesNotExist:
 		return Response({'status': 'Not Domoo User'})
 
-@xframe_options_exempt
+
 @api_view(['POST'])
 def check_user_domoo(request):
 	if request.method == 'POST':
