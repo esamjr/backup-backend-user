@@ -11,13 +11,19 @@ import json
 def sipromo(request, stri):
 	try:
 		if stri =='getvouchers':
-			url = 'https://api.sipromo.id/get/vouchers'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/get/vouchers'
+			else:
+				url = 'http://52.221.178.188/get/vouchers'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\"\n}"
 			Req = requests.post(url, headers= header, data = payload)
 			Res = Req.json()
 		elif stri == 'getvoucherdetail':
-			url = 'https://api.sipromo.id/get/voucher_detail'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/get/voucher_detail'
+			else:
+				url = 'http://52.221.178.188/get/voucher_detail'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\",\n\t\"voucher_id\": \""+request.data['voucher_id']+"\"\n}"
 			Req = requests.post(url, headers = header, data = payload)
@@ -25,7 +31,10 @@ def sipromo(request, stri):
 		elif stri == 'redeemvoucher':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			url = 'https://api.sipromo.id/redeem'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/redeem'
+			else:
+				url = 'http://52.221.178.188/redeem'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\",\n\t\"voucher_id\": \""+request.data['voucher_id']+"\",\n\t\"user_id\": \""+user.id+"\"\n}"
 			Req = requests.post(url, headers = header, data = payload)
@@ -33,7 +42,10 @@ def sipromo(request, stri):
 		elif stri == 'getuservoucherredeem':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			url = 'https://api.sipromo.id/get/user_voucher/redeem'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/get/user_voucher/redeem'
+			else:
+				url = 'http://52.221.178.188/get/user_voucher/redeem'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\",\n\t\"user_id\": \""+user.id+"\"\n}"
 			Req = requests.post(url, headers = header, data = payload)
@@ -41,7 +53,10 @@ def sipromo(request, stri):
 		elif stri == 'getuservoucherused':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			url = 'https://api.sipromo.id/get/user_voucher/used'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/get/user_voucher/used'
+			else:
+				url = 'http://52.221.178.188/get/user_voucher/used'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\",\n\t\"user_id\": \""+user.id+"\"\n}"
 			Req = requests.post(url, headers = header, data = payload)
@@ -49,13 +64,16 @@ def sipromo(request, stri):
 		elif stri == 'getuservoucherexpired':
 			token = request.META.get('HTTP_AUTHORIZATION')
 			user = Register.objects.get(token = token)
-			url = 'https://api.sipromo.id/get/user_voucher/used'
+			if settings.FLAG == 1 :
+				url = 'https://api.sipromo.id/get/user_voucher/used'
+			else:
+				url = 'http://52.221.178.188/get/user_voucher/used'
 			header = {'Content-Type':'application/json'}
 			payload = "{\n\t\"appToken\": \"$2y$10$KMWlIAhy6p8gGPJx7tdgKOOgAIksjaaB6ZLUXWYtKxJH.9m/9oTy6\",\n\t\"appID\": \"92771509\",\n\t\"user_id\": \""+user.id+"\"\n}"
 			Req = requests.post(url, headers = header, data = payload)
 			Res = Req.json()
 		else:
 			return Response({'status':'Endpoint has no match'}, status = status.HTTP_400_BAD_REQUEST)
-		return Response(Res)
+		return Response([Res])
 	except Register.DoesNotExist:
 		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
