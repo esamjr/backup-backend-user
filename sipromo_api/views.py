@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from registrations.models import Register
+from django.conf import settings
 import requests
 import json
 # Create your views here.
@@ -76,4 +77,4 @@ def sipromo(request, stri):
 			return Response({'status':'Endpoint has no match'}, status = status.HTTP_400_BAD_REQUEST)
 		return Response([Res])
 	except Register.DoesNotExist:
-		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED) 
