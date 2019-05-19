@@ -8,7 +8,7 @@ import requests
 import json
 
 # Create your views here.
-@api_view(['GET','POST','PUT','DELETE'])
+@api_view(['GET','POST','PUT'])
 def api_haloarif(request, string):
 	if request.method == 'POST':
 		if string == 'register':
@@ -78,6 +78,8 @@ def api_haloarif(request, string):
 			Req = requests.get(url, headers = header)
 			Res = Req.json()
 			return Response(Res)
+		else:
+			return Response({'status':'Endpoint Is Invalid'}, status = status.HTTP_400_BAD_REQUEST)
 	elif request.method == 'PUT':
 		if string == 'updateId':
 			if settings.FLAG == 1:
@@ -107,3 +109,8 @@ def api_haloarif(request, string):
 			Req = requests.delete(url)
 			Res = Req.json()
 			return Response(Res)
+		else:
+			return Response({'status':'Endpoint Is Invalid'}, status = status.HTTP_400_BAD_REQUEST)
+	else:
+		return Response({'status':'request method Is Invalid'}, status = status.HTTP_400_BAD_REQUEST)
+
