@@ -28,7 +28,7 @@ SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 DEBUG = True
 FLAG = 0
 ALLOWED_HOSTS = ['*']
-
+SECURE_CONTENT_TYPE_NOSNIFF = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',

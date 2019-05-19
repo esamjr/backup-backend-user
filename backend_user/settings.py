@@ -32,7 +32,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-
+SECURE_CONTENT_TYPE_NOSNIFF  = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     'approval_config',
     'jobdesc',
     'sipromo_api',
+    'haloarif',
 ]
 
 SITE_ID = 1
