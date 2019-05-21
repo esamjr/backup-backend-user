@@ -185,7 +185,8 @@ def get_post_registrations(request):
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
     elif request.method == 'POST':        
-        email_var = request.data['email']
+        email = request.data['email']
+        email_var = email.lower()
         password = request.data['password'] 
         name = request.data['full_name']
         salt_password = ''.join(str(ord(c))for c in name)
@@ -293,7 +294,8 @@ def attempt_login(request,email):
 def get_login(request):    
     try:
         if request.method == 'POST':
-            email = request.data['email']
+            emails = request.data['email']
+            email = emails.lower()
             key = request.data['password']
             beacon = Register.objects.get(email=email)
             salt = beacon.full_name
