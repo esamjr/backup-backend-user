@@ -74,6 +74,17 @@ def search_by_token(request, stri):
 		return Response({'status': 'You dont have any employer'}, status = status.HTTP_200_OK)
 
 @api_view(['GET'])
+def sync_emp_config(request):
+	if request.method == 'GET':
+		token = request.META.get('HTTP_AUTHORIZATION')
+		comp = request.data['comp_id']
+		user = Register.objects.get(token = token)
+		company = Business.objects.get(id_user = user.id, id = comp)
+
+		hierarchy_comp = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
+		return Response({'result':hierarchy_comp}, status = status.HTTP_200_OK)
+
+@api_view(['GET'])
 def api_payroll(request, pk):
 	if request.method == 'GET':
 		try:
@@ -102,7 +113,7 @@ def api_payroll(request, pk):
 			return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
 		except LicenseComp.DoesNotExist:
 			return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
-
+#-----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
 @api_view(['GET', 'POST', 'DELETE'])
 def generate(request):
 	if request.method == 'POST':
@@ -159,6 +170,7 @@ def generate(request):
 		except Register.DoesNotExist:
 			return Response({'status':'YOU ARE NOTHING.'}, status = status.HTTP_400_BAD_REQUEST)
 
+#------------------------------------------------GENERAL API--------------------------------------------------------------------------------------------
 @api_view(['GET', 'POST'])
 def login_logout_vendors(request):
 	if request.method == 'POST':
@@ -402,7 +414,7 @@ def api_login_absensee_v2(request, pk):
 	except MultipleLogin.DoesNotExist:
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
-
+#---------------------------------------ATTENDANCE API------------------------------------------------------------------------------------
 @api_view(['POST', 'PUT'])
 def api_login_absensee(request):	
 	try:
@@ -705,6 +717,16 @@ def cloning_data_reprime(request):
 		except LicenseComp.DoesNotExist:
 			return Response({'status':'License Company does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
+@api_view(['GET'])
+def timesheets_absensee(request):
+	if settings.FLAG == 0:
+		url = 'http://dev-attandance.mindzzle.com/api/timesheets'
+	elif settings.FLAG == 1:
+		url = 'https://attandance.mindzzle.com/api/timesheets'
+
+	Req = requests.get(url)
+	Res = Req.json()
+	return Response(Res, status = status.HTTP_200_OK)
 
 @api_view(['GET'])
 def api_find_company_absensee(request):
@@ -742,6 +764,7 @@ def api_find_company_absensee(request):
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 
+#-------------------------------------DOMOO API-------------------------------------------------------------------------------------------
 @api_view(['PUT'])
 def change_status_domoo_user(request):
 	try:
@@ -760,7 +783,6 @@ def change_status_domoo_user(request):
 		return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
 	except Domoo.DoesNotExist:
 		return Response({'status': 'Not Domoo User'})
-
 
 @api_view(['POST'])
 def check_user_domoo(request):
@@ -936,17 +958,7 @@ def login_logout_domoo(request):
 			Res = Req.json()
 			return Response(Res['message'])
 
-@api_view(['GET'])
-def timesheets_absensee(request):
-	if settings.FLAG == 0:
-		url = 'http://dev-attandance.mindzzle.com/api/timesheets'
-	elif settings.FLAG == 1:
-		url = 'https://attandance.mindzzle.com/api/timesheets'
-
-	Req = requests.get(url)
-	Res = Req.json()
-	return Response(Res, status = status.HTTP_200_OK)
-
+#---------------------------------------------SUper ADmin API -----------------------------------------------------
 @api_view(['GET'])
 def email_forget_blast(request):
 	awal = request.data['awal']

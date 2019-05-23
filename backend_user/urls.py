@@ -21,6 +21,7 @@ from email_app import views as lihat
 
 urlpatterns = [
     url(r'^sipromo/', include('sipromo_api.urls')),
+    url(r'^orderlicense/', include('orderlicense.urls')),
     url(r'^haloarif/', include('haloarif.urls')),
     url(r'^jobdesc/', include('jobdesc.urls')),
     url(r'^approval/', include('approval_config.urls')),

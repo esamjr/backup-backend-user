@@ -22,6 +22,7 @@ urlpatterns = [
 	url(r'^api/api_find_company_absensee/$', views.api_find_company_absensee, name='api_find_company_absensee'),
 	url(r'^api/login_out/$',  views.login_logout_vendors, name='login_logout_vendors'),
 	url(r'^api/$',  views.generate, name='generate'),
+	url(r'^api/syncpayroll/$',  views.sync_emp_config, name='sync_emp_config'),
 	url(r'^logoutemail/$',  views.logout_by_email, name='logout_by_email'),
 	# url(r'^api-token-auth/', obtain_jwt_token, name='obtain'),
 ]

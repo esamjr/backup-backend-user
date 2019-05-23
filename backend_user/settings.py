@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'jobdesc',
     'sipromo_api',
     'haloarif',
+    'orderlicense',
 ]
 
 SITE_ID = 1
