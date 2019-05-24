@@ -170,6 +170,8 @@ DATABASES = {
      'PASSWORD': 'your_password'
     }
 }
+
+
 # 35.198.248.235
 # 10.148.0.3
 # DATABASES = {

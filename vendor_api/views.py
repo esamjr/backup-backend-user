@@ -73,6 +73,7 @@ def search_by_token(request, stri):
 	except Joincompany.DoesNotExist:
 		return Response({'status': 'You dont have any employer'}, status = status.HTTP_200_OK)
 
+#-----------------------------------------------PAYROLL API-----------------------------------------------------------------------------------
 @api_view(['GET'])
 def sync_emp_config(request):
 	if request.method == 'GET':
