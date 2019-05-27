@@ -105,6 +105,13 @@ INSTALLED_APPS = [
     'jobdesc',
     'sipromo_api',
     'orderlicense',
+    'category_goal',
+    'warna_goal',
+    'time_period',
+    'KPI',
+    'KPI_assign',
+    'task',
+    'task_assign',
 ]
 
 SITE_ID = 1

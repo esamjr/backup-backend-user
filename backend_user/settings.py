@@ -106,6 +106,13 @@ INSTALLED_APPS = [
     'sipromo_api',
     'haloarif',
     'orderlicense',
+    'category_goal',
+    'warna_goal',
+    'time_period',
+    'KPI',
+    'KPI_assign',
+    'task',
+    'task_assign',
 ]
 
 SITE_ID = 1
