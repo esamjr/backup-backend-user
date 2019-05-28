@@ -840,7 +840,7 @@ def check_user_domoo(request):
 			elif cust['status'] == '1':
 				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']})
 		except Exception:
-			return Response(data, status = status.HTTP_403_FORBIDDEN)
+			return Response(data, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def registrations_domoo(request):
