@@ -836,11 +836,11 @@ def check_user_domoo(request):
 			# return Response(cust)
 			if cust['status'] == '0':
 				# beacon = 
-				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_403_FORBIDDEN)
+				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']})
 			elif cust['status'] == '1':
 				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']})
 		except Exception:
-			return Response(r.json())
+			return Response(data, status = status.HTTP_403_FORBIDDEN)
 
 @api_view(['POST'])
 def registrations_domoo(request):
