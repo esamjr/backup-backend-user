@@ -83,7 +83,7 @@ def sync_billing(request):
 		if admin.id != 0:
 			return Response({'status':'User Is Not Super Admin, Please contact Mindzzle Backend'}, status = status.HTTP_400_BAD_REQUEST)
 		elif admin.id == 0:
-			bisnis = Business.objects.all().values_list('id' , 'id_user')
+			bisnis = Business.objects.all().values_list('id' , 'id_user').filter(banned_type = 2)
 			result = []
 			for id_biz, id_use in bisnis:
 				beaconbiz = Business.objects.get(id = id_biz)
