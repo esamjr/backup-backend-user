@@ -13,6 +13,7 @@ from registrations.views import attempt_login, forget_attempt
 from log_app.views import read_log
 from join_company.models import Joincompany
 from business_account.models import Business
+from business_account.serializers import BusinessSerializer
 from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
 from django.conf import settings
@@ -72,6 +73,32 @@ def search_by_token(request, stri):
 		return Response({'status': 'You are not an admin company'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
 		return Response({'status': 'You dont have any employer'}, status = status.HTTP_200_OK)
+#-----------------------------------------------BILLING API------------------------------------------------------------
+
+@api_view(['GET'])
+def sync_billing(request):
+	try:
+		token = request.META.get('HTTP_AUTHORIZATION')
+		admin = Register.objects.get(token = token)
+		if admin.id != 0:
+			return Response({'status':'User Is Not Super Admin, Please contact Mindzzle Backend'}, status = status.HTTP_400_BAD_REQUEST)
+		elif admin.id == 0:
+			bisnis = Business.objects.all().values_list('id' , 'id_user')
+			result = []
+			for id_biz, id_use in bisnis:
+				beaconbiz = Business.objects.get(id = id_biz)
+				bizser = BusinessSerializer(beaconbiz)
+				bizadm = Register.objects.get(id = id_use)
+				payload = {
+				'Business':bizser.data,
+				'Superadmin' : {'name' : bizadm.full_name, 'email':bizadm.email}
+				}
+				result.append(payload)
+			return Response(result, status = status.HTTP_200_OK)
+		else:
+			return Response({'status':'User did not have credentials'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Register.DoesNotExist:
+		return Response({'status':'User Did Not Exist'}, status = status.HTTP_404_NOT_FOUND)
 
 #-----------------------------------------------PAYROLL API-----------------------------------------------------------------------------------
 @api_view(['GET'])
@@ -245,7 +272,7 @@ def api_login_absensee_v2(request, pk):
 			license = LicenseComp.objects.get(id_comp = comp.id, status = '1', id_hierarchy = hierarki.id)
 			sekarang = datetime.datetime.now().date()
 			
-			if license.expr_date >= sekarang:
+			if datetime.datetime.strptime(str(license.expr_date), '%Y-%m-%d').date() >= sekarang:
 				masa = 'Masih bisa'
 			else:
 				return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -257,7 +284,14 @@ def api_login_absensee_v2(request, pk):
 					state = 'IsUser'
 				else:
 					state = 'IsNothing'
-					
+
+			elif vendor.username == 'Billing':
+				if license.billing == '2':
+					state = 'IsAdmin'
+				elif license.billing == '1':
+					state = 'IsUser'
+				return Response({'status':state}, status = status.HTTP_200_OK)
+
 			elif vendor.username == 'ERP':
 				if license.attendance == '2':
 					state = 'IsAdmin'
