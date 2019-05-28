@@ -122,8 +122,9 @@ def api_payroll(request, pk):
 			hierarki = Hierarchy.objects.get(id_company = pk, id_user = IsAdmin.id)
 			license = LicenseComp.objects.get(id_comp = pk, status = '1', id_hierarchy = hierarki.id)
 			if license.payroll == '2':
+				state = 'IsAdmin'
 				payload = {
-				'state' : 'IsAdmin',
+				'status' : 'IsAdmin',
 				'email' : comp.email,
 				'name' : comp.company_name,
 				'logo' : comp.logo_path,
