@@ -836,7 +836,7 @@ def check_user_domoo(request):
 			# return Response(cust)
 			if cust['status'] == '0':
 				# beacon = 
-				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']})
+				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_403_FORBIDDEN)
 			elif cust['status'] == '1':
 				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']})
 		except Exception:
