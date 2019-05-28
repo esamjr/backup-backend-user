@@ -814,8 +814,8 @@ def change_status_domoo_user(request):
 		seralizer = DomoSerializer(beacon, data = payload)
 		if seralizer.is_valid():
 			seralizer.save()
-			return Response(seralizer.data, status = status.HTTP_201_CREATED)
-		return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+			return Response(seralizer.data)
+		return Response(seralizer.errors)
 	except Domoo.DoesNotExist:
 		return Response({'status': 'Not Domoo User'})
 
@@ -836,11 +836,11 @@ def check_user_domoo(request):
 			# return Response(cust)
 			if cust['status'] == '0':
 				# beacon = 
-				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_200_OK)
+				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']})
 			elif cust['status'] == '1':
-				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']}, status = status.HTTP_200_OK)			
+				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']})
 		except Exception:
-			return Response(data, status = status.HTTP_401_UNAUTHORIZED)
+			return Response(data)
 
 @api_view(['POST'])
 def registrations_domoo(request):
@@ -871,14 +871,14 @@ def registrations_domoo(request):
 			seralizer = DomoSerializer(beacon, data = payload)
 			if seralizer.is_valid():
 				seralizer.save()
-				return Response(seralizer.data, status = status.HTTP_201_CREATED)
-			return Response(seralizer.errors, status = status.HTTP_400_BAD_REQUEST)
+				return Response(seralizer.data)
+			return Response(seralizer.errors)
 		except Domoo.DoesNotExist:
 			return Response({'status': 'Not Domoo User'})
-		return Response(resp, status = status.HTTP_200_OK)
+		return Response(resp)
 	except Exception:
 		resp = Res['message']
-		return Response(resp, status = status.HTTP_400_BAD_REQUEST)
+		return Response(resp)
 
 @api_view(['POST'])
 def verify_otp_domoo(request):
@@ -894,10 +894,10 @@ def verify_otp_domoo(request):
 	Res = req.json()
 	try:
 		resp = Res['customers']
-		return Response(resp, status = status.HTTP_200_OK)
+		return Response(resp)
 	except Exception:
 		resp = Res['message']
-		return Response(resp, status = status.HTTP_400_BAD_REQUEST)
+		return Response(resp)
 
 @api_view(['POST'])
 def set_passcode_domoo(request):
@@ -971,10 +971,10 @@ def login_logout_domoo(request):
 		try:
 			resp = Res['customers']
 			token = resp['access_token']
-			return Response(resp, status = status.HTTP_202_ACCEPTED)
+			return Response(resp)
 		except Exception:
 			resp = Res['message']
-			return Response(resp, status = status.HTTP_401_UNAUTHORIZED)
+			return Response(resp)
 
 	elif request.method == 'PUT':
 		if settings.FLAG == 1:
