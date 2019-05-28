@@ -118,11 +118,18 @@ def api_payroll(request, pk):
 		try:
 			token = request.META.get('HTTP_AUTHORIZATION')
 			IsAdmin = Register.objects.get(token = token)
-			# comp = Business.objects.get(id_user = IsAdmin.id, id = pk)
+			comp = Business.objects.get(id = pk)
 			hierarki = Hierarchy.objects.get(id_company = pk, id_user = IsAdmin.id)
 			license = LicenseComp.objects.get(id_comp = pk, status = '1', id_hierarchy = hierarki.id)
 			if license.payroll == '2':
-				state = 'IsAdmin'
+				payload = {
+				'state' : 'IsAdmin',
+				'email' : comp.email,
+				'name' : comp.company_name,
+				'logo' : comp.logo_path,
+				}
+				return Response(payload, status = status.HTTP_200_OK)
+
 			elif license.payroll == '1':
 				state = 'IsUser'
 			else:
