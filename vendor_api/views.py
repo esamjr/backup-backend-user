@@ -104,13 +104,19 @@ def sync_billing(request):
 @api_view(['GET'])
 def sync_emp_config(request):
 	if request.method == 'GET':
-		token = request.META.get('HTTP_AUTHORIZATION')
-		comp = request.data['comp_id']
-		user = Register.objects.get(token = token)
-		company = Business.objects.get(id_user = user.id, id = comp)
-
-		hierarchy_comp = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
-		return Response({'result':hierarchy_comp}, status = status.HTTP_200_OK)
+		try:
+			token = request.META.get('HTTP_AUTHORIZATION')
+			comp = request.data['comp_id']
+			user = Register.objects.get(token = token)
+			company = Business.objects.get(id_user = user.id, id = comp)
+			hierarchy_comp = Hierarchy.objects.all().values_list('id', flat = True).filter(id_company = company.id)
+			return Response({'result':hierarchy_comp}, status = status.HTTP_200_OK)
+		except Register.DoesNotExist:
+			return Response({'status':'You Must Login First'}, status = status.HTTP_401_UNAUTHORIZED)
+		except Business.DoesNotExist:
+			return Response({'status':'ID Company is Did not match'}, status = status.HTTP_404_NOT_FOUND)
+		except Hierarchy.DoesNotExist:
+			return Response({'status':'Hierarchy is Empty, fill The company hierarchy first'})
 
 @api_view(['GET'])
 def api_payroll(request, pk):
