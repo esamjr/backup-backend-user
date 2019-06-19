@@ -27,7 +27,7 @@ import time
 @api_view(['GET'])
 def search_by_token(request, stri):	
 	try:
-		token = requests.META.get('HTTP_AUTHORIZATION')
+		token = request.META.get('HTTP_AUTHORIZATION')
 		user = Register.objects.get(token = token)
 		if stri == 'admincompany':			
 			admins = Business.objects.all().values_list('id', flat = True).filter(id_user = user.id)
