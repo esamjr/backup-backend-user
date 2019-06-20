@@ -296,7 +296,7 @@ def percobaan(request):
     # return Response({'status_name':user.full_name})   
     # #--------------DATA---------------------
     recipient = request.data['Recipient']
-    file = request.data['Files']
+    file = request.FILES['Files']
     # recipient = 'v.maniac271@mailinator.com'
     # file = "C:\\Users\\ERP\\Downloads\\level_level.csv"
     # try:
@@ -307,8 +307,14 @@ def percobaan(request):
       [recipient],
       
       )
-    msg.content_subtype = 'html'
-    msg.attach_file(file)
+    msg.attach(file.name, file.read(), file.content_type)
+
+    # fd = open(file, 'r')
+    # msg.attach(file, fd.read(), 'text/plain')
+   
+    # res = email.send()
+    # msg.content_subtype = 'html'
+    # msg.attach_file(file)
     msg.send()
     return Response({'status':'BERHASIL'})
     #----------------------------------------------

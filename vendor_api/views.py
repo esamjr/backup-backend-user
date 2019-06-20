@@ -18,6 +18,7 @@ from hierarchy.models import Hierarchy
 from license_company.models import LicenseComp
 from django.conf import settings
 from email_app.views import multidevices_email, vendors_login_alert
+from django.core.mail import EmailMessage
 from random import randint
 import requests
 import json
@@ -1031,6 +1032,43 @@ def email_forget_blast(request):
 		# 	return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Register.DoesNotExist:
 		return Response({'status':'User Not Found'}, status = status.HTTP_404_NOT_FOUND)
+
+# @api_view(['GET'])
+# def email_blast(request):
+# 	awal = request.data['awal']
+# 	akhir  = request.data['akhir']
+# 	respon = []
+# 	try:
+# 		for id_user in range(int(awal), int(akhir)):
+# 			user = Register.objects.get(id = id_user)
+
+@api_view(['POST'])
+def send_blast(request):
+  if request.method == 'POST':
+    awal = request.data['awal']
+    akhir  = request.data['akhir']
+    result = []
+    try:
+        for id_user in range(int(awal), int(akhir)):
+    # #--------------DATA---------------------	   
+            user = Register.objects.get(id = id_user)
+            recipient = user.email
+            msg = EmailMessage(
+              'Info Mobile Apps Mindzzle',
+              'Silahkan Untuk Download aplikasi Mindzzle dengan link dibawah ini \n Android : https://play.google.com/store/apps/details?id=com.reprime.mindzzle.attendance \n IOS : https://apps.apple.com/id/app/mindzzle-attendance/id1463349473',
+              'admin@mindzzle.com',
+              [recipient],      
+              )
+            # try:
+            msg.send()
+            sre ={'status':str(user.email)+' Berhasil Dikirim'}
+            result.append(sre)
+            # except Exception:
+            #     sre ={'status':str(user.email)+' Gagal Dikirim'}
+            #     result.append(sre)
+    except Register.DoesNotExist:
+      	pass        
+    return Response(result)			
 
 
 # @api_view(['POST', 'GET'])

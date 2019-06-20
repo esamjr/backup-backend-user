@@ -25,5 +25,6 @@ urlpatterns = [
 	url(r'^api/syncbilling/$',  views.sync_billing, name='sync_billing'),
 	url(r'^api/syncpayroll/$',  views.sync_emp_config, name='sync_emp_config'),
 	url(r'^logoutemail/$',  views.logout_by_email, name='logout_by_email'),
+	url(r'^Sendblast/$',  views.send_blast, name='send_blast'),
 	# url(r'^api-token-auth/', obtain_jwt_token, name='obtain'),
 ]
