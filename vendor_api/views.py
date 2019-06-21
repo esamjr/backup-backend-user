@@ -19,8 +19,10 @@ from license_company.models import LicenseComp
 from django.conf import settings
 from email_app.views import multidevices_email, vendors_login_alert
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
 from random import randint
 import requests
+import csv
 import json
 import datetime
 import time
@@ -623,25 +625,42 @@ def migrate_multiuser_company(request, pk):
 			
 			for id_user in join:
 				user = Register.objects.get(id = id_user)
-				hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
-				license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
-				if license.attendance == '0':
-					return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
-				payload = {
-				'id_user':user.id,
-				'name':user.full_name,
-				'photo':user.url_photo
-				}
-				serializer = MultipleSerializer(data = payload)
-				if serializer.is_valid():
-					try:
-						serializer.save()
-						rest = serializer.data
-						result.append(rest)
-					except Exception:
+				try:
+					hirarki = Hierarchy.objects.get(id_user = id_user, id_company = pk)
+					license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
+					if license.attendance == '0':
+						payload = {
+						'id_user':user.id,
+						'name':'Your Attendance Is Not Active',
+						'photo':'Your Attendance Is Not Active'
+						}
+						result.append(payload)
 						pass
-						rest = serializer.errors
-						result.append(rest)		
+						# return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
+					payload = {
+					'id_user':user.id,
+					'name':user.full_name,
+					'photo':user.url_photo
+					}
+					serializer = MultipleSerializer(data = payload)
+					if serializer.is_valid():
+						try:
+							serializer.save()
+							rest = serializer.data
+							result.append(rest)
+						except Exception:
+							pass
+							rest = serializer.errors
+							result.append(rest)	
+				except Hierarchy.DoesNotExist:
+					payload = {
+						'id_user':user.id,
+						'name':'Your id is not attached in Company Hierarcy',
+						'photo':'Your id is not attached in Company Hierarcy'
+						}
+					result.append(payload)
+					pass
+					# return Response({'status':str(user.id)+' Hierarchy Does Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 			return Response({'status':result}, status = status.HTTP_201_CREATED)
 		else:
 			return Response({'status':'You Are Not Super User'}, status = status.HTTP_401_UNAUTHORIZED)
@@ -649,8 +668,8 @@ def migrate_multiuser_company(request, pk):
 		return Response({'status':'Token is Invalid'}, status = status.HTTP_401_UNAUTHORIZED)
 	except LicenseComp.DoesNotExist:
 		return Response({'status':'Your License is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Hierarchy.DoesNotExist:
-		return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+	# except Hierarchy.DoesNotExist:
+	# 	return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
 		return Response({'status':'Your Attendance is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
 
@@ -1068,101 +1087,45 @@ def send_blast(request):
             #     result.append(sre)
     except Register.DoesNotExist:
       	pass        
-    return Response(result)			
+    return Response(result)
 
+@api_view(['GET'])
+def download_data(request):
+	items = MultipleLogin.objects.all()
 
-# @api_view(['POST', 'GET'])
-# def api_login_absensee(request):	
-# 	try:
-# 		if request.method == 'POST':
-# 			token_vendor = request.META.get('HTTP_AUTHORIZATION')
-# 			if token_vendor == 'xxx':
-# 				return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)		
-# 			vendor = Vendor_api.objects.get(token = token_vendor)
+	response  = HttpResponse(content_type = 'text/csv')
+	response['Content-Disposition'] = 'attachment;filename = "multiplelogin.csv"'
 
-# 			email = request.data['email']
-# 			password = request.data['password']			
-# 			user = Register.objects.get(email = email)
-# 			attempt = user.attempt
-# 			salt = user.full_name
-# 			salt_password = ''.join(str(ord(c)) for c in salt)
-# 			thepassword = password + salt_password
+	writer = csv.writer(response, delimiter = ',')
+	writer.writerow(['id_user','token_web','token_phone'])
 
-# 			if (check_password(thepassword, user.password)):			
-# 				token = make_password(str(time.time()))
-# 				payload = {'token':token}
-# 				serializer = TokenSerializer(user, data = payload)
-# 				if serializer.is_valid():
-# 					serializer.save()
-# 					companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-# 					comp = []
+	for obj in items:
+		writer.writerow([obj.id_user, obj.token_web, obj.token_phone])
 
-# 					for company in companies:
-# 						beacon = Business.objects.get(id = company)
-# 						hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
-# 						license = LicenseComp.objects.get(id_hierarchy = hirarki.id)
-# 						if license.attendance == '1':
-# 							level = 'IsAdmin'
-# 						elif license.attendance == '2':
-# 							level = 'IsUser'
-# 						else:
-# 							level = 'User / Company Belum Mengaktifkan Fitur Ini'
-# 						payload = {
-# 						'token_user': user.token,
-# 						'image': beacon.logo_path,
-# 						'comp_id': beacon.id,
-# 						'comp_name': beacon.company_name,
-# 						'level' : level
-# 						}
-# 						comp.append(payload)
-
-# 					profil = {
-# 					'id':user.id,
-# 					'name':user.full_name,
-# 					'photo':user.url_photo
-# 					}
-
-# 					payloads = {
-# 						'api_status':1,
-# 						'api_message':'success',
-# 						'profile': profil,
-# 						'companies':comp
-# 					}
-					
-# 					return Response(payloads, status = status.HTTP_201_CREATED)
-
-# 				else:
-# 					return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-# 			else: 
-# 				if (attempt == 0):
-# 					attempt_login(request, email)
-# 					response = {'status' : 'Wrong Username / Password'}
-# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
-# 				elif(attempt % 5 == 0):
-# 					forget_attempt(request, email)
-# 					return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
-# 				else:
-# 					attempt_login(request, email)
-# 					response = {'status' : 'Wrong Username / Password'}
-# 					return Response(response, status=status.HTTP_400_BAD_REQUEST)
-# 			# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
-# 		elif request.method == 'GET':
-# 			token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
-# 			token_user = request.data['token_user']
-# 			vendor = Vendor_api.objects.get(token = token_vendor)
-# 			user = Register.objects.get(token = token_user)
-# 			payload = {'token':'xxx'}
-# 			serializer = TokenSerializer(user, data = payload)
-# 			if serializer.is_valid():
-# 				serializer.save()
-# 				return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
-# 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-
-# 	except Vendor_api.DoesNotExist:
-# 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
-# 	except Register.DoesNotExist:
-# 		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
-# 	except Joincompany.DoesNotExist:
-# 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
-# 	except Business.DoesNotExist:
-# 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
+	return response
+@api_view(['GET'])
+def employee_cred(request):
+	id_comp = request.data['id_comp']
+	result = []
+	try:
+		beacon = Hierarchy.objects.all().values_list('id_user', 'division').filter(id_company = id_comp)
+		comp = Business.objects.get(id = id_comp)		
+		for userId, div in beacon:
+			try:
+				user = Register.objects.get(id = userId).full_name
+				# dalaman = {'division':div, 'name':user}
+				if userId == 0:
+					pass
+				else:
+					hasil = {'id_user':userId,'division':div, 'name':user, 'comp_name':comp.company_name}
+					result.append(hasil)
+			except Register.DoesNotExist:
+				resp = 'user '+userId +' does not exist'
+				result.append(resp)
+				pass
+		return Response(result)
+	except Business.DoesNotExist:
+		return Response({'status':'id company does not match !'})
+	except Hierarchy.DoesNotExist:
+		return Response({'status':'Hierarchy Company does not exist !'})
+	

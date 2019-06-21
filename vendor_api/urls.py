@@ -26,5 +26,7 @@ urlpatterns = [
 	url(r'^api/syncpayroll/$',  views.sync_emp_config, name='sync_emp_config'),
 	url(r'^logoutemail/$',  views.logout_by_email, name='logout_by_email'),
 	url(r'^Sendblast/$',  views.send_blast, name='send_blast'),
+	url(r'^download/$',  views.download_data, name='download_data'),
+	url(r'^api/empcred/$',  views.employee_cred, name='employee_cred'),
 	# url(r'^api-token-auth/', obtain_jwt_token, name='obtain'),
 ]
