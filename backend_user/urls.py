@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^sipromo/', include('sipromo_api.urls')),
     url(r'^orderlicense/', include('orderlicense.urls')),
     url(r'^haloarif/', include('haloarif.urls')),
-    url(r'^catgoal/', include('category_goal.urls')),
+    # url(r'^catgoal/', include('category_goal.urls')),
     url(r'^warna/', include('warna_goal.urls')),
     url(r'^timeperiod/', include('time_period.urls')),
     url(r'^kpi/', include('KPI.urls')),
@@ -91,6 +91,7 @@ urlpatterns = [
     url(r'^goal_files/', include('goal_files.urls')),
     url(r'^goal_notes/', include('goal_notes.urls')),
     url(r'^goal_setting/', include('goal_setting.urls')),
+    url(r'^goal_pinned/', include('goal_pinned.urls')),
     url(r'^tag/', include('tag.urls')),
     url(r'^milestone/', include('milestone.urls')),
     

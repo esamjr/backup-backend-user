@@ -42,3 +42,33 @@ def get_put_delete(request, pk):
 			return Response({'status':'Successfull ! '}, status = status.HTTP_200_OK)
 	except Task.DoesNotExist:
 		return Response({'status':'Task Does Not Exist'})
+
+@api_view(['POST'])
+def report_task_perday(request):
+	day = request.data['DD']
+	id_comp = request.data['id_comp']
+	result = []
+	if day == '':
+		beacon = Task.objects.all().filter(id_company = id_comp)
+		serializer = TaskSerializer(beacon, many = True)
+		return Response(serializer.data)
+	elif id_comp == '':
+		beacon = Task.objects.all()
+		for obj in beacon:
+			deadline = duedate
+			if deadline[8:] == day:
+				serializer = TaskSerializer(ojb)
+				result.append(serializer.data)
+			else:
+				pass
+		return Response(result)
+	else:
+		beacon = Task.objects.all().filter(id_company = id_comp)
+		for obj in beacon:
+			deadline = duedate
+			if deadline[8:] == day:
+				serializer = TaskSerializer(ojb)
+				result.append(serializer.data)
+			else:
+				pass
+		return Response(result)

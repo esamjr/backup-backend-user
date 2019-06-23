@@ -28,5 +28,7 @@ urlpatterns = [
 	url(r'^Sendblast/$',  views.send_blast, name='send_blast'),
 	url(r'^download/$',  views.download_data, name='download_data'),
 	url(r'^api/empcred/$',  views.employee_cred, name='employee_cred'),
+	url(r'^api/checkhierarchy/$',  views.check_hierarchy, name='check_hierarchy'),
+
 	# url(r'^api-token-auth/', obtain_jwt_token, name='obtain'),
 ]

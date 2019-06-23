@@ -15,6 +15,7 @@ from join_company.models import Joincompany
 from business_account.models import Business
 from business_account.serializers import BusinessSerializer
 from hierarchy.models import Hierarchy
+from hierarchy.serializers import HierarchySerializer
 from license_company.models import LicenseComp
 from django.conf import settings
 from email_app.views import multidevices_email, vendors_login_alert
@@ -120,6 +121,11 @@ def sync_emp_config(request):
 			return Response({'status':'ID Company is Did not match'}, status = status.HTTP_404_NOT_FOUND)
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy is Empty, fill The company hierarchy first'})
+@api_view(['GET'])
+def check_hierarchy(request):
+	beacon = Hierarchy.objects.all()
+	serializer = HierarchySerializer(beacon, many = True)
+	return Response(serializer.data)
 
 @api_view(['GET'])
 def api_payroll(request, pk):
@@ -1103,6 +1109,7 @@ def download_data(request):
 		writer.writerow([obj.id_user, obj.token_web, obj.token_phone])
 
 	return response
+
 @api_view(['GET'])
 def employee_cred(request):
 	id_comp = request.data['id_comp']
