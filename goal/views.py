@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from .models import Goal2
+from .models import Goal
 from .serializers import GoalSerializer
 from type_goal.serializers import TypegoalSerializer
 from type_goal.models import type_goal
@@ -26,7 +26,7 @@ def post_get_goals(request):
 				return Response(serializers.data, status = status.HTTP_201_CREATED)
 			return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'GET':
-			netw = Goal2.objects.all()
+			netw = Goal.objects.all()
 			serializer = GoalSerializer(netw, many = True)
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -36,21 +36,24 @@ def post_get_goals(request):
 
 @api_view(['GET','PUT','DELETE'])
 def get_put_delete(request, pk):
-	if request.method == 'GET':
-		beacon = Goal2.objects.get(id = pk)
-		serializer = GoalSerializer(beacon)
-		return Response(serializer.data, status = status.HTTP_200_OK)
-	elif request.method == 'PUT':
-		beacon = Goal2.objects.get(id = pk)
-		serializer = GoalSerializer(beacon, data = request.data)
-		if serializer.is_valid():
-			serializer.save()
+	try:
+		if request.method == 'GET':
+			beacon = Goal.objects.get(id = pk)
+			serializer = GoalSerializer(beacon)
 			return Response(serializer.data, status = status.HTTP_200_OK)
-		return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-	elif request.method == 'DELETE':
-		beacon = Goal2.objects.get(id = pk)
-		beacon.delete()
-		return Response({'status':'Successfull ! '}, status = status.HTTP_200_OK)
+		elif request.method == 'PUT':
+			beacon = Goal.objects.get(id = pk)
+			serializer = GoalSerializer(beacon, data = request.data)
+			if serializer.is_valid():
+				serializer.save()
+				return Response(serializer.data, status = status.HTTP_200_OK)
+			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+		elif request.method == 'DELETE':
+			beacon = Goal.objects.get(id = pk)
+			beacon.delete()
+			return Response({'status':'Successfull ! '}, status = status.HTTP_200_OK)
+	except Goal.DoesNotExist:
+		return Response({'status': 'Object Does Not Exist'})
 
 
 # @api_view(['GET','PUT','DELETE'])

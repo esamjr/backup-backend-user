@@ -20,7 +20,7 @@ def get_post(request):
 				return Response(serializer.data, status = status.HTTP_201_CREATED)
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 	except kpi_assign.DoesNotExist:
-		return Response({'status':'KPI Assign Does Not Exist'})
+		return Response({'status':'object Does Not Exist'})
 
 @api_view(['GET','PUT','DELETE'])
 def get_put_delete(request, pk):
@@ -41,4 +41,4 @@ def get_put_delete(request, pk):
 			beacon.delete()
 			return Response({'status':'Successfull ! '}, status = status.HTTP_200_OK)
 	except kpi_assign.DoesNotExist:
-		return Response({'status':'KPI Assign Does Not Exist'})
+		return Response({'status':'object Does Not Exist'})

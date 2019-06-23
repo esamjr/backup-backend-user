@@ -112,6 +112,20 @@ INSTALLED_APPS = [
     'KPI_assign',
     'task',
     'task_assign',
+    'goal_category',
+    'goal_activity',
+    'goal_files',
+    'goal_notes',
+    'goal_setting',
+    'kpi_category',
+    'task_timer',
+    'task_checklist_item',
+    'task_checklist_template',
+    'task_tag',
+    'tag',
+    'milestone',
+    'task_comment',
+    'task_follower',
 ]
 
 SITE_ID = 1
