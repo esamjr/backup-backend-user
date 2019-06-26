@@ -8,7 +8,7 @@ from registrations.serializers import TokenSerializer
 from django.contrib.auth.hashers import check_password, make_password, is_password_usable
 from django.views.decorators.clickjacking import xframe_options_deny, xframe_options_sameorigin,xframe_options_exempt
 from registrations.models import Register, Domoo
-from registrations.serializers import DomoSerializer
+from registrations.serializers import DomoSerializer,  forgetblastSerializer
 from registrations.views import attempt_login, forget_attempt
 from log_app.views import read_log
 from join_company.models import Joincompany
@@ -1049,27 +1049,216 @@ def login_logout_domoo(request):
 #---------------------------------------------SUper ADmin API -----------------------------------------------------
 @api_view(['GET'])
 def email_forget_blast(request):
-	awal = request.data['awal']
-	akhir = request.data['akhir']
+	# awal = request.data['awal']
+	# akhir = request.data['akhir']
+	emails = request.FILES['list_email']
+	df = pd.read_excel(emails)
+	email = df['email']
+
+	# emails = [
+	# 'ryanlande.bko@jeera.id',
+	# 'trisudarmanto309@gmail.com',
+	# 'arfshah94@gmail.com',
+	# 'Rizkyramadhan0130@gmail.com',
+	# 'rezarahmana2643@gmail.com',
+	# 'daridermawan@gmail.com',
+	# 'meigiwibisono.om@jeera.id',
+	# 'elita.finance@jeera.id',
+	# 'rifkymoh1204@gmail.com',
+	# 'errygani@gmail.com',
+	# 'ilham.fajar25789@gmail.com',
+	# 'dennyfebri5@gmail.com',
+	# 'irtob0161@gmail.com',
+	# 'imrideo@gmail.com',
+	# 'ferdiardiansyah.logistic@jeera.id',
+	# 'nuaric27@gmail.com',
+	# 'bonang.pardede@gmail.com',
+	# 'akbarkhusaini0512@gmail.com',
+	# 'michaelchow9900@gmail.com',
+	# 'bobhasan110184@gmail.com',
+	# 'farezagazzi@gmail.com',
+	# '0pankbregaz21@gmail.com',
+	# 'ahmadumarzaman@gmail.om',
+	# 'mohamadrizal201@gmail.com',
+	# 'Bmtj2286@gmail.com',
+	# 'Ediujang12@yahoo.com',
+	# 'alinvnd04@gmail.com',
+	# 'raflesalviner@gmail.com',
+	# 'iimibrahim9322@gmail.com',
+	# 'irtob0161@gmail.com',
+	# 'marcoarnold.om@jeera.id',
+	# 'ibrahimjeratb2019@gmail.com',
+	# 'jerianjeeratb2019@gmail.com',
+	# 'alinvnd04@gmail.com',
+	# 'arfanimoushowwir@gmail.com',
+	# 'kevintobing03@gmail.com',
+	# 'ferdiardiansyah.logistic@jeera.id',
+	# 'michaelchow9900@gmail.com',
+	# 'nuaric27@gmail.com',
+	# 'tigaraksa.finance@jeera.id',
+	# 'jarnuhi.logistic@jeera.id',
+	# 'fendykiswantoro69@yahoo.com',
+	# 'andrimahonk@gmail.com',
+	# 'mikhael.jimmy1979@gmail.com',
+	# 'opangsentiong@gmail.com',
+	# 'edgartobing4848@gmail.com',
+	# 'enitagaja@gmail.com',
+	# 'friskopdsitompul@gmail.com',
+	# 'reydelaki698@gmail.com',
+	# 'yandiimaulana@gmail.com',
+	# 'ramadoniasnawi14@gmail.com',
+	# 'andicaniago68@gmail.com',
+	# 'iyanjeera@gmail.com',
+	# 'cecep96@gmail.com',
+	# 'yossuseno@gmail.com',
+	# 'egisetiawan2312@gmail.com',
+	# 'adam.alan233@gmail.com',
+	# 'lioapri75@gmail.com',
+	# 'praztyo161016@gmail.com',
+	# 'ashterendik22@gmail.com',
+	# 'altaroli.deni90@gmail.com',
+	# 'chandrapalembang28@gmail.com',
+	# 'rizalblaaze8946@gmail.com',
+	# 'fajrimartienjeera@gmail.com',
+	# 'huntertobing@gmail.com',
+	# 'erikdwiprasetiyo02@gmail.com',
+	# 'kevingamas10@gmail.com',
+	# 'dhandyfurna1995@gmail.com',
+	# 'dennyuyee656@gmail.com',
+	# 'maded5731@gmail.com',
+	# 'lkthap027@gmail.com',
+	# 'choirudin.finance@jeera.id',
+	# 'biyansofian23@gmail.com',
+	# 'hendrasinabutar.logistic@jeera.id',
+	# 'robirosadi1612@gmail.com',
+	# 'pratama13420@gmail.com',
+	# 'akbarwidodo1791@gmail.com',
+	# 'sultanmahdawi@gmail.com',
+	# 'rezaapriandi91@gmail.com',
+	# 'rahmadhadil662@gmail.com',
+	# 'Sfadlurrahman25@gmail.com',
+	# 'daniel93mihado@gmail.com',
+	# 'apriadisitumorang123@gmail.com',
+	# 'rijalamsari@741gmail.com',
+	# 'agusdaniel50477@gmail.com',
+	# 'marlogustaf27@gmail.com',
+	# 'muhammadhaswar2808@gmail.com',
+	# 'hakimjr106@gmail.com',
+	# 'nurfadliarfah96@gmail.com',
+	# 'muradalbarack@gmail.com',
+	# 'aan3346036@gmail.com',
+	# 'armanto.jeera@gmail.com',
+	# 'vivi170198@gmail.com',
+	# 'puranto56@gmail.com',
+	# 'ncitraa25@gmail.com',
+	# 'agungpikachu983@gmail.com',
+	# 'abriansyah.arif0501@gmail.com',
+	# 'anggun.shelly0901@gmail.com',
+	# 'yuliojigwhen09@gmail.com',
+	# 'elvinrizky3@gmail.com',
+	# 'diantriangga69@gmail.com',
+	# 'khalidin02@yahoo.com',
+	# 'dearizky97@yahoo.co.id',
+	# 'barnesahza@gmail.com',
+	# 'Imraniponk5@gmail.com',
+	# 'marshelsihotangj@gmail.com',
+	# 'suhartantobagus.logistic.@jeera.id',
+	# 'dingblen3@gmail.com',
+	# 'Ifangaluhpesek@gmail.com',
+	# 'hermawansurya2706@gmail.com',
+	# 'febrialfano23@gmail.com',
+	# 'erwin.prc98@gmail.com',
+	# 'suriadi.bambang@gmail.com',
+	# 'muhammadrijal429@gmail.com',
+	# 'zackharefa@gmail.com',
+	# 'tora.manurung@yahoo.com',
+	# 'jordantobing23@gmail.com',
+	# 'arga65656@gmail.com',
+	# 'boynanta21@gmail.com',
+	# 'bernart1411@gmail.com',
+	# 'chandrasamosir02@gmail.com',
+	# 'fadliskrn@yahoo.com',
+	# 'tengkurahmadani2017@gmail.com',
+	# 'bprasetyo109@gmail.com',
+	# 'rome724@gmail.com',
+	# 'andidiego63@gmail.com',
+	# 'andrisupriyadi170@gmail.com',
+	# 'jollypangkey30@gmail.com',
+	# 'hrudi9524@gmail.com',
+	# 'boymanik04@gmail.com',
+	# 'herberth.aja@gmail.com',
+	# 'malang.finance@jeera.id',
+	# 'faiz.jeera@gmai.com',
+	# 'deniwahyu19@gmail.com',
+	# 'galuh8612@gmail.com',
+	# 'izzatmaliki23@gmail.com',
+	# 'alizen2898@gmail.com',
+	# 'bondanherlambang2000@gmail.com',
+	# 'ariyanto0901@gmail.com',
+	# 'harijo0883@gmail.com',
+	# 'muhsahrul0399@gmail.com',
+	# 'nurkamal230394@gmail.com',
+	# 'reski.mumtahana05@gmail.com',
+	# 'nilaanggraeni1983@gmail.com',
+	# 'Contoh@mailinator.com'
+	# ]
 	# token = request.META.get('HTTP_AUTHORIZATION')
 	# admin = Register.objects.get(token = token)
 	respon = []
-	try:
-		# if admin.id == 0:
-		for id_user in range(int(awal),int(akhir)):
-			user = Register.objects.get(id = id_user)
-			url = 'http://dev-user-api.mindzzle.com/registrations/api/forget/'
-			payload = {
-			'email': user.email
-			}
-			Req = requests.post(url, data = payload)
-			Res = Req.json()
-			respon.append(payload)
-		return Response(respon, status = status.HTTP_200_OK)
+	# for eml in range(0,len(email)):
+	# 	email = email[eml]
+	for email in emails:
+		try:
+			user = Register.objects.get(email = email)
+			key = 'Jeera1234'+user.salt_password
+			token_forget = 'usethistokenforforgetyourpassword'
+			if check_password(key,user.password):
+				if user.banned_type != '0':
+					url = 'https://user-api.mindzzle.com/registrations/api/forget/'
+					payload = {
+					'email': user.email
+					}
+					Req = requests.post(url, data = payload)
+					Res = Req.json()
+					respon.append(payload)
+				else:
+					serializer = forgetblastSerializer(user,  data = {'banned_type':'1','verified':1})
+					if serializer.is_valid():
+						serializer.save()
+						respon.append(str(user.id)+'. '+email + ' : Get Banned')
+					else:
+						respon.append(serializer.errors)
+						pass
+			elif check_password(token_forget, user.password):
+				if user.banned_type != '0':
+					respon.append(str(user.id)+'. '+email + ' : Has Forget their password') 
+				else:
+					serializer = forgetblastSerializer(user,  data = {'banned_type':'1','verified':1})
+					if serializer.is_valid():
+						serializer.save()
+						respon.append(str(user.id)+'. '+email + ' : Has Forget their password And Get Banned')
+					else:
+						respon.append(serializer.errors)
+				pass
+			else:
+				if user.banned_type != '0':
+					respon.append(str(user.id)+'. '+email + ' : Password Has Changed')
+				else:
+					serializer = forgetblastSerializer(user,  data = {'banned_type':'1','verified':1})
+					if serializer.is_valid():
+						serializer.save()
+						respon.append(str(user.id)+'. '+email + ' : Password Has Changed But Get banned')
+					else:
+						respon.append(serializer.errors)
+				pass
+		except Register.DoesNotExist:
+			respon.append(email + ' : does not exist')
+			pass
+			# return Response({'status':'User Not Found'}, status = status.HTTP_404_NOT_FOUND)
+	return Response(respon, status = status.HTTP_200_OK)
 		# else:
 		# 	return Response({'status':'Unauthorized'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Register.DoesNotExist:
-		return Response({'status':'User Not Found'}, status = status.HTTP_404_NOT_FOUND)
+	
 
 # @api_view(['GET'])
 # def email_blast(request):

@@ -38,19 +38,25 @@ def email_log(request,respondentEmail,sender,subjects):
 
 @csrf_exempt
 def forget_pass(request,token):
-  if settings.DEBUG == True:
-    link = 'http://dev-user.mindzzle.com/password/new?token='+token
-    return link
+  if settings.FLAG == 1:
+    link = 'https://user.mindzzle.com/password/new?token='+token
+    # return link
+  elif settings.FLAG == 2:
+    link = 'http://staging-user.mindzzle.com/password/new?token='+token
+    # return link
   else:
-    link = 'http://user.mindzzle.com/password/new?token='+token
-    return link
+    link = 'http://dev-user.mindzzle.com/password/new?token='+token
+  return link
 
 @csrf_exempt
 def confrlink(request, token):
-  if settings.DEBUG == True:
+  if settings.FLAG == 1:
+    link = 'https://user.mindzzle.com/register/confirmation?token='+token
+  elif settings.FLAG == 2:
+    link = 'https://user.mindzzle.com/register/confirmation?token='+token
+    # return link
+  else:
     link = 'http://dev-user.mindzzle.com/register/confirmation?token='+token
-  elif settings.DEBUG == False:
-    link = 'http://user.mindzzle.com/register/confirmation?token='+token
   return link
 
 @csrf_exempt
