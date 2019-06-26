@@ -661,8 +661,16 @@ def migrate_multiuser_company(request, pk):
 				except Hierarchy.DoesNotExist:
 					payload = {
 						'id_user':user.id,
-						'name':'Your id is not attached in Company Hierarcy',
+						'name': 'Your id is not attached in Company Hierarcy',
 						'photo':'Your id is not attached in Company Hierarcy'
+						}
+					result.append(payload)
+					pass
+				except LicenseComp.DoesNotExist:
+					payload = {
+						'id_user':user.id,
+						'name':'Your id is not attached in License Company ',
+						'photo':'Your id is not attached in License Company'
 						}
 					result.append(payload)
 					pass
@@ -672,8 +680,8 @@ def migrate_multiuser_company(request, pk):
 			return Response({'status':'You Are Not Super User'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Register.DoesNotExist:
 		return Response({'status':'Token is Invalid'}, status = status.HTTP_401_UNAUTHORIZED)
-	except LicenseComp.DoesNotExist:
-		return Response({'status':'Your License is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
+	# except LicenseComp.DoesNotExist:
+	# 	return Response({'status':'Your License is not Active'}, status = status.HTTP_401_UNAUTHORIZED)
 	# except Hierarchy.DoesNotExist:
 	# 	return Response({'status':'Hierarchy Does Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
@@ -740,7 +748,7 @@ def check_admin_attendace(request):
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 		except MultipleLogin.DoesNotExist:
-			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+			return Response({'stat':hirarki.id,'status':'Multiple Login does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def cloning_data_reprime(request):
@@ -757,22 +765,27 @@ def cloning_data_reprime(request):
 				if hier.id_user == 0:
 					pass
 				else:
-					user = Register.objects.get(id  = hier.id_user)
-					license = LicenseComp.objects.get(id_hierarchy = hier.id)				
-					if license.attendance == '2':
-						level = 'IsAdmin'
-					elif license.attendance == '1':
-						level = 'IsUser'
-					else:
-						level = 'User / Company Belum Mengaktifkan Fitur Ini'
-					payload = {
-					'id' : user.id,
-					'fullname' : user.full_name,
-					'photo' : user.url_photo,
-					'email':user.email,
-					'level':level
-					}
-					result.append(payload)
+					try:
+						user = Register.objects.get(id  = hier.id_user)
+						license = LicenseComp.objects.get(id_hierarchy = hier.id)				
+						if license.attendance == '2':
+							level = 'IsAdmin'
+						elif license.attendance == '1':
+							level = 'IsUser'
+						else:
+							level = 'User / Company Belum Mengaktifkan Fitur Ini'
+						payload = {
+						'id' : user.id,
+						'fullname' : user.full_name,
+						'photo' : user.url_photo,
+						'email':user.email,
+						'level':level
+						}
+						result.append(payload)
+					except LicenseComp.DoesNotExist:
+						# payload = {'id':user.id}
+						# result.append(payload)
+						pass
                 #----------------asdasd-------------
 # 				result.append(license.id)
 # 			return Response({'status':result}, status = status.HTTP_200_OK)
@@ -789,8 +802,8 @@ def cloning_data_reprime(request):
 			return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
-		except LicenseComp.DoesNotExist:
-			return Response({'status':'License Company does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+		# except LicenseComp.DoesNotExist:
+		# 	return Response({'status':'License Company does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def timesheets_absensee(request):
