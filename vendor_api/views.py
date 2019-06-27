@@ -523,6 +523,8 @@ def api_login_absensee(request):
 
 							if license.attendance == '2':
 								level = 'IsAdmin'
+							elif license.attendance == '3':
+								level = 'IsSuperAdmin'
 							elif license.attendance == '1':
 								level = 'IsUser'
 							else:
@@ -589,7 +591,7 @@ def api_login_absensee(request):
 	except Vendor_api.DoesNotExist:
 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Register.DoesNotExist:
-		return Response({'status':'User is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
+		return Response({'status':'Wrong Username / Password'}, status = status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
 		return Response({'status':'User did not have any company'}, status = status.HTTP_202_ACCEPTED)
 	except Business.DoesNotExist:
