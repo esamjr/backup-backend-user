@@ -23,8 +23,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-FLAG = 2
+DEBUG = True
+FLAG = 1
 ALLOWED_HOSTS = ['*']
 
 EMAIL_HOST = 'mail.mindzzle.com'
@@ -32,7 +32,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-SECURE_CONTENT_TYPE_NOSNIFF = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -103,27 +103,6 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
-    'sipromo_api',
-    'orderlicense',
-    'category_goal',
-    'warna_goal',
-    'time_period',
-    'KPI',
-    'KPI_assign',
-    'task',
-    'task_assign',
-    'goal_category',
-    'goal_notes',
-    'goal_setting',
-    'kpi_category',
-    'task_timer',
-    'task_checklist_item',
-    'task_checklist_template',
-    'task_tag',
-    'tag',
-    'milestone',
-    'task_comment',
-    'task_follower',
 ]
 
 SITE_ID = 1

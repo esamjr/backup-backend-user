@@ -32,7 +32,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-SECURE_CONTENT_TYPE_NOSNIFF  = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -103,30 +103,6 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
-    'sipromo_api',
-    'orderlicense',
-    #'category_goal',
-    'warna_goal',
-    'time_period',
-    'KPI',
-    'KPI_assign',
-    'task',
-    'task_assign',
-    'goal_category',
-    'goal_activity',
-    'goal_files',
-    'goal_notes',
-    'goal_setting',
-    'goal_pinned',
-    'kpi_category',
-    'task_timer',
-    'task_checklist_item',
-    'task_checklist_template',
-    'task_tag',
-    'tag',
-    'milestone',
-    'task_comment',
-    'task_follower',
 ]
 
 SITE_ID = 1

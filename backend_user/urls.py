@@ -20,23 +20,6 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
-    url(r'^sipromo/', include('sipromo_api.urls')),
-    url(r'^orderlicense/', include('orderlicense.urls')),
-    url(r'^haloarif/', include('haloarif.urls')),
-    # url(r'^catgoal/', include('category_goal.urls')),
-    url(r'^warna/', include('warna_goal.urls')),
-    url(r'^timeperiod/', include('time_period.urls')),
-    url(r'^kpi/', include('KPI.urls')),
-    url(r'^kpiassign/', include('KPI_assign.urls')),
-    url(r'^kpi_category/', include('kpi_category.urls')),
-    url(r'^task/', include('task.urls')),
-    url(r'^taskchecklistitem/', include('task_checklist_item.urls')),
-    url(r'^taskchecklisttemplate/', include('task_checklist_template.urls')),
-    url(r'^tasktag/', include('task_tag.urls')),
-    url(r'^taskcomment/', include('task_comment.urls')),
-    url(r'^taskfollower/', include('task_follower.urls')),
-    url(r'^taskassign/', include('task_assign.urls')),
-    url(r'^tasktimer/', include('task_timer.urls')),
     url(r'^jobdesc/', include('jobdesc.urls')),
     url(r'^approval/', include('approval_config.urls')),
     url(r'^licensecomp/', include('license_company.urls')),
@@ -86,13 +69,4 @@ urlpatterns = [
     url(r'^type_time/', include('type_time.urls')),
     url(r'^role_type/', include('role_type.urls')),
     url(r'^private/', include('private.urls')),
-    url(r'^goal_category/', include('goal_category.urls')),
-    url(r'^goal_activity/', include('goal_activity.urls')),
-    url(r'^goal_files/', include('goal_files.urls')),
-    url(r'^goal_notes/', include('goal_notes.urls')),
-    url(r'^goal_setting/', include('goal_setting.urls')),
-    url(r'^goal_pinned/', include('goal_pinned.urls')),
-    url(r'^tag/', include('tag.urls')),
-    url(r'^milestone/', include('milestone.urls')),
-    
 ]

@@ -7,9 +7,6 @@ from .serializers import LicenseCompSerializer
 from registrations.models import Register
 from hierarchy.models import Hierarchy
 from business_account.models import Business
-from email_app.views import reminder_email
-import datetime
-import time
 
 @api_view(['GET'])
 def search_all_div(request):
@@ -102,26 +99,4 @@ def setting_license_company(request,pk):
     except LicenseComp.DoesNotExist:
         return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
     
-@api_view(['GET'])
-def reminder_exp_date(request):
-    if request.method == 'GET':
-        sekarang = datetime.datetime.now().date()
-        resp = []
-        comps = []
-        beacon = LicenseComp.objects.all().values_list('expr_date', 'id_comp')
-        for date, id_comp in beacon:
-            if date == None:
-                pass
-            else:
-                if date >= sekarang:
-                    pass
-                else:
-                    if id_comp not in comps:
-                        company = Business.objects.get(id= id_comp)
-                        reminder_email(request, company)
-                        res = {'Perusahaan :' + str(company.company_name) : 'masa waktu Lisensi anda telah habis, silahkan hubungi admin'}
-                        resp.append(res)
-                        comps.append(id_comp)
-                    else:
-                        pass
-        return Response(resp)
+    

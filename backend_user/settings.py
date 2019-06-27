@@ -32,7 +32,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-SECURE_CONTENT_TYPE_NOSNIFF  = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -103,32 +103,6 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
-    'sipromo_api',
-    'haloarif',
-    'orderlicense',
-    #'category_goal',
-    'warna_goal',
-    'time_period',
-    'KPI',
-    'KPI_assign',
-    'task',
-    'task_assign',
-    'goal_category',
-    'goal_activity',
-    'goal_files',
-    'goal_notes',
-    'goal_setting',
-    'goal_pinned',
-    'kpi_category',
-    'task_timer',
-    'task_checklist_item',
-    'task_checklist_template',
-    'task_tag',
-    'tag',
-    'milestone',
-    'task_comment',
-    'task_follower',
-
 ]
 
 SITE_ID = 1
@@ -145,8 +119,9 @@ MIDDLEWARE = [
     
 ]
 ROOT_URLCONF = 'backend_user.urls'
+
 CORS_ORIGIN_ALLOW_ALL=True
-CORS_ALLOW_CREDENTIALS = True
+
 PROJECT_ROOT = os.path.dirname
 
 
@@ -183,41 +158,28 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '35.198.248.235',
-#      'PORT': '5432',
-#      'NAME': 'userdbdev',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '35.198.248.235',
-#      'PORT': '5432',
-#      'NAME': 'userdbstaging',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
-#     }
-# }
-
-
-# 35.198.248.235
-# 10.148.0.3
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '35.247.162.159',
+     'HOST': '35.198.248.235',
      'PORT': '5432',
-     'NAME': 'userprod',
-     'USER': 'user',
-     'PASSWORD': 'U53rDB2016'
+     'NAME': 'userdbstaging',
+     'USER': 'postgres',
+     'PASSWORD': 'your_password'
     }
 }
+# 35.198.248.235
+# 10.148.0.3
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '10.124.64.3',
+#      'PORT': '5432',
+#      'NAME': 'user',
+#      'USER': 'user',
+#      'PASSWORD': 'U53rDB2016'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
