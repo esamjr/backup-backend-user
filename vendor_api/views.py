@@ -122,8 +122,8 @@ def sync_emp_config(request):
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy is Empty, fill The company hierarchy first'})
 @api_view(['GET'])
-def check_hierarchy(request):
-	beacon = Hierarchy.objects.all()
+def check_hierarchy(request,pk):
+	beacon = Hierarchy.objects.all().filter(id_company = pk)
 	serializer = HierarchySerializer(beacon, many = True)
 	return Response(serializer.data)
 
@@ -598,8 +598,8 @@ def api_login_absensee(request):
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 	except LicenseComp.DoesNotExist:
 		return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Hierarchy.DoesNotExist:
-		return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+	# except Hierarchy.DoesNotExist:
+	# 	return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except MultipleLogin.DoesNotExist:
 		return Response({'status':'User is not Registered in multiple devices.'}, status = status.HTTP_401_UNAUTHORIZED)
 
