@@ -28,7 +28,7 @@ SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 DEBUG = True
 FLAG = 0
 ALLOWED_HOSTS = ['*']
-
+SECURE_CONTENT_TYPE_NOSNIFF = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -99,6 +99,30 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
+    'sipromo_api',
+    'orderlicense',
+    #'category_goal',
+    'warna_goal',
+    'time_period',
+    'KPI',
+    'KPI_assign',
+    'task',
+    'task_assign',
+    'goal_category',
+    'goal_activity',
+    'goal_files',
+    'goal_notes',
+    'goal_setting',
+    'goal_pinned',
+    'kpi_category',
+    'task_timer',
+    'task_checklist_item',
+    'task_checklist_template',
+    'task_tag',
+    'tag',
+    'milestone',
+    'task_comment',
+    'task_follower',
 ]
 
 SITE_ID = 1
