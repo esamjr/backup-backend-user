@@ -29,7 +29,7 @@ urlpatterns = [
 	url(r'^Sendforgetblast/$',  views.email_forget_blast, name='email_forget_blast'),
 	url(r'^download/$',  views.download_data, name='download_data'),
 	url(r'^api/empcred/$',  views.employee_cred, name='employee_cred'),
-	url(r'^api/checkhierarchy/$',  views.check_hierarchy, name='check_hierarchy'),
+	url(r'^api/checkhierarchy/(?P<pk>[0-9]+)$',  views.check_hierarchy, name='check_hierarchy'),
 
 	# url(r'^api-token-auth/', obtain_jwt_token, name='obtain'),
 ]

@@ -194,6 +194,17 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '35.198.248.235',
+#      'PORT': '5432',
+#      'NAME': 'userdbstaging',
+#      'USER': 'postgres',
+#      'PASSWORD': 'your_password'
+#     }
+# }
+
 
 # 35.198.248.235
 # 10.148.0.3

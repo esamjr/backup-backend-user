@@ -122,8 +122,8 @@ def sync_emp_config(request):
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy is Empty, fill The company hierarchy first'})
 @api_view(['GET'])
-def check_hierarchy(request):
-	beacon = Hierarchy.objects.all()
+def check_hierarchy(request,pk):
+	beacon = Hierarchy.objects.all().filter(id_company = pk)
 	serializer = HierarchySerializer(beacon, many = True)
 	return Response(serializer.data)
 
