@@ -61,3 +61,8 @@ class TokenSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Register
 		fields = ('token',)
+
+class forgetblastSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Register
+		fields = ('banned_type','verfied',)
