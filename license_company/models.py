@@ -19,3 +19,4 @@ class LicenseComp (models.Model):
   status = models.CharField(default = '0', max_length = 10, choices = stat)
   expr_date = models.DateField(null = True, blank = True)
   id_comp = models.IntegerField()
+  billing = models.CharField(default='0', max_length=10, choices=Auth)
