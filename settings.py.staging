@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_auth.registration',
     'registrations',
-    'user_type',
+  'user_type',
     'friend_list',
     'country',
     'region',
