@@ -516,7 +516,7 @@ def api_login_absensee(request):
 						try:
 							license = LicenseComp.objects.get(id_hierarchy = hirarki.id, status = '1')
 							sekarang = datetime.datetime.now().date()			
-							if license.expr_date >= sekarang:
+							if datetime.datetime.strptime(str(license.expr_date), '%Y-%m-%d').date() >= sekarang:
 								masa = 'Masih bisa'
 							else:
 								return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
