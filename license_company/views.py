@@ -81,8 +81,7 @@ def setting_license_company(request,pk):
                     user = Register.objects.get(id = dive.id_user)
                     persona = {
                     'id_user' : user.id,
-                    'name' : user.full_name,
-                    'tax':user.tax_num
+                    'name' : user.full_name
                     }
                     payload = {
                     'division': dive.division ,
