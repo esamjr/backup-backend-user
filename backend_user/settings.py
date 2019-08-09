@@ -176,12 +176,12 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 
 # DATABASES = {
 #     'default': {
@@ -208,16 +208,16 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 
 # 35.198.248.235
 # 10.148.0.3
-DATABASES = {
-    'default': {
-     'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '35.247.162.159',
-     'PORT': '5432',
-     'NAME': 'userprod',
-     'USER': 'user',
-     'PASSWORD': 'U53rDB2016'
-    }
-}
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '35.247.162.159',
+#      'PORT': '5432',
+#      'NAME': 'userprod',
+#      'USER': 'user',
+#      'PASSWORD': 'U53rDB2016'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

@@ -26,7 +26,7 @@ SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-FLAG = 0
+FLAG = 2
 ALLOWED_HOSTS = ['*']
 SECURE_CONTENT_TYPE_NOSNIFF = True
 REST_FRAMEWORK = {
@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     'approval_config',
     'jobdesc',
     'sipromo_api',
+    'haloarif',
     'orderlicense',
     #'category_goal',
     'warna_goal',
@@ -123,6 +124,7 @@ INSTALLED_APPS = [
     'milestone',
     'task_comment',
     'task_follower',
+
 ]
 
 SITE_ID = 1
