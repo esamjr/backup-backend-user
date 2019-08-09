@@ -94,5 +94,6 @@ urlpatterns = [
     url(r'^goal_pinned/', include('goal_pinned.urls')),
     url(r'^tag/', include('tag.urls')),
     url(r'^milestone/', include('milestone.urls')),
+    url(r'^feeds/', include('feeds.urls')),
     
 ]

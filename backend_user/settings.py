@@ -128,6 +128,7 @@ INSTALLED_APPS = [
     'milestone',
     'task_comment',
     'task_follower',
+    'feeds',
 
 ]
 
