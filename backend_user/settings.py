@@ -40,7 +40,7 @@ REST_FRAMEWORK = {
 }
 # Application definition
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ORIGIN_WHITELIST = [
     "http://dev-user.mindzzle.com",
