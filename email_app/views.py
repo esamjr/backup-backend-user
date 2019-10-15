@@ -50,10 +50,10 @@ def forget_pass(request,token):
 
 @csrf_exempt
 def confrlink(request, token):
-  if settings.FLAG == 1:
-    link = 'https://user.mindzzle.com/register/confirmation?token='+token
-  else:
+  if settings.DEBUG == True:
     link = 'http://dev-user.mindzzle.com/register/confirmation?token='+token
+  elif settings.DEBUG == False:
+    link = 'http://user.mindzzle.com/register/confirmation?token='+token
   return link
 
 @csrf_exempt
