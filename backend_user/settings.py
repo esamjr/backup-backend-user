@@ -32,7 +32,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-# SECURE_CONTENT_TYPE_NOSNIFF  = True
+SECURE_CONTENT_TYPE_NOSNIFF  = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
         'rest_framework.authentication.TokenAuthentication',
@@ -40,9 +40,14 @@ REST_FRAMEWORK = {
 }
 # Application definition
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = [
+    "http://dev-user.mindzzle.com",
+]
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -261,22 +266,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
-# CORS_ALLOW_CREDENTIALS = True
-#
-# CORS_ORIGIN_WHITELIST = (
-#     'http://dev-user.mindzzle.com',
-# )
-#
-# CORS_ALLOW_HEADERS = (
-#     'accept',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-# )
