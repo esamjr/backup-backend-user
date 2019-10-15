@@ -52,9 +52,6 @@ def forget_pass(request,token):
 def confrlink(request, token):
   if settings.FLAG == 1:
     link = 'https://user.mindzzle.com/register/confirmation?token='+token
-  elif settings.FLAG == 2:
-    link = 'https://user.mindzzle.com/register/confirmation?token='+token
-    # return link
   else:
     link = 'http://dev-user.mindzzle.com/register/confirmation?token='+token
   return link
