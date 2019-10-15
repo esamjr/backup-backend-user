@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -32,28 +31,21 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = False
-SECURE_CONTENT_TYPE_NOSNIFF  = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTIFICATION_CLASSES' : (
+    'DEFAULT_AUTHENTIFICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     )
 }
 # Application definition
 
-CORS_ORIGIN_ALLOW_ALL = False
-
-CORS_ORIGIN_WHITELIST = [
-    "http://dev-user.mindzzle.com",
-]
-
 INSTALLED_APPS = [
-    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', 
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
@@ -113,7 +105,7 @@ INSTALLED_APPS = [
     'sipromo_api',
     'haloarif',
     'orderlicense',
-    #'category_goal',
+    # 'category_goal',
     'warna_goal',
     'time_period',
     'KPI',
@@ -135,10 +127,6 @@ INSTALLED_APPS = [
     'milestone',
     'task_comment',
     'task_follower',
-    'feeds',
-    'friends',
-    'group_user',
-    'setting_approval',
 
 ]
 
@@ -153,17 +141,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 ROOT_URLCONF = 'backend_user.urls'
-
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 PROJECT_ROOT = os.path.dirname
-
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -181,7 +169,6 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'backend_user.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -247,7 +234,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -260,7 +246,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
