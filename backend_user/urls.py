@@ -69,7 +69,6 @@ urlpatterns = [
     url(r'^region/', include('region.urls')),
     url(r'^city/', include('city.urls')),
     url(r'^vendor/', include('vendor_api.urls')),
-    # url(r'^message/', include('message.urls')),
     url(r'^experiences/', include('experiences.urls')),
     url(r'^education/', include('education.urls')),
     url(r'^award/', include('award.urls')),
