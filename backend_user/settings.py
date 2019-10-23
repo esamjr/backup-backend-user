@@ -129,7 +129,7 @@ INSTALLED_APPS = [
     'task_comment',
     'task_follower',
     'feeds',
-    'friends',
+    # 'friends',
     'group_user',
 
 ]

@@ -94,7 +94,7 @@ urlpatterns = [
     url(r'^tag/', include('tag.urls')),
     url(r'^milestone/', include('milestone.urls')),
     url(r'^feeds/', include('feeds.urls')),
-    url(r'^friends/', include('friends.urls')),
+    # url(r'^friends/', include('friends.urls')),
     url(r'^group_user/', include('group_user.urls')),
     # url(r'^setting_approval/', include('setting_approval.urls')),
 ]
