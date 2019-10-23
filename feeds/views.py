@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from django.shortcuts import render
-from .models import FeedsObj, LikesNComments, UserLike
-from .serializers import FeedsObjSerializer, LikesNCommentsSerializer, UserLikeSerializer
+from .models import FeedsObj, Comments, Likes
+from .serializers import FeedsObjSerializer, CommentsSerializer, LikesSerializer
 # Create your views here.
 
 
@@ -34,83 +34,92 @@ def put_feeds(request, pk):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({'status': 'bad request anjing'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'status': 'bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['GET', 'POST', 'DELETE'])
-def get_post_delete_likesncomments(request):
-    if request.method == 'GET':
-        beacon = LikesNComments.objects.all()
-        serializer = LikesNCommentsSerializer(beacon, many=True)
+# likes watcher
+@api_view(['GET'])
+def likes(request):
+    if (request.method == 'GET'):
+        likes = Likes.objects.all()
+        serializer = LikesSerializer(likes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        serializer = LikesNCommentsSerializer(data=request.data)
+
+# likes specific watcher
+@api_view(['GET'])
+def likes_specific(request, pk):
+    if (request.method == 'GET'):
+        user = Likes.objects.all().filter(user=pk).first()
+        serializer = LikesSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# create new likes object
+@api_view(['POST'])
+def likes_create(request):
+    if request.method == 'POST':
+        serializer = LikesSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        beacon = LikesNComments.objects.all()
-        beacon.delete()
-        return Response({'status': 'Delete succesful!'}, status=status.HTTP_204_NO_CONTENT)
 
+# add new feeds you like
+@api_view(['PUT'])
+def likes_like(request, user_pk, feeds_pk):
+    if (request.method == 'PUT'):
+        user = Likes.objects.all().filter(user=user_pk).first()
+        user.feeds.add(feeds_pk)
+        return Response({'status': user.name + ' like post ' + feeds_pk}, status=status.HTTP_200_OK)
 
+# undo feeds you like
+@api_view(['PUT'])
+def likes_unlike(request, user_pk, feeds_pk):
+    if (request.method == 'PUT'):
+        user = Likes.objects.all().filter(user=user_pk).first()
+        user.feeds.remove(feeds_pk)
+        return Response({'status': user.name + ' unlike post ' + feeds_pk}, status=status.HTTP_200_OK)
+
+# see how many likes in feeds
+@api_view(['GET'])
+def likes_count(request, feeds_pk):
+    if (request.method == 'GET'):
+        likes = FeedsObj.objects.get(id=feeds_pk).user.all()
+        serializer = LikesSerializer(likes, many=True)
+        return Response({'likes_count': len(serializer.data)}, status=status.HTTP_200_OK)
+
+# comments watcher
+@api_view(['GET', 'POST', 'DELETE'])
+def comments(request):
+    if (request.method == 'GET'):
+        comments = Comments.objects.all()
+        serializer = CommentsSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif (request.method == 'POST'):
+        serializer = CommentsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif (request.method == 'DELETE'):
+        comments = Comments.objects.all()
+        comments.delete()
+        return Response({'status': 'Delete all comments!'}, status=status.HTTP_204_NO_CONTENT)
+
+# comments specific watcher
 @api_view(['POST', 'GET'])
-def get_post_specific_likesncomments(request, pk):
+def comments_specific(request, pk):
     try:
-        feed = FeedsObj.objects.get(id=pk)
+        feeds = FeedsObj.objects.get(id=pk)
     except:
         return Response({'status': 'feeds tidak ketemu :('}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'POST':
-        tmp_data = request.data.copy()
-        tmp_data['feedsobj'] = feed.id
-        print(tmp_data)
-        serializer = LikesNCommentsSerializer(data=tmp_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'GET':
-        beacon = LikesNComments.objects.filter(feedsobj__pk=feed.id)
-        serializer = LikesNCommentsSerializer(beacon, many=True)
+    if (request.method == 'GET'):
+        comments = Comments.objects.filter(feeds__pk=pk)
+        serializer = CommentsSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['PUT'])
-def put_add_likes(request, user_pk, feedsobj_pk):
-    beacon = UserLike.objects.all().filter(user_id=user_pk)
-    beacon = beacon.first()
-    print(beacon)
-    beacon.feedsobjs.add(FeedsObj.objects.get(id=feedsobj_pk))
-    return Response({'status': 'status oke!'}, status=status.HTTP_200_OK)
-
-@api_view(['PUT'])
-def put_delete_likes(request, user_pk, feedsobj_pk):
-    beacon = UserLike.objects.all().filter(user_id=user_pk)
-    beacon = beacon.first()
-    beacon.feedsobjs.remove(feedsobj_pk)
-    return Response({'status': 'status oke!'}, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def post_likes(request):
-    if request.method == 'POST':
-        serializer = UserLikeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
+# see how many comments in feeds
 @api_view(['GET'])
-def get_likes(request):
-    beacon = UserLike.objects.all()
-    serializer = UserLikeSerializer(beacon, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['GET'])
-def get_specific_likes(request, pk):
-    beacon = UserLike.objects.all().filter(user_id=pk)
-    beacon = beacon.first()
-    serializer = UserLikeSerializer(beacon)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+def comments_count(request, feeds_pk):
+    if (request.method == 'GET'):
+        comments = comments = Comments.objects.filter(feeds__pk=feeds_pk)
+        serializer = CommentsSerializer(comments, many=True)
+        return Response({'comments_count':len(serializer.data)}, status=status.HTTP_200_OK)

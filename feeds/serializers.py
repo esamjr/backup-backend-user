@@ -1,21 +1,18 @@
 from rest_framework import serializers
-from .models import FeedsObj, LikesNComments, UserLike
+from .models import FeedsObj, Comments, Likes
 
 
-class LikesNCommentsSerializer(serializers.ModelSerializer):
-    # feedsobj = FeedsObjSerializer(read_only=False)
+class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LikesNComments
+        model = Comments
         fields = '__all__'
 
-class UserLikeSerializer(serializers.ModelSerializer):
-    # feedsobj = serializers.PrimaryKeyRelatedField(queryset=FeedsObj.objects.all(), many=True)
+class LikesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserLike
+        model = Likes
         fields = '__all__'
 
 class FeedsObjSerializer(serializers.ModelSerializer):
-    # user_like = UserLikeSerializer(many=True, read_only=True)
     class Meta:
         model = FeedsObj
         fields = '__all__'

@@ -129,9 +129,8 @@ INSTALLED_APPS = [
     'task_comment',
     'task_follower',
     'feeds',
-    # 'friends',
-    # 'group_user',
-    # 'setting_approval',
+    'friends',
+    'group_user',
 
 ]
 
@@ -149,6 +148,7 @@ MIDDLEWARE = [
 
 ]
 ROOT_URLCONF = 'backend_user.urls'
+
 CORS_ORIGIN_ALLOW_ALL=True
 
 PROJECT_ROOT = os.path.dirname
