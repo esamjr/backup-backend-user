@@ -180,23 +180,23 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-     'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '35.198.248.235',
-     'PORT': '5432',
-     'NAME': 'userdbdev',
-     'USER': 'postgres',
-     'PASSWORD': 'your_password'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {git c
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '35.198.248.235',
+#      'PORT': '5432',
+#      'NAME': 'userdbdev',
+#      'USER': 'postgres',
+#      'PASSWORD': 'your_password'
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
@@ -232,9 +232,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'OPTIONS': {'min_length': 10, }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
@@ -259,4 +257,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
