@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 FLAG = 3
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 EMAIL_HOST = 'mail.mindzzle.com'
 EMAIL_PORT = 587
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'pages',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
@@ -131,7 +133,6 @@ INSTALLED_APPS = [
     'feeds',
     'friends',
     'group_user',
-
 ]
 
 SITE_ID = 1
@@ -157,19 +158,15 @@ PROJECT_ROOT = os.path.dirname
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
                 'django.contrib.messages.context_processors.messages',
-                "django.core.context_processors.i18n",
-                "django.core.context_processors.media",
-                "django.core.context_processors.static",
-                "django.core.context_processors.tz",
-
             ],
         },
     },
@@ -180,23 +177,23 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-# DATABASES = {git c
+# DATABASES = {
 #     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '35.198.248.235',
-#      'PORT': '5432',
-#      'NAME': 'userdbdev',
-#      'USER': 'postgres',
-#      'PASSWORD': 'your_password'
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+DATABASES = {
+    'default': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'HOST': '35.198.248.235',
+     'PORT': '5432',
+     'NAME': 'userdbdev',
+     'USER': 'postgres',
+     'PASSWORD': 'your_password'
+    }
+}
 
 # DATABASES = {
 #     'default': {

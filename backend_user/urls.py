@@ -20,6 +20,7 @@ from django.conf.urls import include, url
 from email_app import views as lihat
 
 urlpatterns = [
+    path('', include('pages.urls')),
     url(r'^sipromo/', include('sipromo_api.urls')),
     url(r'^orderlicense/', include('orderlicense.urls')),
     url(r'^haloarif/', include('haloarif.urls')),
