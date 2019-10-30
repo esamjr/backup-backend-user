@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     'task_follower',
     'feeds',
     'friends',
+    'group_user',
 ]
 
 SITE_ID = 1
