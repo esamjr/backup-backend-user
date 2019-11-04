@@ -97,6 +97,7 @@ def auto_migrate_to_domoo(request):
         return Response({'status': 'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(['GET'])
 def get_user_by_email(request, pk):
     """
     function get data by email
