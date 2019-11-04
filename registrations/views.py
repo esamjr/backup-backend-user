@@ -104,9 +104,13 @@ def get_user_by_email(request, pk):
     :param request: email
     :return: if email already exist in employee, return data null
     """
+    token = request.META.get('HTTP_AUTHORIZATION', '')
+    get_token = Register.objects.get(token=token)
     if request.method == "GET":
         registrations = Register.objects.get(pk=pk)
         serializer = SearchSerializer(registrations)
+        act = 'searching user id ' + str(pk)
+        read_log(request, get_token, act)
 
         if not serializer.errors:
             return Response(serializer.data, status=status.HTTP_201_CREATED)
