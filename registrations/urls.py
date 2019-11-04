@@ -4,8 +4,7 @@ from . import views
 urlpatterns = [
     url(r'^apisuperadmin/$', views.auto_migrate_to_domoo, name='auto_migrate_to_domoo'),
     url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_update_registrations, name='get_delete_update_registrations'),
-    # url(r'^api/findfriends/(?P<pk>[0-9]+)$', views.get_user, name='get_user'),
-    url(r'^api/findfriends/(?P<pk>[0-9]+)$', views.get_user_by_email, name='get_user_by_email'),
+    url(r'^api/findFriends/(?P<pk>[0-9]+)$', views.get_user_by_email, name='get_user_by_email'),
     url(r'^api/$', views.get_post_registrations, name='get_post_registrations'),
     url(r'^api/upload/$', views.upload_xls, name='upload_xls'),
     url(r'^api/login/$', views.get_login, name='get_login'),
