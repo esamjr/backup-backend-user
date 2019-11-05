@@ -97,6 +97,20 @@ def auto_migrate_to_domoo(request):
         return Response({'status': 'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(['POST'])
+def get_search_by_name(request):
+    if request.method == 'POST':
+        name = request.data['name']
+        if not name:
+            network = Register.objects.all()
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
+        else:
+            network = Register.objects.all().filter(full_name__icontains=name)
+            serializer = RegisterSerializer(network, many=True)
+            return Response(serializer.data)
+
+
 @api_view(['GET'])
 def get_user_by_email(request, pk):
     """
