@@ -1,4 +1,3 @@
-from rest_framework.decorators import api_view
 import datetime
 
 import requests
@@ -34,14 +33,7 @@ def email_log(request, respondentEmail, sender, subjects):
 
 @csrf_exempt
 def forget_pass(request, token):
-    if settings.FLAG == 1:
-        link = 'https://user.mindzzle.com/password/new?token=' + token
-        # return link
-    elif settings.FLAG == 2:
-        link = 'http://staging-user.mindzzle.com/password/new?token=' + token
-        # return link
-    else:
-        link = 'http://dev-user.mindzzle.com/password/new?token=' + token
+    link = request.get_host() + '/password/new?token=' + token
     return link
 
 

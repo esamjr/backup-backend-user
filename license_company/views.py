@@ -1,15 +1,16 @@
+import datetime
+
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
-from .models import LicenseComp
-from .serializers import LicenseCompSerializer
-from registrations.models import Register
-from hierarchy.models import Hierarchy
+
 from business_account.models import Business
 from email_app.views import reminder_email
-import datetime
-import time
+from hierarchy.models import Hierarchy
+from registrations.models import Register
+from .models import LicenseComp
+from .serializers import LicenseCompSerializer
+
 
 @api_view(['GET'])
 def search_all_div(request):
@@ -36,14 +37,14 @@ def search_all_div(request):
         return Response({'status':'License Company Does Not Exist'}, status = status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET','PUT', 'POST'])
-def setting_license_company(request,pk):
+@api_view(['GET', 'PUT', 'POST'])
+def setting_license_company(request, pk):
     try:
         if request.method == 'POST': 
         
             token = request.META.get('HTTP_AUTHORIZATION')
-            user = Register.objects.get(token = token)
-            company = Business.objects.get(id = pk ,id_user = user.id)
+            user = Register.objects.get(token=token)
+            company = Business.objects.get(id=pk, id_user = user.id)
             
             hierarchy_comp = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company = company.id)
             result = []

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Hierarchy(models.Model):
     id_level = models.IntegerField()
     id_company = models.IntegerField()
