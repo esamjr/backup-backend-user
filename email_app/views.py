@@ -44,7 +44,11 @@ def email_log(request, respondentEmail, sender, subjects):
 @csrf_exempt
 def forget_pass(request, token):
     stag = links_url + '/password/new?token=' + token
-    return lambda x: stag if stag == "" else SERVER_PROD
+    if settings.DEBUG:
+        link = stag
+    elif not settings.DEBUG:
+        link = SERVER_PROD
+    return link
 
 
 @csrf_exempt
