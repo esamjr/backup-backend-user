@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import requests
 from django.conf import settings
@@ -12,6 +13,15 @@ from rest_framework.response import Response
 from registrations.models import Register
 from .models import Email
 from .serializers import EmailSerializer
+
+SERVER_PROD = settings.SITE_URL
+
+
+@staticmethod
+def links_url(request):
+    link_req = requests.get()
+    link_url = re.split(settings.API_URL, link_req)
+    return link_url
 
 
 @csrf_exempt
@@ -33,8 +43,8 @@ def email_log(request, respondentEmail, sender, subjects):
 
 @csrf_exempt
 def forget_pass(request, token):
-    link = request.get_host() + '/password/new?token=' + token
-    return link
+    stag = links_url + '/password/new?token=' + token
+    return lambda x: stag if stag == "" else SERVER_PROD
 
 
 @csrf_exempt
