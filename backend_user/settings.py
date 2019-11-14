@@ -257,5 +257,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-SITE_URL = 'user.mindzzle.com'
+SITE_URL = 'https://user.mindzzle.com/'
 API_URL = 'user-api.mindzzle.com'
