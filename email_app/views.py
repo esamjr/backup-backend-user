@@ -47,7 +47,7 @@ def forget_pass(request, token):
     if settings.DEBUG:
         link = stag
     elif not settings.DEBUG:
-        link = SERVER_PROD
+        link = SERVER_PROD + '/password/new?token=' + token
     return link
 
 
