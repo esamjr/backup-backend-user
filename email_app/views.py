@@ -43,11 +43,14 @@ def email_log(request, respondentEmail, sender, subjects):
 
 @csrf_exempt
 def forget_pass(request, token):
-    stag = links_url + '/password/new?token=' + token
-    if settings.DEBUG:
-        link = stag
-    elif not settings.DEBUG:
-        link = SERVER_PROD + '/password/new?token=' + token
+    if settings.FLAG == 1:
+        link = 'https://user.mindzzle.com/password/new?token=' + token
+        # return link
+    elif settings.FLAG == 2:
+        link = 'http://staging-user.mindzzle.com/password/new?token=' + token
+        # return link
+    else:
+        link = 'http://dev-user.mindzzle.com/password/new?token=' + token
     return link
 
 
