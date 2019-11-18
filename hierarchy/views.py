@@ -8,12 +8,13 @@ from level.models import Level
 from registrations.models import Register
 from .serializers import HierarchySerializer, UserSerializer
 
+
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_hierarchy(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION')
     try:
-        user = Register.objects.get(token = token)
-    except Register.DoesNotExist:        
+        user = Register.objects.get(token=token)
+    except Register.DoesNotExist:
         content = {
             'status': 'UNAUTHORIZED'
         }
@@ -23,18 +24,18 @@ def get_delete_update_hierarchy(request, pk):
         if request.method == 'GET':
             serializer = HierarchySerializer(Hierarchy)
             return Response(serializer.data)
-        elif request.method == 'DELETE':           
-                Hierarchy.delete()
-                content = {
-                    'status' : 'NO CONTENT'
-                }
-                return Response(content, status=status.HTTP_202_NO_CONTENT)
-        elif request.method == 'PUT':            
-                serializer = HierarchySerializer(Hierarchy, data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)           
+        elif request.method == 'DELETE':
+            Hierarchy.delete()
+            content = {
+                'status': 'NO CONTENT'
+            }
+            return Response(content, status=status.HTTP_202_NO_CONTENT)
+        elif request.method == 'PUT':
+            serializer = HierarchySerializer(Hierarchy, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except Hierarchy_models.DoesNotExist:
         content = {
@@ -57,19 +58,20 @@ def get_post_hierarchy(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 def get_hierarchy_by_user(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION')
     try:
-        user = Register.objects.get(token = token).id
-        beacon = Hierarchy_models.objects.get(id_user = user, id_company = pk)
+        user = Register.objects.get(token=token).id
+        beacon = Hierarchy_models.objects.get(id_user=user, id_company=pk)
         serializer = HierarchySerializer(beacon)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Hierarchy_models.DoesNotExist:
-        response = {'status':'HIERARCHY DOES NOT EXIST'}
+        response = {'status': 'HIERARCHY DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
     except Register.DoesNotExist:
-        response = {'status':'USER DOES NOT EXIST'}
+        response = {'status': 'USER DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -84,21 +86,21 @@ def get_all_hierarchy(request, pk1):
     #     }
     #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-    try:        
-        results = []        
+    try:
+        results = []
         networks = Hierarchy_models.objects.all().values_list('id', flat=True).filter(id_company=pk1)
-        for network in networks:            
+        for network in networks:
             hirarki = Hierarchy_models.objects.get(id=network)
             id_user = hirarki.id_user
             if id_user == 0:
-                serializer = HierarchySerializer(hirarki)                
-                dbase = {'hirarki':serializer.data, 'user':None }
+                serializer = HierarchySerializer(hirarki)
+                dbase = {'hirarki': serializer.data, 'user': None}
                 results.append(dbase)
-            else :   
-                user = Register.objects.get(id = id_user)
+            else:
+                user = Register.objects.get(id=id_user)
                 serializer = HierarchySerializer(hirarki)
                 serializer2 = UserSerializer(user)
-                dbase = {'hirarki':serializer.data, 'user':serializer2.data }
+                dbase = {'hirarki': serializer.data, 'user': serializer2.data}
                 results.append(dbase)
         return Response(results)
     except Hierarchy_models.DoesNotExist:
@@ -106,4 +108,3 @@ def get_all_hierarchy(request, pk1):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-  
