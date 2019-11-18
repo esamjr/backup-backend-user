@@ -43,8 +43,6 @@ def get_post_joincompany(request):
         network = Joincompany.objects.all()
         serializer = JoincompanySerializer(network, many=True)
         return Response(serializer.data)
-
-
     elif request.method == 'POST':
         serializer = JoincompanySerializer(data=request.data)
         if serializer.is_valid():
