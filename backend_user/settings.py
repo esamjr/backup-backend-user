@@ -175,16 +175,16 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-     'ENGINE': 'django.db.backends.postgresql',
-     'HOST': '35.198.248.235',
-     'PORT': '5432',
-     'NAME': 'userdbdev',
-     'USER': 'postgres',
-     'PASSWORD': 'your_password'
-    }
-}
+#DATABASES = {
+#    'default': {
+#     'ENGINE': 'django.db.backends.postgresql',
+#     'HOST': '35.198.248.235',
+#     'PORT': '5432',
+#     'NAME': 'userdbdev',
+#     'USER': 'postgres',
+#     'PASSWORD': 'your_password'
+#    }
+#}
 
 # DATABASES = {
 #     'default': {
@@ -200,16 +200,16 @@ DATABASES = {
 
 # 35.198.248.235
 # 10.148.0.3
-# DATABASES = {
-#     'default': {
-#      'ENGINE': 'django.db.backends.postgresql',
-#      'HOST': '35.247.162.159',
-#      'PORT': '5432',
-#      'NAME': 'userprod',
-#      'USER': 'user',
-#      'PASSWORD': 'U53rDB2016'
-#     }
-# }
+ DATABASES = {
+     'default': {
+      'ENGINE': 'django.db.backends.postgresql',
+      'HOST': '35.247.162.159',
+      'PORT': '5432',
+      'NAME': 'userprod_2',
+      'USER': 'user',
+      'PASSWORD': 'U53rDB2016'
+     }
+ }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -247,5 +247,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-SITE_URL = 'https://user.mindzzle.com/'
-API_URL = 'user-api.mindzzle.com'
+SITE_URL = 'https://x-user.mindzzle.com/'
+API_URL = 'x-user-api.mindzzle.com'
