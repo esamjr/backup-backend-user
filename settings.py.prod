@@ -199,7 +199,7 @@ DATABASES = {
      'ENGINE': 'django.db.backends.postgresql',
      'HOST': '10.124.64.3',
      'PORT': '5432',
-     'NAME': 'userprod_2',
+     'NAME': 'userprod',
      'USER': 'user',
      'PASSWORD': 'U53rDB2016'
     }
