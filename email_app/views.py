@@ -44,7 +44,7 @@ def email_log(request, respondentEmail, sender, subjects):
 @csrf_exempt
 def forget_pass(request, token):
     if settings.FLAG == 1:
-        link = 'https://user.mindzzle.com/password/new?token=' + token
+        link = 'https://x-user.mindzzle.com/password/new?token=' + token
         # return link
     elif settings.FLAG == 2:
         link = 'http://staging-user.mindzzle.com/password/new?token=' + token
@@ -59,7 +59,7 @@ def confrlink(request, token):
     if settings.DEBUG:
         link = 'http://dev-user.mindzzle.com/register/confirmation?token=' + token
     elif not settings.DEBUG:
-        link = 'http://user.mindzzle.com/register/confirmation?token=' + token
+        link = 'http://x-user.mindzzle.com/register/confirmation?token=' + token
     return link
 
 
@@ -175,7 +175,7 @@ def multidevices_email(request, user, token_phone):
     if settings.FLAG == 0:
         url = 'http://dev-user-api.mindzzle.com/vendor/logoutemail/?token='
     elif settings.FLAG == 1:
-        url = 'https://user-api.mindzzle.com/vendor/logoutemail/?token='
+        url = 'https://x-user-api.mindzzle.com/vendor/logoutemail/?token='
     elif settings.FLAG == 2:
         url = 'http://staging-user-api.mindzzle.com/vendor/logoutemail/?token='
     elif settings.FLAG == 3:
