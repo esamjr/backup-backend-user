@@ -205,7 +205,7 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 
 # 35.198.248.235
 # 10.148.0.3
- DATABASES = {
+DATABASES = {
      'default': {
       'ENGINE': 'django.db.backends.postgresql',
       'HOST': '35.247.162.159',
