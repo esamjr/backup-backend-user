@@ -241,5 +241,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-##test
-##te
+
+SITE_URL = 'https://x-user.mindzzle.com/'
+API_URL = 'x-user-api.mindzzle.com'
