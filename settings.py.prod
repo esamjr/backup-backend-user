@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 import logging
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -152,7 +150,8 @@ MIDDLEWARE = [
 ]
 ROOT_URLCONF = 'backend_user.urls'
 
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 PROJECT_ROOT = os.path.dirname
 
@@ -232,10 +231,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-sentry_sdk.init(
-    dsn="https://d49c829576a043298afe01484cbe1c18@sentry.io/1377949",
-    integrations=[DjangoIntegration()]
-)
 
 SITE_URL = 'https://x-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
