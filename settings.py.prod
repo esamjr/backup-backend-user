@@ -131,6 +131,9 @@ INSTALLED_APPS = [
     'milestone',
     'task_comment',
     'task_follower',
+    'feeds',
+    'friends',
+    'group_user',
 ]
 
 SITE_ID = 1
@@ -193,7 +196,7 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #      'PASSWORD': 'your_password'
 #     }
 # }
-s
+
 DATABASES = {
     'default': {
      'ENGINE': 'django.db.backends.postgresql',
