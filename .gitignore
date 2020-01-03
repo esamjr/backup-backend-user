@@ -169,4 +169,8 @@ search_index.whoosh/
 .vscode/
 node_modules
 
+<<<<<<< HEAD
 .gitignore
+=======
+.gitignore
+>>>>>>> 1c578f0e9d8a349167ab7d9a992116429188258d
