@@ -27,10 +27,10 @@ DEBUG = False
 FLAG = 1
 ALLOWED_HOSTS = ['*']
 
-EMAIL_HOST: 'smtp.mandrillapp.com'
-EMAIL_PORT: 587
-EMAIL_HOST_USER: 'mas-mas.it'
-EMAIL_HOST_PASSWORD: 'urqgI3rj9JR41uKhQL12GA'
+EMAIL_HOST= 'smtp.mandrillapp.com'
+EMAIL_PORT= 587
+EMAIL_HOST_USER= 'mas-mas.it'
+EMAIL_HOST_PASSWORD= 'urqgI3rj9JR41uKhQL12GA'
 #EMAIL_HOST = 'mail.mindzzle.com'
 #EMAIL_PORT = 587
 #EMAIL_HOST_USER = 'admin@mindzzle.com'
@@ -151,25 +151,6 @@ ROOT_URLCONF = 'backend_user.urls'
 CORS_ORIGIN_ALLOW_ALL=True
 
 PROJECT_ROOT = os.path.dirname
-
-
-ttings/
-"""
-
-import os
-import logging
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
 
 TEMPLATES = [
