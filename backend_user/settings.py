@@ -19,10 +19,10 @@ DEBUG = False
 FLAG = 3
 ALLOWED_HOSTS = ['*']
 
-EMAIL_HOST: 'smtp.mandrillapp.com'
-EMAIL_PORT: 587
-EMAIL_HOST_USER: 'mas-mas.it'
-EMAIL_HOST_PASSWORD: 'urqgI3rj9JR41uKhQL12GA'
+EMAIL_HOST = 'smtp.mandrillapp.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'mas-mas.it'
+EMAIL_HOST_PASSWORD = 'urqgI3rj9JR41uKhQL12GA'
 #EMAIL_HOST = 'mail.mindzzle.com'
 #EMAIL_PORT = 587
 #EMAIL_HOST_USER = 'admin@mindzzle.com'
