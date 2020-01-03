@@ -236,3 +236,6 @@ sentry_sdk.init(
     dsn="https://d49c829576a043298afe01484cbe1c18@sentry.io/1377949",
     integrations=[DjangoIntegration()]
 )
+
+SITE_URL = 'https://x-user.mindzzle.com/'
+API_URL = 'x-user-api.mindzzle.com'
