@@ -64,7 +64,7 @@ def confrlink(request, token):
     return link
 
 
-@api_view(['POST'])
+@csrf_exempt
 def send_forget_email(request, mail, token, name, subjects):
     act = 'req email'
     read_log(act, request, mail, token, name, subjects)
@@ -94,7 +94,6 @@ def send_forget_email(request, mail, token, name, subjects):
 @api_view(['POST'])
 def resend_email(request):
     respondentEmail = mail
-    sender = 'admin@mindzzle.com'
     subjects = 'Activation account'
     mail = requests.data['email']
     beacon = Register.objects.get(email=mail)
