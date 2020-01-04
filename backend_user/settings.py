@@ -206,7 +206,7 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
       'ENGINE': 'django.db.backends.postgresql',
       'HOST': '35.247.162.159',
       'PORT': '5432',
-      'NAME': 'userprod_2',
+      'NAME': 'userprod',
       'USER': 'user',
       'PASSWORD': 'U53rDB2016'
      }
