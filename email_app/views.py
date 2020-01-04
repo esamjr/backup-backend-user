@@ -64,12 +64,13 @@ def confrlink(request, token):
     return link
 
 
-@csrf_exempt
+@api_view(['POST'])
 def send_forget_email(request, mail, token, name, subjects):
-    read_log('send_forget_email', request, mail, token, name, subjects)
+    act = 'req email'
+    read_log(act, request, mail, token, name, subjects)
     respondentEmail = mail
     try:
-      requests.post(
+        requests.post(
           "http://email-app.mindzzle.com/mailsent/",
           data={"from": "admin@mindzzle.com",
                 "to": mail,
@@ -81,14 +82,14 @@ def send_forget_email(request, mail, token, name, subjects):
                     request, token) + "'>" + forget_pass(request,
                                                          token) + "</a></p><p>&nbsp;</p><p><strong>Cheers,<br>The Mindzzle Team</strong></p></td></tr></table></td></tr></table></td></tr></table><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr><tr><td align='center' style='padding:20px 0'><!--[if (gte mso 9)|(IE)]><table align='center' border='0' cellspacing='0' cellpadding='0' width='500'><tr><td align='center' valign='top' width='500'><![endif]--><table width='100%' border='0' cellspacing='0' cellpadding='0' align='center' style='max-width:500px' class='responsive-table'><tr><td align='center' style='font-size:12px;line-height:18px;font-family:Helvetica,Arial,sans-serif;color:black'>Copyright 2018 (c) Mindzzle | Contact | Terms</td></tr></table><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr></table></div></body></html>"
                 })
-      response = {'status Email Sent'}
-      read_log(request, mail, "OK", subjects)
-      return HttpResponse(response)
+        response = {'status Email Sent'}
+        read_log(request, mail, "OK", subjects)
+        return HttpResponse(response)
     except:
-      response = {'status Failed to send email'}
-      read_log(request, mail, "NOT OK", subjects)
-      return HttpResponse(response)
-      
+        response = {'status Failed to send email'}
+        read_log(request, mail, "NOT OK", subjects)
+        return HttpResponse(response)
+
 
 @api_view(['POST'])
 def resend_email(request):
