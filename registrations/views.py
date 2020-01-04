@@ -476,34 +476,31 @@ def verified_acc(request):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
-@csrf_exempt
+@api_view(['POST'])
 def forget(request):
     if request.method == 'POST':
         token_forget = 'usethistokenforforgetyourpassword'
         tokenx = str(token_forget)
         token = make_password(tokenx)
         email = request.data['email']
-        payload = {'token': token}
+        payload = {'token':token}
         try:
-            create_log('masuk 1')
-            check = Register.objects.get(email=email)
+            check = Register.objects.get(email = email)
             name = check.full_name
-            serializers = SentForgetSerializer(check, data=payload)
-            create_log('masuk 2')
+            serializers = SentForgetSerializer(check, data = payload)
             if serializers.is_valid():
                 serializers.save()
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
-            create_log('masuk 3')
             send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
-            create_log('masuk 4')
-            return Response({'status': 'Email sent'})
+            return Response({'status':'Email sent'})
         except Register.DoesNotExist:
-            response = {'status': 'Email Does not valid'}
+            response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+
 
 
 @api_view(['POST'])
