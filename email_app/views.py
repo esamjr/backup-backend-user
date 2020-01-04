@@ -2,6 +2,7 @@ import datetime
 import re
 
 import requests
+from log_app.views import read_log
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
@@ -69,6 +70,7 @@ def send_forget_email(request, mail, token, name, subjects):
     respondentEmail = mail
     sender = 'admin@mindzzle.com'
     try:
+      read_log('kirim email', sender, respondentEmail)
         requests.post(
             "http://email-app.mindzzle.com/mailsent/",
             data={"from": "admin@mindzzle.com",
@@ -82,11 +84,11 @@ def send_forget_email(request, mail, token, name, subjects):
                                                            token) + "</a></p><p>&nbsp;</p><p><strong>Cheers,<br>The Mindzzle Team</strong></p></td></tr></table></td></tr></table></td></tr></table><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr><tr><td align='center' style='padding:20px 0'><!--[if (gte mso 9)|(IE)]><table align='center' border='0' cellspacing='0' cellpadding='0' width='500'><tr><td align='center' valign='top' width='500'><![endif]--><table width='100%' border='0' cellspacing='0' cellpadding='0' align='center' style='max-width:500px' class='responsive-table'><tr><td align='center' style='font-size:12px;line-height:18px;font-family:Helvetica,Arial,sans-serif;color:black'>Copyright 2018 (c) Mindzzle | Contact | Terms</td></tr></table><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr></table></div></body></html>"
                   })
         response = {'status Email Sent'}
-        email_log(request, mail, "OK", subjects)
+        read_log(request, mail, "OK", subjects)
         return HttpResponse(response)
     except:
         response = {'status Failed to send email'}
-        email_log(request, mail, "NOT OK", subjects)
+        read_log(request, mail, "NOT OK", subjects)
         return HttpResponse(response)
 
 
