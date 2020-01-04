@@ -67,7 +67,7 @@ def confrlink(request, token):
 @csrf_exempt
 def send_forget_email(request,mail,token, name, subjects):
     respondentEmail = mail
-    sender = 'admin@mindzzle.com'
+    sender = 'admin@mindzzle.com' 
     try:          
         requests.post(            
             "http://email-app.mindzzle.com/mailsent/",
@@ -84,6 +84,7 @@ def send_forget_email(request,mail,token, name, subjects):
         response = {'status Failed to send email'}
         email_log(request,mail,"NOT OK",subjects)
         return HttpResponse(response)
+
 
 
 @api_view(['POST'])
