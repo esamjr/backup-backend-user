@@ -476,7 +476,7 @@ def verified_acc(request):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
+@csrf_exempt
 def forget(request):
     if request.method == 'POST':
         token_forget = 'usethistokenforforgetyourpassword'
@@ -493,6 +493,8 @@ def forget(request):
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
+            act2 = 'data request'
+            read_log(act2, request, email, token, name, subjects)
             send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
