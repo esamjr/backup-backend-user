@@ -184,7 +184,7 @@ def get_delete_update_registrations(request, pk):
                             'name': serializer.data['full_name'],
                             'photo': serializer.data['url_photo']
                         }
-                        url = 'http://dev-attandance.mindzzle.com/api/user_update'
+                        url = 'http://x-attandance.mindzzle.com/api/user_update'
                         Req = requests.post(url, data=payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -476,7 +476,7 @@ def verified_acc(request):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
+@csrf_exempt
 def forget(request):
     if request.method == 'POST':
         token_forget = 'usethistokenforforgetyourpassword'
