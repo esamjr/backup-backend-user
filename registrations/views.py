@@ -184,7 +184,7 @@ def get_delete_update_registrations(request, pk):
                             'name': serializer.data['full_name'],
                             'photo': serializer.data['url_photo']
                         }
-                        url = 'http://dev-attandance.mindzzle.com/api/user_update'
+                        url = 'http://x-attandance.mindzzle.com/api/user_update'
                         Req = requests.post(url, data=payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -493,6 +493,7 @@ def forget(request):
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
+             ('send_forget_email', send_forget_email)
             send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
