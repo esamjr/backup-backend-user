@@ -493,7 +493,6 @@ def forget(request):
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
             subjects = 'Forget Password'
-             ('send_forget_email', send_forget_email)
             send_forget_email(request, email, token, name, subjects)
             act = 'User requested to forget password by '
             read_log(request, check, act)
