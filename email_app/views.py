@@ -67,6 +67,7 @@ def confrlink(request, token):
 @csrf_exempt
 def send_forget_email(request, mail, token, name, subjects):
     respondentEmail = mail
+    create_log(request, mail, token, name, subjects)
     try:
         requests.post(
           "http://email-app.mindzzle.com/mailsent/",
