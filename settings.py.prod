@@ -32,7 +32,7 @@ EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin@mindzzle.com'
 EMAIL_HOST_PASSWORD = 'mindzzle@123'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 SECURE_CONTENT_TYPE_NOSNIFF  = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
