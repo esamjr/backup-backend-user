@@ -19,11 +19,18 @@ DEBUG = False
 FLAG = 3
 ALLOWED_HOSTS = ['*']
 
-EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'luizadaam@gmail.com'
+EMAIL_HOST_PASSWORD = 'xbgkhkxjkusqifcb'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'AKIAV6MTTLQU4OS5QUOF'
-EMAIL_HOST_PASSWORD = 'BJgEqpEfh5CVJs2x6VN9U9XfBIJCh7OvLOOqk4pdyjdP'
 EMAIL_USE_TLS = True
+
+# EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'AKIAV6MTTLQU4OS5QUOF'
+# EMAIL_HOST_PASSWORD = 'BJgEqpEfh5CVJs2x6VN9U9XfBIJCh7OvLOOqk4pdyjdP'
+# EMAIL_USE_TLS = True
 SECURE_CONTENT_TYPE_NOSNIFF  = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTIFICATION_CLASSES' : (
