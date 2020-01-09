@@ -40,5 +40,7 @@ six==1.11.0
 urllib3==1.24.1
 sentry-sdk==0.6.9
 
+django-ses
+
 # package database
 psycopg2-binary==2.8.4
