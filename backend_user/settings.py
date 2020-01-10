@@ -20,17 +20,16 @@ DEBUG = False
 FLAG = 3
 ALLOWED_HOSTS = ['*']
 
-# AWS_ACCESS_KEY_ID = 'AKIAV6MTTLQU4OS5QUOF'
-# AWS_SECRET_ACCESS_KEY = 'v9{JzaXqopI{'
-
 DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
 
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'AKIAV6MTTLQU4OS5QUOF'
-EMAIL_HOST_PASSWORD = 'BJgEqpEfh5CVJs2x6VN9U9XfBIJCh7OvLOOqk4pdyjdP'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.mindzzle.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@mindzzle.com'
+EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = True
+
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 REST_FRAMEWORK = {
@@ -47,8 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_ses',
     'pages',
+    # 'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
@@ -228,6 +227,7 @@ STATICFILES_DIRS = (
 
 SITE_URL = 'https://x-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
+GET_LOGGER_NAME = 'rest'
 
 
 # logging
