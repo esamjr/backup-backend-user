@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from email_app.views import send_email, send_forget_email
+from email_app.views import send_email, send_forget_email, send_registration_email
 from log_app.views import update_log, delete_log, read_log
 from vendor_api.models import MultipleLogin
 from vendor_api.serializers import MultipleSerializer
@@ -273,9 +273,16 @@ def get_post_registrations(request):
                 serializer_multi = MultipleSerializer(data=payload_multilogin)
                 if serializer_multi.is_valid():
                     serializer_multi.save()
-            subjects = 'Activation account'
+
             try:
-                send_email(request, email_var, token, name, subjects)
+                request = {
+                    'mail': email,
+                    'subjects': "Activation Email!",
+                    'name': name,
+                    'token': token
+                }
+
+                send_registration_email(request)
             except:
                 return Response({'error in here'})
             return Response(serializer.data, status=status.HTTP_201_CREATED)

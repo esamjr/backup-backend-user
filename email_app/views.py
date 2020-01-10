@@ -75,8 +75,7 @@ def confrlink(request, token):
 
 
 def send_forget_email(request):
-
-    reset_pass = settings.SITE_URL + 'password/new?token=' + request['token']
+    reset_url = settings.SITE_URL + 'password/new?token=' + request['token']
 
     data = {
         'from_email': settings.DEFAULT_FROM_EMAIL,
@@ -84,10 +83,26 @@ def send_forget_email(request):
         'name': request['name'],
         'mail_subject': request['subjects'],
         'token': request['token'],
-        'link': reset_pass
+        'link': reset_url
     }
 
     message_html = render_to_string_with_context('emails/email_password_reset.html', **data)
+    send_emails(request['subjects'], request['mail'], message_html)
+
+
+def send_registration_email(request):
+    regis_url = settings.SITE_URL + 'register/confirmation?token=' + request['token']
+
+    data = {
+        'from_email': settings.DEFAULT_FROM_EMAIL,
+        'recipient_email': request['mail'],
+        'name': request['name'],
+        'mail_subject': request['subjects'],
+        'token': request['token'],
+        'link': regis_url
+    }
+
+    message_html = render_to_string_with_context('emails/email_registration_new.html', **data)
     send_emails(request['subjects'], request['mail'], message_html)
 
 
