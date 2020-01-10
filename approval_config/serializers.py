@@ -6,4 +6,4 @@ class ApprovalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Approval
-        fields = '__all__'
+        fields = ('id_comp', 'id_hierarchy', 'approval1', 'approval2', )
