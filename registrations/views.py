@@ -485,22 +485,26 @@ def forget(request):
         email = request.data['email']
         payload = {'token':token}
         try:
-            check = Register.objects.get(email = email)
-            name = check.full_name
+            check = Register.objects.get(email= email)
             serializers = SentForgetSerializer(check, data = payload)
             if serializers.is_valid():
                 serializers.save()
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-            subjects = 'Forget Password'
-            send_forget_email(request, email, token, name, subjects)
-            act = 'User requested to forget password by '
-            read_log(request, check, act)
-            return Response({'status':'Email sent'})
+
+            request = {
+                'mail': email,
+                'subjects': 'Forget Password',
+                'name': check.full_name,
+                'token': token
+            }
+
+            send_forget_email(request)
+
+            return Response({'status': 'Email already sent'})
         except Register.DoesNotExist:
             response = {'status':'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
-
 
 
 @api_view(['POST'])
