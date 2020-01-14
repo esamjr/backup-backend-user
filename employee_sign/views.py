@@ -1,16 +1,23 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from .models import Employeesign
 from .serializers import EmployeesignSerializer
+
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_employeesign(request, pk):
     try:
-        employee_sign = Employeesign.objects.get(pk=pk)    
-    
+        employee_signs = Employeesign.objects.filter(pk=pk).exists()
+        if employee_signs:
+            content = {
+                'status': 'Email already exist'
+            }
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        employee_sign = Employeesign.objects.get(pk=pk)
+
         if request.method == 'GET':
             serializer = EmployeesignSerializer(employee_sign)
             return Response(serializer.data)
@@ -37,6 +44,7 @@ def get_delete_update_employeesign(request, pk):
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET', 'POST'])
 def get_post_employeesign(request):
     if request.method == 'GET':
@@ -51,9 +59,10 @@ def get_post_employeesign(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET', 'POST'])
 def get_all_employeesign(request, pk1):
-    if  request.method == 'GET':
+    if request.method == 'GET':
         try:
             network = Employeesign.objects.all().filter(id_company=pk1 )
             serializer = EmployeesignSerializer(network, many=True)
@@ -68,4 +77,3 @@ def get_all_employeesign(request, pk1):
                 'status': 'Bad Request'
             }
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-

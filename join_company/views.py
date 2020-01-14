@@ -44,6 +44,14 @@ def get_post_joincompany(request):
         serializer = JoincompanySerializer(network, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
+        id_user = int(request.data['id_user'])
+        id_check = Joincompany.objects.filter(id_user=id_user).exists()
+        if id_check:
+            content = {
+                'status': 'Email already exist'
+            }
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = JoincompanySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
