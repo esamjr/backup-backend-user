@@ -1,19 +1,18 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-import json
+from django.db.models import Q
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from .models import Business
-from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer , VerBusSerializer
-from registrations.models import Register
-from join_company.models import Joincompany
-from job_contract.models import Jobcontract
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from employee_sign.models import Employeesign
 from employee_sign.serializers import EmployeesignSerializer
-from hierarchy.serializers import HierarchySerializer
 from hierarchy.models import Hierarchy
-from django.db.models import Q
+from hierarchy.serializers import HierarchySerializer
+from job_contract.models import Jobcontract
+from join_company.models import Joincompany
+from registrations.models import Register
+from .models import Business
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer, VerBusSerializer
+
 
 @api_view(['GET'])
 def get_name(request,pk):
@@ -23,6 +22,7 @@ def get_name(request,pk):
             return Response(network.company_name, status = status.HTTP_201_CREATED)
         except Business.DoesNotExist:
             return Response(None, status = status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def child_company_vendor(request, pk):
@@ -34,6 +34,7 @@ def child_company_vendor(request, pk):
         except Business.DoesNotExist:
             response = {'status':'CHILD COMPANY DOES NOT EXIST'}
             return Response(response, status = status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def buat_vendor(request,pk):
@@ -50,6 +51,7 @@ def buat_vendor(request,pk):
             pbanya = 'null'        
         result = [{'Business': serializer.data}, {'PBA':pbanya}, {'sA':userSerial.data}]
         return Response(result)
+
 
 @api_view(['GET'])
 def cakarsebek_vendor(request, pk):
@@ -107,6 +109,7 @@ def cakarsebek_vendor(request, pk):
                 people = {'user':serializerUser.data, 'join_company':serilaizerComp.data, 'job_contract' : serializerJobcon.data, 'employee_sign':serializerEmps.data, 'hierarchy':[]}
                 result.append(people)
         return Response(result) 
+
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_businessaccount(request, pk):
@@ -170,6 +173,7 @@ def get_delete_update_businessaccount(request, pk):
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET', 'POST'])
 def get_post_businessaccount(request):
     if request.method == 'GET':
@@ -194,11 +198,20 @@ def get_post_businessaccount(request):
         return Response(result)
 
     elif request.method == 'POST':
+        cek_name = Business.objects.filter(company_name=request.data['company_name']).exists()
+        if cek_name:
+            content = {
+                'status': 'Company Name already exist'
+            }
+
+            return Response(content, status=status.HTTP_404_NOT_FOUND)
+
         serializer = BusinessSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def get_all_businessaccount(request, pk):
@@ -211,6 +224,7 @@ def get_all_businessaccount(request, pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['POST'])
 def custom_get_one(request, pk):
@@ -237,6 +251,7 @@ def custom_get_one(request, pk):
         except:
             return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def custom_get_two(request, pk):
    if request.method == 'POST':        
@@ -260,6 +275,7 @@ def custom_get_two(request, pk):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)       
         except:
             return Response({'ERRORS'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 def cakarsebek(request, pk):
@@ -338,7 +354,8 @@ def search_company(request):
         except Register.DoesNotExist:
             response = {'status':'LOGIN FIRST, YOU MUST ...'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
-        
+
+
 def get_join(a,b):
     try:
         join = Joincompany.objects.get(Q(status = "1")|Q(status="2"), id_user=a, id_company = b)
@@ -354,6 +371,7 @@ def get_join(a,b):
             'status' : 'null'
         }
         return response
+
 
 def get_company(b):
     try:
@@ -371,6 +389,7 @@ def get_company(b):
             'logo_path' : 'null'}
         return response
 
+
 def get_users(b):
     try:
         joinx = Register.objects.get(id = b)
@@ -386,6 +405,7 @@ def get_users(b):
             'full_name':'null',            
             'birth_day':'null'}
         return response
+
 
 @api_view(['GET'])
 def count_emp(request,pk):
@@ -408,6 +428,7 @@ def count_emp(request,pk):
         'total_employees':counter
     }
     return Response(tabel)
+
 
 @api_view(['GET'])
 def get_ba_by_users(request):
@@ -433,6 +454,7 @@ def get_ba_by_users(request):
         response = {'status': 'USER DOES NOT EXIST'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET'])
 def get_all_emp_by_id_comp(request,pk):
     try:
@@ -449,10 +471,12 @@ def get_all_emp_by_id_comp(request,pk):
     except Joincompany.DoesNotExist:
         return Response({'status':'Did Not Have any employee'}, status = status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET'])
 def get_all_name_id_comp(request):
     beacon = Business.objects.all().values_list('id', 'company_name')
     return Response(beacon, status = status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 def verfied_business(request):
