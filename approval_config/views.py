@@ -1,13 +1,15 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
+
 from .models import Approval
 from .serializers import ApprovalSerializer
 from business_account.models import Business
 from registrations.models import Register
 from hierarchy.models import Hierarchy
 from log_app.views import read_log
+from django.shortcuts import get_object_or_404
+
 
 @api_view(['PUT','GET', 'DELETE'])
 def update_lookone_approval(request,pk):
@@ -87,23 +89,32 @@ def migrate_to_approval(request):
 	except Hierarchy.DoesNotExist:
 		return Response({'status':'Hierarchy Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
 
+
 @api_view(['GET'])
-def get_all_approval_by_comp(request,pk):
+def get_all_approval_by_comp(request, pk):
 	try:
-		if request.method == 'GET':
-			token = request.META.get('HTTP_AUTHORIZATION')
-			user = Register.objects.get(token = token)
-			id_comp =pk
-			result = Approval.objects.all().filter(id_comp = id_comp)
-			serializer = ApprovalSerializer(result, many = True)			
-			return Response(serializer.data, status = status.HTTP_200_OK)
+		queryset = Approval.objects.filter(id_comp=int(pk))
+		serializer = ApprovalSerializer(queryset, many=True)
+		return Response(serializer.data)
 
-	except Register.DoesNotExist:
-		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Business.DoesNotExist:
-		return Response({'status':'Company Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
-	except Hierarchy.DoesNotExist:
-		return Response({'status':'Hierarchy Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+	except Exception as e:
+		raise e.args
 
 
-
+# @api_view(['GET'])
+# def get_all_approval_by_comp(request,pk):
+# 	try:
+# 		if request.method == 'GET':
+# 			token = request.META.get('HTTP_AUTHORIZATION')
+# 			user = Register.objects.get(token = token)
+# 			id_comp =pk
+# 			result = Approval.objects.all().filter(id_comp = id_comp)
+# 			serializer = ApprovalSerializer(result, many = True)
+# 			return Response(serializer.data, status = status.HTTP_200_OK)
+#
+# 	except Register.DoesNotExist:
+# 		return Response({'status':'User Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+# 	except Business.DoesNotExist:
+# 		return Response({'status':'Company Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
+# 	except Hierarchy.DoesNotExist:
+# 		return Response({'status':'Hierarchy Did Not Exist'}, status = status.HTTP_401_UNAUTHORIZED)
