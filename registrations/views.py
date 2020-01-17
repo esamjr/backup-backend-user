@@ -450,7 +450,7 @@ def get_login(request):
             response = {'status': 'BAD REQUEST'}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
     except Register.DoesNotExist:
-        response = {'status': 'NOT FOUND 3'}
+        response = {'status': 'NOT FOUND'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
