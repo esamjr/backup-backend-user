@@ -21,9 +21,9 @@ from email_app import views as lihat
 
 urlpatterns = [
     path('', include('pages.urls')),
-    url(r'^sipromo/', include('sipromo_api.urls')),
+    # url(r'^sipromo/', include('sipromo_api.urls')),
     url(r'^orderlicense/', include('orderlicense.urls')),
-    url(r'^haloarif/', include('haloarif.urls')),
+    # url(r'^haloarif/', include('haloarif.urls')),
     # url(r'^catgoal/', include('category_goal.urls')),
     url(r'^warna/', include('warna_goal.urls')),
     url(r'^timeperiod/', include('time_period.urls')),
