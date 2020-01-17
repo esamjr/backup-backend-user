@@ -1,46 +1,39 @@
-cachetools==3.0.0
-certifi==2018.11.29
 chardet==3.0.4
 colorama==0.4.1
-coverage==4.5.1
 Cython==0.29.4
 defusedxml==0.5.0
 Django==2.1.2
-django-allauth==0.38.0
 django-cors-headers
 django-nose==1.4.6
-django-rest-auth==0.9.3
 djangorestframework==3.9.0
-djangorestframework-jwt==1.11.0
-djangorestframework-simplejwt==3.3
-get==2018.11.19
 httpie==1.0.2
 idna==2.7
 nose==1.3.7
-oauthlib==2.1.0
 Pillow==5.4.1
-post==2018.11.20
 protobuf==3.6.1
-public==2018.11.20
 pyasn1==0.4.5
 pyasn1-modules==0.2.3
 pyfcm==1.4.5
 Pygments==2.2.0
 PyJWT==1.7.1
 pytesseract==0.2.6
-python3-openid==3.1.0
 pytz==2018.7
-query-string==2018.11.20
-request==2018.11.20
-requests==2.20.1
-requests-oauthlib==1.0.0
-requests-toolbelt==0.8.0
-rsa==4.0
 six==1.11.0
 urllib3==1.24.1
 sentry-sdk==0.6.9
+
+gdn-python-common==0.5.0
+
+mailchimp==2.0.9
+serializers==0.2.4
 
 django-ses
 
 # package database
 psycopg2-binary==2.8.4
+
+#logging helper
+django-celerybeat-status==0.0.10
+celery
+python-json-logger==0.1.9
+requests
