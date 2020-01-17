@@ -155,18 +155,12 @@ def get_delete_update_registrations(request, pk):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                token = request.META.get('HTTP_AUTHORIZATION', '')
-                get_token = Register.objects.get(token=token)
 
                 if request.method == 'GET':
                     serializer = RegisterSerializer(registrations)
-                    act = 'Read registrations by '
-                    read_log(request, get_token, act)
                     return Response(serializer.data)
 
                 elif request.method == 'DELETE':
-                    act = 'Delete registrations within name : '
-                    delete_log(request, get_token, get_token.full_name, act)
                     Register.delete()
                     content = {
                         'status': 'NO CONTENT'
@@ -176,15 +170,13 @@ def get_delete_update_registrations(request, pk):
                 elif request.method == 'PUT':
                     serializer = RegisterSerializer(registrations, data=request.data)
                     if serializer.is_valid():
-                        act = 'Update registrations by'
-                        update_log(request, get_token, act)
                         serializer.save()
                         payload = {
                             'id': serializer.data['id'],
                             'name': serializer.data['full_name'],
                             'photo': serializer.data['url_photo']
                         }
-                        url = 'http://x-attandance.mindzzle.com/api/user_update'
+                        url = 'http://attandance.mindzzle.com/api/user_update'
                         Req = requests.post(url, data=payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -107,16 +107,13 @@ def get_post_experiences(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 def get_post_experiences_user(request,pk):
-    token = request.META.get('HTTP_AUTHORIZATION')
-    registrations = Register.objects.get(token =token)
     try:
         if request.method == 'GET':
             network = pengalaman.objects.all().filter(id_user=pk)
             serializer = ExperiencesSerializer(network, many=True)
-            act = 'Read experience by '                           
-            read_log(request, registrations,act)
             return Response(serializer.data)
     except pengalaman.DoesNotExist:
         content = {
