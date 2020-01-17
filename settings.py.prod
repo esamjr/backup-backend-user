@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import sys
 import logging
+from gramedia.common.env import EnvConfig
+from .base_celery import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +26,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'c6^l-8kg4!7to28mc2)#k*@9pl(90g0(q%ow1ahjd$9d6skj)r'
 
+APP_ENV_PREFIX = os.getenv('APP_ENV_PREFIX', 'REST')
+env = EnvConfig(APP_ENV_PREFIX)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 FLAG = 1
@@ -31,11 +37,11 @@ ALLOWED_HOSTS = ['*']
 
 DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
 
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'AKIAV6MTTLQU4OS5QUOF'
-EMAIL_HOST_PASSWORD = 'BJgEqpEfh5CVJs2x6VN9U9XfBIJCh7OvLOOqk4pdyjdP'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.mindzzle.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@mindzzle.com'
+EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
 EMAIL_USE_TLS = True
 
 SECURE_CONTENT_TYPE_NOSNIFF  = True
@@ -53,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'celerybeat_status',
     'corsheaders',
     'pages',
     'rest_framework',
@@ -238,3 +245,4 @@ STATICFILES_DIRS = (
 
 SITE_URL = 'https://x-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
+GET_LOGGER_NAME = 'rest'
