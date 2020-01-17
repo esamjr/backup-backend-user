@@ -217,8 +217,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.1/topics/i18n/
+CROCODIC_API_URL = env.string('CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
 
 LANGUAGE_CODE = 'en-us'
 
