@@ -1,32 +1,31 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Vendor_api,MultipleLogin
-from .serializers import VendorSerializer, MultipleSerializer
-from registrations.serializers import TokenSerializer
-from django.contrib.auth.hashers import check_password, make_password, is_password_usable
-from django.views.decorators.clickjacking import xframe_options_deny, xframe_options_sameorigin,xframe_options_exempt
-from registrations.models import Register, Domoo
-from registrations.serializers import DomoSerializer,  forgetblastSerializer
-from registrations.views import attempt_login, forget_attempt
-from log_app.views import read_log
-from join_company.models import Joincompany
-from business_account.models import Business
-from business_account.serializers import BusinessSerializer
-from hierarchy.models import Hierarchy
-from hierarchy.serializers import HierarchySerializer
-from license_company.models import LicenseComp
-from django.conf import settings
-from email_app.views import multidevices_email, vendors_login_alert
-from django.core.mail import EmailMessage
-from django.http import HttpResponse
-from random import randint
-import requests
 import csv
-import json
 import datetime
 import time
+from random import randint
+
+import requests
+from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from business_account.models import Business
+from business_account.serializers import BusinessSerializer
+from email_app.views import multidevices_email, vendors_login_alert
+from hierarchy.models import Hierarchy
+from hierarchy.serializers import HierarchySerializer
+from join_company.models import Joincompany
+from license_company.models import LicenseComp
+from log_app.views import read_log
+from registrations.models import Register, Domoo
+from registrations.serializers import DomoSerializer, forgetblastSerializer
+from registrations.views import attempt_login, forget_attempt
+from .models import Vendor_api, MultipleLogin
+from .serializers import VendorSerializer, MultipleSerializer
+
 
 @api_view(['GET'])
 def search_by_token(request, stri):	
@@ -121,30 +120,30 @@ def sync_emp_config(request):
 			return Response({'status':'ID Company is Did not match'}, status = status.HTTP_404_NOT_FOUND)
 		except Hierarchy.DoesNotExist:
 			return Response({'status':'Hierarchy is Empty, fill The company hierarchy first'})
+
 @api_view(['GET'])
 def check_hierarchy(request,pk):
 	beacon = Hierarchy.objects.all().filter(id_company = pk)
 	serializer = HierarchySerializer(beacon, many = True)
 	return Response(serializer.data)
 
+
 @api_view(['GET'])
 def api_payroll(request, pk):
-	if request.method == 'GET':
 		try:
-			token = request.META.get('HTTP_AUTHORIZATION')
-			IsAdmin = Register.objects.get(token = token)
+			_admins = Register.objects.get(id=pk)
 			comp = Business.objects.get(id = pk)
-			hierarki = Hierarchy.objects.get(id_company = pk, id_user = IsAdmin.id)
-			license = LicenseComp.objects.get(id_comp = pk, status = '1', id_hierarchy = hierarki.id)
+			hierarki = Hierarchy.objects.get(id_company=pk, id_user=_admins.id)
+			license = LicenseComp.objects.get(id_comp=pk, status='1', id_hierarchy=hierarki.id)
 			if license.payroll == '2':
 				state = 'IsAdmin'
 				payload = {
-				'status' : 'IsAdmin',
-				'email' : comp.email,
-				'name' : comp.company_name,
-				'logo' : comp.logo_path,
+					'status': state,
+					'email': comp.email,
+					'name': comp.company_name,
+					'logo': comp.logo_path,
 				}
-				return Response(payload, status = status.HTTP_200_OK)
+				return Response(payload, status=status.HTTP_200_OK)
 
 			elif license.payroll == '1':
 				state = 'IsUser'
@@ -152,18 +151,20 @@ def api_payroll(request, pk):
 				state = 'IsNothing'
 
 			payload = {
-			'status': state,
-			'id_comp': pk
+				'status': state,
+				'id_comp': pk
 			}
-			return Response(payload, status = status.HTTP_200_OK)
+			return Response(payload, status=status.HTTP_200_OK)
 		except Register.DoesNotExist:
-			return Response({'status':'User is not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
+			return Response({'status':'User is not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Business.DoesNotExist:
-			return Response({'status':'User is not admin company.'}, status = status.HTTP_401_UNAUTHORIZED)
+			return Response({'status':'User is not admin company.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Hierarchy.DoesNotExist:
-			return Response({'status':'User is not in Hierarchy company.'}, status = status.HTTP_401_UNAUTHORIZED)
+			return Response({'status':'User is not in Hierarchy company.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except LicenseComp.DoesNotExist:
-			return Response({'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
+			return Response({'status':'User is not Registered in License company.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 #-----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
 @api_view(['GET', 'POST', 'DELETE'])
 def generate(request):

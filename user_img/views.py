@@ -18,7 +18,7 @@ def get_all_doc(request, pk):
 	else:
 		content = {'status': 'User Not exist'}
 		return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-	
+
 
 @api_view(['GET','PUT'])
 def get_doc(request):
