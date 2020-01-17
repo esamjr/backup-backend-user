@@ -1,25 +1,24 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from .models import User_img
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from OCR_Reader.serializers import UserImgSerializer
 from registrations.models import Register
-from .serializers import ValidSerializer,ExpTaxnumSerializer
-from PIL import Image
-from pytesseract import image_to_string
-from urllib.request import urlopen
+from .models import User_img
+from .serializers import ValidSerializer, ExpTaxnumSerializer
+
 
 @api_view(['GET'])
 def get_all_doc(request, pk):
-	token = request.META.get('HTTP_AUTHORIZATION')	
-	user = Register.objects.get(id = pk)
-	if token == user.token:
+	user = Register.objects.get(id=pk)
+	if user.id == int(pk):
 		datas = User_img.objects.all()
-		serializer = UserImgSerializer(datas, many = True)
-		return Response(serializer.data, status = status.HTTP_200_OK)
+		serializer = UserImgSerializer(datas, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+	else:
+		content = {'status': 'User Not exist'}
+		return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+	
 
 @api_view(['GET','PUT'])
 def get_doc(request):
