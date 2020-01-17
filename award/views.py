@@ -1,19 +1,14 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from .models import Award as award
-from registrations.models import Register
-from .serializers import AwardSerializer
-from .permissions import IsOwnerOrReadOnly
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from log_app.views import create_log, read_log, update_log, delete_log
-from log_app.serializers import LoggingSerializer
-from log_app.models import Logging
-import time
+from registrations.models import Register
+from .models import Award as award
+from .serializers import AwardSerializer
+
 
 @api_view(['GET','DELETE', 'PUT'])
-
 def get_delete_update_award(request, pk):
    
     try:
@@ -72,29 +67,29 @@ def get_delete_update_award(request, pk):
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET', 'POST'])
-
 def get_post_award(request):
-    token = request.META.get('HTTP_AUTHORIZATION')
-    registrations = Register.objects.get(token =token)
-    if request.method == 'GET':
-        network = award.objects.all()
-        serializer = AwardSerializer(network, many=True)
-        act = 'Read all award by '                           
-        read_log(request, registrations, act)
-        return Response(serializer.data)
+    try:
+        if request.method == 'GET':
+            network = award.objects.all()
+            serializer = AwardSerializer(network, many=True)
+            return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = AwardSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            act = 'Create new award by '
-            create_log(request, registrations, act)                
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'POST':
+            serializer = AwardSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except award.DoesNotExist:
+        content = {
+            'status': 'Not Found'
+        }
+        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
-
 def get_post_award_user(request,pk):
     token = request.META.get('HTTP_AUTHORIZATION')
     registrations = Register.objects.get(token =token)
@@ -111,6 +106,3 @@ def get_post_award_user(request,pk):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-
-
-  
