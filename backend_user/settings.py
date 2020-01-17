@@ -211,6 +211,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CROCODIC_API_URL = env.string('CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
+
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Jakarta'
@@ -228,6 +231,10 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
+)
+
+FIXTURE_DIRS = (
+    os.path.join(BASE_DIR, '../../fixtures'),
 )
 
 SITE_URL = 'https://x-user.mindzzle.com/'
