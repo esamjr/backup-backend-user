@@ -176,7 +176,7 @@ def get_delete_update_registrations(request, pk):
                             'name': serializer.data['full_name'],
                             'photo': serializer.data['url_photo']
                         }
-                        url = 'http://attandance.mindzzle.com/api/user_update'
+                        url = 'http://x-attandance.mindzzle.com/api/user_update'
                         Req = requests.post(url, data=payload)
                         return Response(serializer.data, status=status.HTTP_201_CREATED)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -435,11 +435,11 @@ def get_login(request):
                         payload_multilogin = {
                             'id_user': Registration,
                             'token_web': 'xxx',
-                            'token_phone': 'xxx'
+                            'token_phone': get_token.token
                         }
                         serializer_multi = MultipleSerializer(beacon_multi, data=payload_multilogin)
-                        if serializer_multi.is_valid():
-                            serializer_multi.save()
+                        # if serializer_multi.is_valid():
+                        serializer_multi.save()
                     except MultipleLogin.DoesNotExist:
                         pass
                     return Response(response, status=status.HTTP_201_CREATED)
