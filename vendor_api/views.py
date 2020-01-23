@@ -485,11 +485,11 @@ def api_login_absensee(request):
 			return Response({
 				'status': 'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-		email = request.data['email']
-		password = request.data['password']
-
 		# check method
 		if request.method == 'POST':
+			email = request.data['email']
+			password = request.data['password']
+
 			user = Register.objects.get(email=email)
 			full_name = user.full_name
 			salt_password = ''.join(str(ord(c)) for c in full_name)
@@ -501,8 +501,8 @@ def api_login_absensee(request):
 
 				payload = {
 					'id_user': user.id,
-					'token_web': token,
-					'token_phone': token
+					'token_web': user.token,
+					'token_phone': user.token
 				}
 
 				multiple_login = MultipleLogin.objects.get(id_user=user.id)
@@ -531,20 +531,22 @@ def api_login_absensee(request):
 				return Response(response, status=status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'PUT':
 			token_user = request.data['token_user']
-			multiple_login = MultipleLogin.objects.get(token_phone=token_user)
-			user = Register.objects.get(id=multiple_login.id_user)
+			# multiple_login = MultipleLogin.objects.get(token_phone=token_user)
+			# user = Register.objects.get(id=multiple_login.id_user)
+			user = Register.objects.get(token=token_user)
 
 			payload = {
 				'id_user': user.id,
-				'token_web': 'xxx',
+				'token_web': user.token,
 				'token_phone': 'xxx'}
 
-			serializer = MultipleSerializer(multiple_login, data=payload)
-
-			if serializer.is_valid():
-				serializer.save()
-				return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			serializer = MultipleSerializer(user, data=payload)
+			serializer.save()
+			return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
+			# if serializer.is_valid():
+			# 	serializer.save()
+				# return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
+			# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		# if request.method == 'POST':
 		# 	token_vendor = request.META.get('HTTP_AUTHORIZATION')
@@ -659,19 +661,20 @@ def api_login_absensee(request):
 		# 	return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 	except Vendor_api.DoesNotExist:
-		return Response({'status':'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+		return Response({'status': 'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
 	except Register.DoesNotExist:
-		return Response({'status':'Wrong Username / Password'}, status=status.HTTP_401_UNAUTHORIZED)
+		return Response({'status': 'Wrong Username / Password'}, status=status.HTTP_401_UNAUTHORIZED)
 	except Joincompany.DoesNotExist:
-		return Response({'status':'User did not have any company'}, status=status.HTTP_202_ACCEPTED)
+		return Response({'status': 'User did not have any company'}, status=status.HTTP_202_ACCEPTED)
 	except Business.DoesNotExist:
-		return Response({'status':'The Company Does Not Exist'}, status=status.HTTP_202_ACCEPTED)
+		return Response({'status': 'The Company Does Not Exist'}, status=status.HTTP_202_ACCEPTED)
 	# except LicenseComp.DoesNotExist:
 	# 	return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
 	# except Hierarchy.DoesNotExist:
 	# 	return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 	except MultipleLogin.DoesNotExist:
-		return Response({'status':'User is not Registered in multiple devices.'}, status=status.HTTP_401_UNAUTHORIZED)
+		return Response({'status': 'User is not Registered in multiple devices.'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['GET'])
 def logout_by_email(request):
@@ -688,9 +691,9 @@ def logout_by_email(request):
 		header = {'Authorization' : 'pbkdf2_sha256$120000$I2BCKb0Nflgy$96qeihph6v7Ibpy4st7u5WAFBIRxOUKxHB28r8NlM5U='}
 		token = request.query_params.get('token')
 		payload = {'token_user':token}
-		req = requests.put(url, headers = header, data = payload)
+		req = requests.put(url, headers=header, data=payload)
 		res = req.json()
-		return Response(res, status = status.HTTP_200_OK)
+		return Response(res, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def migrate_multiuser_company(request, pk):
