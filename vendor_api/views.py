@@ -499,16 +499,30 @@ def api_login_absensee(request):
 			if check_password(_password, user.password):
 				token = make_password(str(time.time()))
 
+				multiple_login = MultipleLogin.objects.get(id_user=user.id)
+
+				# check condition if token phone already login at another phone
+				if multiple_login.token_phone != "xxx":
+					payloads = {
+						'id_user': user.id,
+						'token_web': user.token,
+						'token_phone': "xxx"
+					}
+
+					_del_token_phone = MultipleSerializer(multiple_login, data=payloads)
+					if _del_token_phone.is_valid():
+						_del_token_phone.save()
+
 				payload = {
 					'id_user': user.id,
 					'token_web': user.token,
-					'token_phone': user.token
+					'token_phone': token
 				}
 
-				multiple_login = MultipleLogin.objects.get(id_user=user.id)
 				serializer = MultipleSerializer(multiple_login, data=payload)
 
 				if serializer.is_valid():
+					serializer.save()
 					profil = {
 						'id': user.id,
 						'name': user.full_name,
@@ -531,22 +545,18 @@ def api_login_absensee(request):
 				return Response(response, status=status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'PUT':
 			token_user = request.data['token_user']
-			# multiple_login = MultipleLogin.objects.get(token_phone=token_user)
-			# user = Register.objects.get(id=multiple_login.id_user)
-			user = Register.objects.get(token=token_user)
-
+			vendor = Vendor_api.objects.get(token=token_vendor)
+			multiple_login = MultipleLogin.objects.get(token_phone=token_user)
+			user = Register.objects.get(id=multiple_login.id_user)
 			payload = {
 				'id_user': user.id,
 				'token_web': user.token,
 				'token_phone': 'xxx'}
-
-			serializer = MultipleSerializer(user, data=payload)
-			serializer.save()
-			return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
-			# if serializer.is_valid():
-			# 	serializer.save()
-				# return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
-			# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			serializer = MultipleSerializer(multiple_login, data=payload)
+			if serializer.is_valid():
+				serializer.save()
+				return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 		# if request.method == 'POST':
 		# 	token_vendor = request.META.get('HTTP_AUTHORIZATION')
