@@ -25,21 +25,6 @@ DEBUG = False
 FLAG = 3
 ALLOWED_HOSTS = ['*']
 
-DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.mindzzle.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'admin@mindzzle.com'
-EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
-EMAIL_USE_TLS = True
-
-SECURE_CONTENT_TYPE_NOSNIFF = True
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTIFICATION_CLASSES' : (
-        'rest_framework.authentication.TokenAuthentication',
-    )
-}
 # Application definition
 
 BROKER_URL = env.string('RABBIT_CONN_PASS', 'amqp://guest:guest@127.0.0.1:5672//')
@@ -53,14 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'celerybeat_status',
     'pages',
-    # 'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
-    # 'rest_auth',
     'django.contrib.sites',
-    # 'allauth',
-    # 'allauth.account',
-    # 'rest_auth.registration',
     'registrations',
     'user_type',
     'friend_list',
@@ -110,10 +90,7 @@ INSTALLED_APPS = [
     'license_company',
     'approval_config',
     'jobdesc',
-    # 'sipromo_api',
-    # 'haloarif',
     'orderlicense',
-    #'category_goal',
     'warna_goal',
     'time_period',
     'KPI',
@@ -160,6 +137,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 PROJECT_ROOT = os.path.dirname
 
+# AUTH_USER_MODEL = 'registrations.User'
+
+# AUTHENTICATION_BACKENDS = (
+#     'django.contrib.auth.backends.ModelBackend',
+# )
 
 TEMPLATES = [
     {
@@ -183,6 +165,18 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#      'ENGINE': 'django.db.backends.postgresql',
+#      'HOST': '35.198.248.235',
+#      'PORT': '5432',
+#      'NAME': 'userdbdev',
+#      'USER': 'postgres',
+#      'PASSWORD': 'your_password'
+#     }
+# }
+
+
 DATABASES = {
      'default': {
       'ENGINE': 'django.db.backends.postgresql',
@@ -192,7 +186,7 @@ DATABASES = {
       'USER': 'user',
       'PASSWORD': 'U53rDB2016'
      }
- }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -210,6 +204,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Auth
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', )
+}
+
+
+# Email setting
+
+DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.mindzzle.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@mindzzle.com'
+EMAIL_HOST_PASSWORD = '1q2w3e4r5t6y'
+EMAIL_USE_TLS = True
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 CROCODIC_API_URL = env.string('CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
 

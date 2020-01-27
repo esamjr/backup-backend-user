@@ -6,7 +6,7 @@ from rest_framework.parsers import JSONParser
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Friends
-from registrations.models import Register, Domoo
+from registrations.models import Register
 from .serializers import FriendsSerializer
 from registrations.serializers import RegisterSerializer
  

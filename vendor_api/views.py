@@ -21,8 +21,8 @@ from hierarchy.serializers import HierarchySerializer
 from join_company.models import Joincompany
 from license_company.models import LicenseComp
 from log_app.views import read_log
-from registrations.models import Register, Domoo
-from registrations.serializers import DomoSerializer, forgetblastSerializer
+from registrations.models import Register
+from registrations.serializers import forgetblastSerializer
 from registrations.views import attempt_login, forget_attempt
 from .models import Vendor_api, MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer

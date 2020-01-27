@@ -2,7 +2,6 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^apisuperadmin/$', views.auto_migrate_to_domoo, name='auto_migrate_to_domoo'),
     url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_update_registrations, name='get_delete_update_registrations'),
     url(r'^api/findfriends/(?P<pk>[0-9]+)$', views.get_user, name='get_user'),
     url(r'^api/$', views.get_post_registrations, name='get_post_registrations'),
@@ -13,4 +12,5 @@ urlpatterns = [
     url(r'^api/forget/$', views.forget, name='forget'),
     url(r'^api/forgetbacklink/$', views.forget_backlink, name='forget_backlink'),
     url(r'^api/tes/$', views.attempt_login, name='attempt_login'),
+    url(r'^api/v2/login/', views.login, name='login'),
 ]
