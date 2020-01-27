@@ -545,7 +545,6 @@ def api_login_absensee(request):
 				return Response(response, status=status.HTTP_400_BAD_REQUEST)
 		elif request.method == 'PUT':
 			token_user = request.data['token_user']
-			vendor = Vendor_api.objects.get(token=token_vendor)
 			multiple_login = MultipleLogin.objects.get(token_phone=token_user)
 			user = Register.objects.get(id=multiple_login.id_user)
 			payload = {
@@ -557,118 +556,6 @@ def api_login_absensee(request):
 				serializer.save()
 				return Response({'status': 'User Has Logout'}, status=status.HTTP_200_OK)
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-		# if request.method == 'POST':
-		# 	token_vendor = request.META.get('HTTP_AUTHORIZATION')
-		# 	if token_vendor == 'xxx':
-		# 		return Response({'status':'Vendor Token, is Unauthorized.'}, status = status.HTTP_401_UNAUTHORIZED)
-		# 	vendor = Vendor_api.objects.get(token = token_vendor)
-		#
-		# 	email = request.data['email']
-		# 	password = request.data['password']
-		# 	user = Register.objects.get(email = email)
-		# 	attempt = user.attempt
-		# 	salt = user.full_name
-		# 	salt_password = ''.join(str(ord(c)) for c in salt)
-		# 	thepassword = password + salt_password
-		#
-		# 	if (check_password(thepassword, user.password)):
-		# 		token = make_password(str(time.time()))
-		# 		#------------------------multiple login--------------------------------
-		# 		payload = {
-		# 		'id_user':user.id,
-		# 		'token_web':user.token,
-		# 		'token_phone':token
-		# 		}
-		# 		multiple_login = MultipleLogin.objects.get(id_user = user.id)
-		# 		#-------------------only single phone-------------------
-		# 		# if multiple_login.token_phone != 'xxx':
-		# 		# 	return Response({'status':'You Have Login In Multiple Phone Devices, Please Logout first'},status = status.HTTP_401_UNAUTHORIZED)
-		# 		#-------------------------------------------------------
-		# 		serializer = MultipleSerializer(multiple_login, data = payload)
-		# 		#----------------------------------------------------------------------
-		# 		if serializer.is_valid():
-		# 			serializer.save()
-		# 			companies = Joincompany.objects.all().values_list('id_company', flat = True).filter(id_user = user.id, status = '2')
-		# 			comp = []
-		#
-		# 			for company in companies:
-		# 				beacon = Business.objects.get(id = company)
-		# 				hirarki = Hierarchy.objects.get(id_company  = company, id_user = user.id)
-		# 				try:
-		# 					license = LicenseComp.objects.get(id_hierarchy = hirarki.id, status = '1')
-		# 					sekarang = datetime.datetime.now().date()
-		# 					if datetime.datetime.strptime(str(license.expr_date), '%Y-%m-%d').date() >= sekarang:
-		# 						masa = 'Masih bisa'
-		# 					else:
-		# 						return Response({'status':'udah expired'}, status = status.HTTP_401_UNAUTHORIZED)
-		#
-		# 					if license.attendance == '2':
-		# 						level = 'IsAdmin'
-		# 					elif license.attendance == '3':
-		# 						level = 'IsSuperAdmin'
-		# 					elif license.attendance == '1':
-		# 						level = 'IsUser'
-		# 					else:
-		# 						level = 'User / Company Belum Mengaktifkan Fitur Ini'
-		# 					payload = {
-		# 					'token_user': token,
-		# 					'image': beacon.logo_path,
-		# 					'comp_id': beacon.id,
-		# 					'comp_name': beacon.company_name,
-		# 					'comp_logo':beacon.logo_path,
-		# 					'level' : level
-		# 					}
-		# 					comp.append(payload)
-		# 				except LicenseComp.DoesNotExist:
-		# 					pass
-		#
-		# 			profil = {
-		# 			'id':user.id,
-		# 			'name':user.full_name,
-		# 			'photo':user.url_photo
-		# 			}
-		#
-		# 			payloads = {
-		# 				'api_status':1,
-		# 				'api_message':'success',
-		# 				'profile': profil,
-		# 				'companies':comp
-		# 			}
-		# 			multidevices_email(request, user, serializer.data['token_phone'])
-		# 			return Response(payloads, status = status.HTTP_201_CREATED)
-		#
-		# 		else:
-		# 			return Response (serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-		# 	else:
-		# 		if (attempt == 0):
-		# 			attempt_login(request, email)
-		# 			response = {'status' : 'Wrong Username / Password'}
-		# 			return Response(response, status=status.HTTP_400_BAD_REQUEST)
-		# 		elif(attempt % 5 == 0):
-		# 			forget_attempt(request, email)
-		# 			return Response(forget_attempt, status=status.HTTP_401_UNAUTHORIZED)
-		# 		else:
-		# 			attempt_login(request, email)
-		# 			response = {'status' : 'Wrong Username / Password'}
-		# 			return Response(response, status=status.HTTP_400_BAD_REQUEST)
-		# 	# return Response({'status':'Invalid Username or Password'}, status = status.HTTP_401_UNAUTHORIZED)
-		# elif request.method == 'PUT':
-		# 	token_vendor = 	request.META.get('HTTP_AUTHORIZATION')
-		# 	token_user = request.data['token_user']
-		# 	vendor = Vendor_api.objects.get(token = token_vendor)
-		# 	# user = Register.objects.get(token = token_user)
-		# 	multiple_login = MultipleLogin.objects.get(token_phone = token_user)
-		# 	user = Register.objects.get(id = multiple_login.id_user)
-		# 	payload = {
-		# 	'id_user':user.id,
-		# 	'token_web':user.token,
-		# 	'token_phone':'xxx'}
-		# 	serializer = MultipleSerializer(multiple_login, data = payload)
-		# 	if serializer.is_valid():
-		# 		serializer.save()
-		# 		return Response({'status':'User Has Logout'}, status = status.HTTP_200_OK)
-		# 	return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 	except Vendor_api.DoesNotExist:
 		return Response({'status': 'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -835,6 +722,7 @@ def check_admin_attendace(request):
 		except MultipleLogin.DoesNotExist:
 			return Response({'stat':hirarki.id,'status':'Multiple Login does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
 
+
 @api_view(['GET'])
 def cloning_data_reprime(request):
 	if request.method == 'GET':
@@ -871,14 +759,14 @@ def cloning_data_reprime(request):
 						# payload = {'id':user.id}
 						# result.append(payload)
 						pass
-                #----------------asdasd-------------
+                #-------------pbkdf2_sha256$120000$91izXtYoGMHE$uFO32wmTqxEAE9LAE+5nA9OnlLHTkeDf22mJsTPr70Y=---asdasd-------------
 # 				result.append(license.id)
 # 			return Response({'status':result}, status = status.HTTP_200_OK)
 			payloads = {
-			'company_id': company.id,
-			'company_name':company.company_name,
-			'logo':company.logo_path,
-			'employees':result
+				'company_id': company.id,
+				'company_name':company.company_name,
+				'logo':company.logo_path,
+				'employees':result
 			}
 			return Response(payloads, status = status.HTTP_200_OK)
 		except Vendor_api.DoesNotExist:

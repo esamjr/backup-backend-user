@@ -409,8 +409,8 @@ def get_login(request):
                             'token_phone': get_token.token
                         }
                         serializer_multi = MultipleSerializer(beacon_multi, data=payload_multilogin)
-                        # if serializer_multi.is_valid():
-                        serializer_multi.save()
+                        if serializer_multi.is_valid():
+                            serializer_multi.save()
                     except MultipleLogin.DoesNotExist:
                         pass
                     return Response(response, status=status.HTTP_201_CREATED)
