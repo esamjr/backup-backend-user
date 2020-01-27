@@ -1,19 +1,30 @@
 import time
 import requests
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_200_OK
+)
 
 from email_app.views import send_email, send_forget_email, send_registration_email
-from log_app.views import update_log, delete_log, read_log
+from log_app.views import update_log, read_log
 from vendor_api.models import MultipleLogin
 from vendor_api.serializers import MultipleSerializer
 from .models import Register
-from .serializers import DomoSerializer, RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
+from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer
+    SearchSerializer, UserSerializer
 
 
 @api_view(['POST'])
@@ -55,46 +66,6 @@ def upload_xls(request):
                             status=status.HTTP_401_UNAUTHORIZED)
     except Register.DoesNotExist:
         return Response({'status': 'User Is Does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@api_view(['GET'])
-def auto_migrate_to_domoo(request):
-    try:
-        token_su = request.META.get('HTTP_AUTHORIZATION')
-        superuser = Register.objects.get(token=token_su)
-        if superuser.id == 0:
-            # --------------------TESTING----------------------------
-            # user_id = request.data['id']
-            # user = Register.objects.get(id = user_id)
-            # payload = {
-            # 'id_user':user.id,
-            # 'status_domoo':0
-            # }
-            # serializer = DomoSerializer(data = payload)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-            # -----------------------FINALE-----------------------
-            users = Register.objects.all().values_list('id', flat=True)
-            result = []
-            for user in users:
-                payload_domo = {
-                    'id_user': user,
-                    'status_domoo': 0
-                }
-                serializer = DomoSerializer(data=payload_domo)
-                if serializer.is_valid():
-                    serializer.save()
-                    result.append(serializer.data)
-                else:
-                    result.append('error in ' + str(user))
-            return Response(result, status=status.HTTP_201_CREATED)
-            # --------------------------------------------------------
-        else:
-            return Response({'status': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-    except Register.DoesNotExist:
-        return Response({'status': 'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])
@@ -250,21 +221,21 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            payload_domo = {
-                'id_user': serializer.data['id'],
-                'status_domoo': 0
-            }
-            serialdomo = DomoSerializer(data=payload_domo)
-            if serialdomo.is_valid():
-                serialdomo.save()
-                payload_multilogin = {
-                    'id_user': serializer.data['id'],
-                    'token_web': serializer.data['token'],
-                    'token_phone': 'xxx'
-                }
-                serializer_multi = MultipleSerializer(data=payload_multilogin)
-                if serializer_multi.is_valid():
-                    serializer_multi.save()
+            # payload_domo = {
+            #     'id_user': serializer.data['id'],
+            #     'status_domoo': 0
+            # }
+            # serialdomo = DomoSerializer(data=payload_domo)
+            # if serialdomo.is_valid():
+            #     serialdomo.save()
+            #     payload_multilogin = {
+            #         'id_user': serializer.data['id'],
+            #         'token_web': serializer.data['token'],
+            #         'token_phone': 'xxx'
+            #     }
+            #     serializer_multi = MultipleSerializer(data=payload_multilogin)
+            #     if serializer_multi.is_valid():
+            #         serializer_multi.save()
 
             try:
                 request = {
@@ -529,3 +500,25 @@ def forget_backlink(request):
         except Register.DoesNotExist:
             response = {'status': 'Your token is invalid'}
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def login(request):
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if email is None or password is None:
+        return Response({'error': 'Please provide both username and password'},
+                        status=HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=email, password=password)
+    if not user:
+        return Response({'error': 'Invalid Credentials'},
+                        status=HTTP_404_NOT_FOUND)
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key},
+                    status=HTTP_200_OK)
+
