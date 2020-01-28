@@ -1,17 +1,19 @@
 import csv
 import datetime
 import time
+import logging
+import requests
+
 from random import randint
 
-import requests
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 
 from business_account.models import Business
 from business_account.serializers import BusinessSerializer
@@ -26,7 +28,11 @@ from registrations.serializers import forgetblastSerializer
 from registrations.views import attempt_login, forget_attempt
 from .models import Vendor_api, MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer
-from registrations.models import Register
+
+logger = logging.info(settings.GET_LOGGER_NAME)
+
+IsAdmin = "IsAdmin"
+IsUser = "IsUser"
 
 
 @api_view(['GET'])
@@ -724,8 +730,74 @@ def check_admin_attendace(request):
 
 
 @api_view(['GET'])
+def get_data_employee(request):
+	"""
+	function for get all data base on id_company
+	:param request: id_company
+	:return: data all employee
+	"""
+	try:
+		_token = request.META.get('HTTP_AUTHORIZATION')
+		_vendor = Vendor_api.objects.get(token=_token)
+		if not _vendor:
+			return Response({
+				'status': 'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+		_id_comp = request.data['id_company']
+		_company_data = Business.objects.filter(id=_id_comp).exists()
+		if not _company_data:
+			return Response({'status': 'The Company Does Not Exist'}, status=status.HTTP_202_ACCEPTED)
+
+		_hirarki = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company=_id_comp)
+		if not _hirarki:
+			return Response({'status': 'Hierarchy does not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+		result = []
+		for hirarki in _hirarki:
+			_id_hirarki = Hierarchy.objects.get(id=hirarki)
+			if _id_hirarki.id_user == 0:
+				pass
+			else:
+				_user = Register.objects.get(id=_id_hirarki.id_user)
+				_license = LicenseComp.objects.filter(id_hierarchy=_id_hirarki.id).first()
+
+				if _license is None:
+					level = 'User / Company Belum Mengaktifkan Fitur Ini'
+				elif _license.attendance == '2':
+					level = IsAdmin
+				else:
+					level = IsUser
+
+				payload = {
+					'id': _user.id,
+					'fullname': _user.full_name,
+					'photo': _user.url_photo,
+					'email': _user.email,
+					'level': level
+				}
+
+				result.append(payload)
+
+		_id_comp = request.data['id_company']
+		company = Business.objects.get(id=_id_comp)
+		payloads = {
+			'company_id': company.id,
+			'company_name': company.company_name,
+			'logo': company.logo_path,
+			'employees': result
+			}
+		return Response(payloads, status=status.HTTP_200_OK)
+
+	except Exception as ex:
+		logger.error({
+			'errorType': 500,
+			'message': ex.args
+		})
+
+
+@api_view(['GET'])
 def cloning_data_reprime(request):
-	if request.method == 'GET':
+	# if request.method == 'GET':
 		try:
 			token = request.META.get('HTTP_AUTHORIZATION')
 			vendor = Vendor_api.objects.get(token = token)
@@ -740,7 +812,7 @@ def cloning_data_reprime(request):
 				else:
 					try:
 						user = Register.objects.get(id  = hier.id_user)
-						license = LicenseComp.objects.get(id_hierarchy = hier.id)				
+						license = LicenseComp.objects.get(id_hierarchy = hier.id)
 						if license.attendance == '2':
 							level = 'IsAdmin'
 						elif license.attendance == '1':
@@ -825,201 +897,7 @@ def api_find_company_absensee(request):
 	except Business.DoesNotExist:
 		return Response({'status':'The Company Does Not Exist'}, status = status.HTTP_202_ACCEPTED)
 
-#-------------------------------------DOMOO API-------------------------------------------------------------------------------------------
-@api_view(['PUT'])
-def change_status_domoo_user(request):
-	try:
-		token = request.META.get('HTTP_AUTHORIZATION')
-		user = Register.objects.get(token = token)
-		beacon = Domoo.objects.get(pk=user.id)
-		stat = request.data['status']
-		payload = {
-		'id_user':pk,
-		'status': stat
-		}
-		seralizer = DomoSerializer(beacon, data = payload)
-		if seralizer.is_valid():
-			seralizer.save()
-			return Response(seralizer.data)
-		return Response(seralizer.errors)
-	except Domoo.DoesNotExist:
-		return Response({'status': 'Not Domoo User'})
 
-@api_view(['POST'])
-def check_user_domoo(request):
-	if request.method == 'POST':
-
-		if settings.DEBUG == False:
-			url = 'http://api-staging.doomo.id/customers/infocustomer'
-		elif settings.DEBUG == True:
-			url = 'http://api-staging.doomo.id/customers/infocustomer'
-
-		phnoe = request.data['phone']
-		r = requests.post(url, data = {'mobile': phnoe}, headers = {'Accept': 'application/pasy.v1+json'})
-		data = r.json()
-		try:
-			cust = data['customers']
-			# return Response(cust)
-			if cust['status'] == '0':
-				# beacon = 
-				return Response({'status':'Silahkan verifikasi akun Domoo anda', 'Balance':cust['balance'],'Benefit':cust['benefit']})
-			elif cust['status'] == '1':
-				return Response({'status':'1','Balance':cust['balance'],'Benefit':cust['benefit']})
-		except Exception:
-			return Response(data, status = status.HTTP_401_UNAUTHORIZED)
-
-@api_view(['POST'])
-def registrations_domoo(request):
-	if settings.FLAG == 1:
-		url = 'http://api-staging.doomo.id/customers'
-	elif settings.FLAG == 0:
-		url = 'http://api-staging.doomo.id/customers'
-
-	email = request.data['email']
-	payload = {
-	'name': request.data['name'],
-	'mobile' : request.data['phone'],
-	'email': email
-	}
-
-	Req = requests.post(url, data = payload, headers = {'Accept': 'application/pasy.v1+json'})
-	Res = Req.json()
-	try:
-		resp = Res['customers']
-		try:
-			user = Register.objects.get(email = email)
-			beacon = Domoo.objects.get(pk=user.id)
-			stat = 1
-			payload = {
-			'id_user':user.id,
-			'status': stat
-			}
-			seralizer = DomoSerializer(beacon, data = payload)
-			if seralizer.is_valid():
-				seralizer.save()
-				return Response(seralizer.data)
-			return Response(seralizer.errors)
-		except Domoo.DoesNotExist:
-			return Response({'status': 'Not Domoo User'})
-		return Response(resp)
-	except Exception:
-		resp = Res['message']
-		return Response(resp)
-
-@api_view(['POST'])
-def verify_otp_domoo(request):
-	if settings.FLAG == 1:
-		url = 'http://api-staging.doomo.id/customers/verify'
-	elif settings.FLAG == 0:
-		url = 'http://api-staging.doomo.id/customers/verify'
-	payload = {
-	'mobile': request.data['phone'],
-	'code': request.data['otp']
-	}
-	req = requests.post(url, data = payload, headers= {'Accept': 'application/pasy.v1+json'})
-	Res = req.json()
-	try:
-		resp = Res['customers']
-		return Response(resp)
-	except Exception:
-		resp = Res['message']
-		return Response(resp)
-
-@api_view(['POST'])
-def set_passcode_domoo(request):
-	if settings.FLAG == 1:
-		url = 'http://api-staging.doomo.id/customers/passcode'
-	elif settings.FLAG == 0:
-		url = 'http://api-staging.doomo.id/customers/passcode'
-
-	payload  = {
-	'passcode': request.data['password'],
-	'passcode_confirmation': request.data['confirmation']
-	}
-
-	headers = {
-	'Accept': 'application/pasy.v1+json',
-	'AccessToken': request.data['token_domoo']
-	}
-
-	Req = requests.put(url, data = payload, headers = headers)
-	Res = Req.json()
-
-	token = request.META.get('HTTP_AUTHORIZATION')
-	user = Register.objects.get(token = token)
-	domo = Domoo.objects.get(id_user = user.id)
-	payload = {
-	'id_user':user.id,
-	'status':2
-	}
-	serializerdomo = DomoSerializer(domo, data = payload)
-	if serializerdomo.is_valid():
-		serializerdomo.save()
-
-	return Response(Res['message'])
-
-@api_view(['POST'])
-def forget_passcode_domoo(request):
-	if settings.FLAG == 1:
-		url = 'http://api-staging.doomo.id/customers/passcode/'
-	elif settings.FLAG == 0:
-		url = 'http://api-staging.doomo.id/customers/passcode/'
-
-	phone = request.data['phone']
-	headers = {
-	'Accept': 'application/pasy.v1+json'
-	}
-	Req = requests.get(url+str(phone), headers = headers)
-	Res = Req.json()
-	return Response(Res['message'])
-
-@api_view(['POST','PUT'])
-def login_logout_domoo(request):
-	if request.method == 'POST':
-		if settings.FLAG == 1:
-			url = 'http://api-staging.doomo.id/customers/auth?'
-		elif settings.FLAG == 0:
-			url = 'http://api-staging.doomo.id/customers/auth?'
-
-		payload = {
-		'mobile': request.data['phone'],
-		'passcode' : request.data['password']
-		# 'device_active'
-		}
-
-		headers = {
-		'Accept': 'application/pasy.v1+json'
-		}
-
-		Req = requests.post(url, data = payload, headers = headers)
-		Res = Req.json()
-
-		try:
-			resp = Res['customers']
-			token = resp['access_token']
-			return Response(resp)
-		except Exception:
-			resp = Res['message']
-			return Response(resp)
-
-	elif request.method == 'PUT':
-		if settings.FLAG == 1:
-			url = 'http://api-staging.doomo.id/customers/auth?'
-		elif settings.FLAG == 0:
-			url = 'http://api-staging.doomo.id/customers/auth?'
-
-			token = request.data['token']		
-
-			headers = {
-			'Accept': 'application/pasy.v1+json',
-			'AccessToken': token
-			}
-
-			Req = requests.put(url, headers = headers)
-			Res = Req.json()
-			return Response(Res['message'])
-
-#---------------------------------------------SUper ADmin API -----------------------------------------------------
 @api_view(['GET'])
 def email_forget_blast(request):
 	# awal = request.data['awal']
