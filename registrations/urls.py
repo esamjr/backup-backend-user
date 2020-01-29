@@ -12,5 +12,5 @@ urlpatterns = [
     url(r'^api/forget/$', views.forget, name='forget'),
     url(r'^api/forgetbacklink/$', views.forget_backlink, name='forget_backlink'),
     url(r'^api/tes/$', views.attempt_login, name='attempt_login'),
-    url(r'^api/v2/login/', views.login, name='login'),
+    url(r'^api/v2/login/$', views.login_views, name='login_views'),
 ]

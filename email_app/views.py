@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from partner_api.utils import render_to_string_with_context
+from vendor_api.utils import render_to_string_with_context
 from registrations.models import Register
 from .models import Email
 from .serializers import EmailSerializer

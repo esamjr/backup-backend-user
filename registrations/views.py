@@ -221,21 +221,6 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            # payload_domo = {
-            #     'id_user': serializer.data['id'],
-            #     'status_domoo': 0
-            # }
-            # serialdomo = DomoSerializer(data=payload_domo)
-            # if serialdomo.is_valid():
-            #     serialdomo.save()
-            #     payload_multilogin = {
-            #         'id_user': serializer.data['id'],
-            #         'token_web': serializer.data['token'],
-            #         'token_phone': 'xxx'
-            #     }
-            #     serializer_multi = MultipleSerializer(data=payload_multilogin)
-            #     if serializer_multi.is_valid():
-            #         serializer_multi.save()
 
             try:
                 request = {
@@ -505,7 +490,7 @@ def forget_backlink(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes((AllowAny,))
-def login(request):
+def login_views(request):
     email = request.data.get("email")
     password = request.data.get("password")
 
