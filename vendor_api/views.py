@@ -33,6 +33,7 @@ logger = logging.info(settings.GET_LOGGER_NAME)
 
 IsAdmin = "IsAdmin"
 IsUser = "IsUser"
+IsNothing = "IsNothing"
 
 
 @api_view(['GET'])
@@ -142,41 +143,65 @@ def check_hierarchy(request, pk):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-def api_payroll(request, pk):
+@api_view(["GET"])
+def get_data_payroll(request):
+    """
+    get data employee for setting company
+    :param request: id_user, id_company
+    :return: json data company by id_company
+        {
+            "status": "IsAdmin",
+            "email": "testig12@gmail.com",
+            "name": "testing12",
+            "logo": ""
+        }
+    """
     try:
-        _admins = Register.objects.get(id=pk)
-        comp = Business.objects.get(id=pk)
-        hierarki = Hierarchy.objects.get(id_company=pk, id_user=_admins.id)
-        license = LicenseComp.objects.get(id_comp=pk, status='1', id_hierarchy=hierarki.id)
-        if license.payroll == '2':
-            state = 'IsAdmin'
+        _user = Register.objects.get(id=request.data['id_user'])
+        if not _user:
+            return Response({'status': 'User is not exist.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _comp = Business.objects.get(id=request.data['id_company'])
+        if not _comp:
+            return Response({'status': 'User is not admin company.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _hierarchy = Hierarchy.objects.get(id_company=_comp.id, id_user=_user.id)
+        if not _hierarchy:
+            return Response({'status': 'User is not in Hierarchy company.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _license = LicenseComp.objects.get(id_comp=_comp.id, status='1', id_hierarchy=_hierarchy.id)
+        if not _license:
+            return Response({'status': 'User is not Registered in License company.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        if _license.payroll == '2':
+            state = IsAdmin
             payload = {
                 'status': state,
-                'email': comp.email,
-                'name': comp.company_name,
-                'logo': comp.logo_path,
+                'email': _comp.email,
+                'name': _comp.company_name,
+                'logo': _comp.logo_path,
             }
             return Response(payload, status=status.HTTP_200_OK)
-
-        elif license.payroll == '1':
-            state = 'IsUser'
+        elif _license.payroll == '1':
+            state = IsUser
         else:
-            state = 'IsNothing'
+            state = IsNothing
 
         payload = {
             'status': state,
-            'id_comp': pk
+            'id_comp': _comp.id
         }
         return Response(payload, status=status.HTTP_200_OK)
-    except Register.DoesNotExist:
-        return Response({'status': 'User is not exist.'}, status=status.HTTP_401_UNAUTHORIZED)
-    except Business.DoesNotExist:
-        return Response({'status': 'User is not admin company.'}, status=status.HTTP_401_UNAUTHORIZED)
-    except Hierarchy.DoesNotExist:
-        return Response({'status': 'User is not in Hierarchy company.'}, status=status.HTTP_401_UNAUTHORIZED)
-    except LicenseComp.DoesNotExist:
-        return Response({'status': 'User is not Registered in License company.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception as ex:
+        logger.error({
+            'errorType': 500,
+            'message': ex.args
+        })
 
 
 # -----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
