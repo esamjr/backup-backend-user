@@ -817,7 +817,7 @@ def timesheets_absensee(request):
     if settings.FLAG == 0:
         url = 'http://dev-attandance.mindzzle.com/api/timesheets'
     elif settings.FLAG == 1:
-        url = 'https://attandance.mindzzle.com/api/timesheets'
+        url = 'https://x-attandance.mindzzle.com/api/timesheets'
 
     Req = requests.get(url)
     Res = Req.json()

@@ -176,11 +176,10 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 #     }
 # }
 
-
 DATABASES = {
      'default': {
       'ENGINE': 'django.db.backends.postgresql',
-      'HOST': '35.247.162.159',
+      'HOST': '10.124.64.3',
       'PORT': '5432',
       'NAME': 'userprod',
       'USER': 'user',
@@ -206,14 +205,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Auth
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework.authentication.TokenAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#     ),
-#     'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAuthenticated', )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', )
+}
 
 
 # Email setting
