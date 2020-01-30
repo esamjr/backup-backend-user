@@ -195,61 +195,61 @@ def get_data_payroll(request):
             "logo": ""
         }
     """
-    try:
-        if request.method == "GET":
-            _token = Register.objects.filter(token=request.query_params['token_user']).exists()
-            if not _token:
-                return Response({'status': 'User Token, is Unauthorized.'},
+
+    if request.method == "GET":
+        _token = Register.objects.filter(token=request.data['token_user']).exists()
+        if not _token:
+            return Response({'status': 'User Token is Expire, please login again.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _user = Register.objects.get(id=request.data['id_user'])
+        if not _user:
+            return Response({'status': 'User is not exist.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _comp = Business.objects.get(id=request.data['id_company'])
+        if not _comp:
+            return Response({'status': 'User is not admin company.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _hierarchy = Hierarchy.objects.get(id_company=_comp.id, id_user=_user.id)
+        if not _hierarchy:
+            return Response({'status': 'User is not in Hierarchy company.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            _user = Register.objects.get(id=request.query_params['id_user'])
-            if not _user:
-                return Response({'status': 'User is not exist.'},
+        _license = LicenseComp.objects.get(id_comp=_comp.id, status='1', id_hierarchy=_hierarchy.id)
+        if not _license:
+            return Response({'status': 'User is not Registered in License company.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            _comp = Business.objects.get(id=request.query_params['id_company'])
-            if not _comp:
-                return Response({'status': 'User is not admin company.'},
-                                status=status.HTTP_401_UNAUTHORIZED)
+        if _license.payroll == '2':
+            state = IsAdmin
+            payload = {
+                'status': state,
+                'id_comp': _comp.id,
+                'email': _comp.email,
+                'name': _comp.company_name,
+                'logo': _comp.logo_path,
+            }
 
-            _hierarchy = Hierarchy.objects.get(id_company=_comp.id, id_user=_user.id)
-            if not _hierarchy:
-                return Response({'status': 'User is not in Hierarchy company.'},
-                                status=status.HTTP_401_UNAUTHORIZED)
+            response = HttpResponse(json.dumps(payload), content_type="application/json")
+            return response
 
-            _license = LicenseComp.objects.get(id_comp=_comp.id, status='1', id_hierarchy=_hierarchy.id)
-            if not _license:
-                return Response({'status': 'User is not Registered in License company.'},
-                                status=status.HTTP_401_UNAUTHORIZED)
-
-            if _license.payroll == '2':
-                state = IsAdmin
-                payload = {
-                    'status': state,
-                    "id_comp": _comp.id,
-                    'email': _comp.email,
-                    'name': _comp.company_name,
-                    'logo': _comp.logo_path,
-                }
-
-                response = HttpResponse(json.dumps(payload), content_type="application/json")
-                return response
-
-            elif _license.payroll == '1':
-                state = IsUser
-            else:
-                state = IsNothing
+        elif _license.payroll == '1':
+            state = IsUser
+        else:
+            state = IsNothing
 
             payload = {
                 'status': state,
                 'id_comp': _comp.id
             }
-            return Response(payload, status=status.HTTP_200_OK)
+        return Response(payload, status=status.HTTP_200_OK)
 
-        elif request.method == "POST":
+    elif request.method == "POST":
             _token = Register.objects.filter(token=request.data['token_user']).exists()
             if not _token:
-                return Response({'status': 'User Token, is Unauthorized.'},
+                return Response({'status': 'User Token is Expire, please login again.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
             _user = Register.objects.get(id=request.data['id_user'])
@@ -270,11 +270,6 @@ def get_data_payroll(request):
             response = HttpResponse(json.dumps(payload), content_type="application/json")
             return response
 
-    except Exception as ex:
-        logger.error({
-            'errorType': 500,
-            'message': ex.args[0]
-        })
 
 
 # -----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
