@@ -1,16 +1,14 @@
 import time
+
 import requests
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
-
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
@@ -24,7 +22,7 @@ from vendor_api.serializers import MultipleSerializer
 from .models import Register
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer, UserSerializer
+    SearchSerializer
 
 
 @api_view(['POST'])
