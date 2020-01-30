@@ -3,6 +3,7 @@ import datetime
 import time
 import logging
 import requests
+import json
 
 from random import randint
 
@@ -144,10 +145,10 @@ def check_hierarchy(request, pk):
 
 
 @api_view(["GET"])
-def get_data_payroll(request):
+def get_data_payroll(request, *args, **kwargs):
     """
     get data employee for setting company
-    :param request: id_user, id_company
+    :param request: id_user, id_company, token
     :return: json data company by id_company
         {
             "status": "IsAdmin",
@@ -157,12 +158,17 @@ def get_data_payroll(request):
         }
     """
     try:
-        _user = Register.objects.get(id=request.data['id_user'])
+        _token = Register.objects.filter(token=request.query_params['token_user']).exists()
+        if not _token:
+            return Response({'status': 'User Token, is Unauthorized.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _user = Register.objects.get(id=request.query_params['id_user'])
         if not _user:
             return Response({'status': 'User is not exist.'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
-        _comp = Business.objects.get(id=request.data['id_company'])
+        _comp = Business.objects.get(id=request.query_params['id_company'])
         if not _comp:
             return Response({'status': 'User is not admin company.'},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -181,11 +187,15 @@ def get_data_payroll(request):
             state = IsAdmin
             payload = {
                 'status': state,
+                "id_comp": _comp.id,
                 'email': _comp.email,
                 'name': _comp.company_name,
                 'logo': _comp.logo_path,
             }
-            return Response(payload, status=status.HTTP_200_OK)
+
+            response = HttpResponse(json.dumps(payload), content_type="application/json")
+            return response
+
         elif _license.payroll == '1':
             state = IsUser
         else:
@@ -200,7 +210,7 @@ def get_data_payroll(request):
     except Exception as ex:
         logger.error({
             'errorType': 500,
-            'message': ex.args
+            'message': ex.args[0]
         })
 
 
