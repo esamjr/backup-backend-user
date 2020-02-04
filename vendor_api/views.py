@@ -182,7 +182,7 @@ def check_hierarchy(request, pk):
 #         return Response({'status': 'User is not Registered in License company.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "PUT"])
 def get_data_payroll(request):
     """
     get data employee for setting company
@@ -195,6 +195,8 @@ def get_data_payroll(request):
             "logo": ""
         }
     """
+
+    # _resp = check_admin_company(request)
 
     if request.method == "GET":
         _token = Register.objects.filter(token=request.data['token_user']).exists()
@@ -247,29 +249,73 @@ def get_data_payroll(request):
         return Response(payload, status=status.HTTP_200_OK)
 
     elif request.method == "POST":
-            _token = Register.objects.filter(token=request.data['token_user']).exists()
-            if not _token:
+        _token = Register.objects.filter(token=request.data['token_user']).exists()
+        if not _token:
                 return Response({'status': 'User Token is Expire, please login again.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            _user = Register.objects.get(id=request.data['id_user'])
-            if not _user:
+        _user = Register.objects.get(id=request.data['id_user'])
+        if not _user:
                 return Response({'status': 'User is not exist.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            _comp = Business.objects.get(id=request.data['id_company'])
-            if not _comp:
+        _comp = Business.objects.get(id=request.data['id_company'])
+        if not _comp:
                 return Response({'status': 'User is not admin company.'},
                                 status=status.HTTP_401_UNAUTHORIZED)
 
-            payload = {
+        payload = {
                 'id_user': _user.id,
                 'id_company': _comp.id,
                 'company_name': _comp.company_name
             }
-            response = HttpResponse(json.dumps(payload), content_type="application/json")
-            return response
+        response = HttpResponse(json.dumps(payload), content_type="application/json")
+        return response
 
+    elif request.method == "PUT":
+        _token = Register.objects.filter(token=request.data['token_user']).exists()
+        if not _token:
+            return Response({'status': 'User Token is Expire, please login again.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        _user = Register.objects.get(id=request.data['id_user'])
+        if not _user:
+                return Response({'status': 'User is not exist.'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+
+        _comp = Business.objects.get(id=request.data['id_company'])
+        if not _comp:
+                return Response({'status': 'User is not admin company.'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+
+        payload = {
+                'id_user': _user.id,
+                'id_company': _comp.id,
+                'company_name': _comp.company_name
+            }
+        response = HttpResponse(json.dumps(payload), content_type="application/json")
+        return response
+
+
+# def check_admin_company(request):
+#
+#     _resp = {
+#         'id_user': request.data['id_user'],
+#         'id_company': request.data['id_company'],
+#         'token_user': request.data['token_user']
+#     }
+#
+#
+#
+#     return_value = {
+#         'status': state,
+#         'id_company': _comp.id,
+#         'company_name': _comp.email,
+#         'id_user': _comp.company_name,
+#         'logo': _comp.logo_path,
+#     }
+#
+#     return return_value
 
 
 # -----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
