@@ -1,24 +1,21 @@
 import time
 
 import requests
-from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.status import (
-    HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
-    HTTP_200_OK
-)
 
 from email_app.views import send_email, send_forget_email, send_registration_email
 from log_app.views import update_log, read_log
+from join_company.models import Joincompany
 from vendor_api.models import MultipleLogin
 from vendor_api.serializers import MultipleSerializer
+
+from .helper import get_json_list
+
 from .models import Register
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
@@ -219,7 +216,6 @@ def get_post_registrations(request):
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-
             try:
                 request = {
                     'mail': email,
@@ -485,23 +481,39 @@ def forget_backlink(request):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes((AllowAny,))
-def login_views(request):
+@api_view(['GET'])
+def login_token_views(request):
     email = request.data.get("email")
     password = request.data.get("password")
 
-    if email is None or password is None:
-        return Response({'error': 'Please provide both username and password'},
-                        status=HTTP_400_BAD_REQUEST)
+    if email == ""or password == "":
+        return Response({'status': 'Password atau Email tidak bisa kosong'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-    user = authenticate(username=email, password=password)
-    if not user:
-        return Response({'error': 'Invalid Credentials'},
-                        status=HTTP_404_NOT_FOUND)
+    _check_email = Register.objects.filter(email=email).exists()
+    if not _check_email:
+        return Response({"status": "Email belum terdaftar"},
+                        status=status.HTTP_404_NOT_FOUND)
 
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key},
-                    status=HTTP_200_OK)
+    _get_user_data = Register.objects.get(email=email)
+    _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
+    _pass = password + _salt
+    _check_password = check_password(_pass, _get_user_data.password)
 
+    if not _check_password:
+        return Response({"status": "Password salah"},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    _get_phone = MultipleLogin.objects.get(id_user=_get_user_data.id)
+    _get_id_company = Joincompany.objects.filter(id_user=_get_user_data.id)
+
+    response_data = {
+        "success": "True",
+        "message": "Successfully sent",
+        "email": _get_user_data.email,
+        "token_web": _get_user_data.token,
+        "token_phone": _get_phone.token_phone,
+        "id_company": get_json_list(_get_id_company)
+    }
+
+    return JsonResponse({"data": response_data}, content_type='application/json')
