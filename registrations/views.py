@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from email_app.views import send_email, send_forget_email, send_registration_email
 from log_app.views import update_log, read_log
 from join_company.models import Joincompany
-from vendor_api.models import MultipleLogin
+from vendor_api.models import MultipleLogin, Vendor_api
 from vendor_api.serializers import MultipleSerializer
 
 from .helper import get_json_list
@@ -483,6 +483,12 @@ def forget_backlink(request):
 
 @api_view(['GET'])
 def login_token_views(request):
+    token_meta = request.META.get('HTTP_AUTHORIZATION')
+    _token = Vendor_api.objects.filter(token=token_meta).exists()
+    if not _token:
+        return Response({'status': 'Token Vendor salah'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     email = request.data.get("email")
     password = request.data.get("password")
 
