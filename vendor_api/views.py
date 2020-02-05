@@ -664,13 +664,14 @@ def api_login_absensee(request):
                         'photo': user.url_photo
                     }
 
-                    _company = Joincompany.objects.filter(id_user=user.id)
+                    _company = Joincompany.objects.all().values_list('id_company', flat=True).filter(id_user=user.id,
+                                                                                                     status='2')
                     if not _company:
                         return Response('User tidak punya company', status=status.HTTP_400_BAD_REQUEST)
 
                     comp = []
                     for i in _company:
-                        _id_company = Business.objects.get(id_user=user.id)
+                        _id_company = Business.objects.get(id=i)
 
                         data_comp = {
                             'comp_id': _id_company.id,
