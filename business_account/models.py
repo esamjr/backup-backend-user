@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Business(models.Model):
     id_user = models.IntegerField()    
     company_name = models.CharField(max_length=255)
