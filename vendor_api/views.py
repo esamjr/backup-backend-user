@@ -686,13 +686,26 @@ def api_login_absensee(request):
                         'photo': user.url_photo
                     }
 
-                    _get_id_company = Joincompany.objects.filter(id_user=user.id)
+                    _company = Joincompany.objects.filter(id_user=user.id).values_list('id_company')
+                    if not _company:
+                        return Response('User tidak punya company', status=status.HTTP_400_BAD_REQUEST)
+
+                    comp = []
+                    for i in _company:
+                        _id_company = Business.objects.get(id=i)
+
+                        data_comp = {
+                            'comp_id': _id_company.id,
+                            'comp_name': _id_company.company_name,
+                        }
+
+                        comp.append(data_comp)
 
                     payloads = {
                         'api_status': 1,
                         'api_message': 'success',
                         'profile': profil,
-                        "id_company": get_json_list(_get_id_company)
+                        "companies": comp
                     }
 
                     return Response(payloads, status=status.HTTP_201_CREATED)
