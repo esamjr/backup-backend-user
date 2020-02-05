@@ -27,7 +27,6 @@ from log_app.views import read_log
 from registrations.models import Register
 from registrations.serializers import forgetblastSerializer
 from registrations.views import attempt_login, forget_attempt
-from registrations.helper import get_json_list
 
 from .models import Vendor_api, MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer
@@ -296,27 +295,6 @@ def get_data_payroll(request):
             }
         response = HttpResponse(json.dumps(payload), content_type="application/json")
         return response
-
-
-# def check_admin_company(request):
-#
-#     _resp = {
-#         'id_user': request.data['id_user'],
-#         'id_company': request.data['id_company'],
-#         'token_user': request.data['token_user']
-#     }
-#
-#
-#
-#     return_value = {
-#         'status': state,
-#         'id_company': _comp.id,
-#         'company_name': _comp.email,
-#         'id_user': _comp.company_name,
-#         'logo': _comp.logo_path,
-#     }
-#
-#     return return_value
 
 
 # -----------------------------------------------------REGISTER THIRD PARTY API------------------------------------------------------------------
@@ -686,13 +664,13 @@ def api_login_absensee(request):
                         'photo': user.url_photo
                     }
 
-                    _company = Joincompany.objects.filter(id_user=user.id).values_list('id_company')
+                    _company = Joincompany.objects.filter(id_user=user.id)
                     if not _company:
                         return Response('User tidak punya company', status=status.HTTP_400_BAD_REQUEST)
 
                     comp = []
                     for i in _company:
-                        _id_company = Business.objects.get(id=i)
+                        _id_company = Business.objects.get(id_user=user.id)
 
                         data_comp = {
                             'comp_id': _id_company.id,
@@ -705,7 +683,7 @@ def api_login_absensee(request):
                         'api_status': 1,
                         'api_message': 'success',
                         'profile': profil,
-                        "companies": comp
+                        'companies': comp
                     }
 
                     return Response(payloads, status=status.HTTP_201_CREATED)
@@ -738,10 +716,6 @@ def api_login_absensee(request):
         return Response({'status': 'User did not have any company'}, status=status.HTTP_202_ACCEPTED)
     except Business.DoesNotExist:
         return Response({'status': 'The Company Does Not Exist'}, status=status.HTTP_202_ACCEPTED)
-    # except LicenseComp.DoesNotExist:
-    # 	return Response({'stat':hirarki.id,'status':'User is not Registered in License company.'}, status = status.HTTP_401_UNAUTHORIZED)
-    # except Hierarchy.DoesNotExist:
-    # 	return Response({'status':'Hierarchy does not exist.'}, status = status.HTTP_401_UNAUTHORIZED)
     except MultipleLogin.DoesNotExist:
         return Response({'status': 'User is not Registered in multiple devices.'}, status=status.HTTP_401_UNAUTHORIZED)
 
