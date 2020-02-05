@@ -13,9 +13,8 @@ from django.core.mail import EmailMessage
 from django.http import HttpResponse
 
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 
 from business_account.models import Business
 from business_account.serializers import BusinessSerializer
@@ -28,6 +27,8 @@ from log_app.views import read_log
 from registrations.models import Register
 from registrations.serializers import forgetblastSerializer
 from registrations.views import attempt_login, forget_attempt
+from registrations.helper import get_json_list
+
 from .models import Vendor_api, MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer
 
@@ -685,10 +686,13 @@ def api_login_absensee(request):
                         'photo': user.url_photo
                     }
 
+                    _get_id_company = Joincompany.objects.filter(id_user=user.id)
+
                     payloads = {
                         'api_status': 1,
                         'api_message': 'success',
                         'profile': profil,
+                        "id_company": get_json_list(_get_id_company)
                     }
 
                     return Response(payloads, status=status.HTTP_201_CREATED)
