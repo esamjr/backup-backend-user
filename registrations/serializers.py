@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Register
+from .models import Register, Tokens
+
 from django.contrib.auth.models import User
 
 
@@ -75,3 +76,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__   '
+
+
+class V2LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Register
+        fields = ('email', 'password', 'token', 'id_type', 'banned_type', 'update_at', 'attempt',)
+
+
+class TokensSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tokens
+        fields = '__all__'

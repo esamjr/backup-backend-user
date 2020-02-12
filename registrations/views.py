@@ -1,12 +1,15 @@
+import datetime
 import time
 
 import requests
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import authentication
 
 from email_app.views import send_email, send_forget_email, send_registration_email
 from log_app.views import update_log, read_log
@@ -15,11 +18,13 @@ from vendor_api.models import MultipleLogin, Vendor_api
 from vendor_api.serializers import MultipleSerializer
 
 from .helper import get_json_list
+from .token import make_token
+from .authentication import expires_in, set_refresh_token, token_expire_handler
 
-from .models import Register
+from .models import Register, Tokens
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer
+    SearchSerializer, TokensSerializer
 
 
 @api_view(['POST'])
@@ -425,35 +430,35 @@ def verified_acc(request):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
-def forget(request):
-    if request.method == 'POST':
-        token_forget = 'usethistokenforforgetyourpassword'
-        tokenx = str(token_forget)
-        token = make_password(tokenx)
-        email = request.data['email']
-        payload = {'token':token}
-        try:
-            check = Register.objects.get(email= email)
-            serializers = SentForgetSerializer(check, data = payload)
-            if serializers.is_valid():
-                serializers.save()
-            else:
-                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            request = {
-                'mail': email,
-                'subjects': 'Forget Password',
-                'name': check.full_name,
-                'token': token
-            }
-
-            send_forget_email(request)
-
-            return Response({'status': 'Email already sent'})
-        except Register.DoesNotExist:
-            response = {'status':'Email Does not valid'}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
+# @api_view(['POST'])
+# def forget(request):
+#     if request.method == 'POST':
+#         token_forget = 'usethistokenforforgetyourpassword'
+#         tokenx = str(token_forget)
+#         token = make_password(tokenx)
+#         email = request.data['email']
+#         payload = {'token':token}
+#         try:
+#             check = Register.objects.get(email= email)
+#             serializers = SentForgetSerializer(check, data = payload)
+#             if serializers.is_valid():
+#                 serializers.save()
+#             else:
+#                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#             request = {
+#                 'mail': email,
+#                 'subjects': 'Forget Password',
+#                 'name': check.full_name,
+#                 'token': token
+#             }
+#
+#             send_forget_email(request)
+#
+#             return Response({'status': 'Email already sent'})
+#         except Register.DoesNotExist:
+#             response = {'status':'Email Does not valid'}
+#             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -481,25 +486,87 @@ def forget_backlink(request):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(['POST'])
+def forget(request):
+    if request.method == 'POST':
+        email = request.data['email']
+        _check_email = Register.objects.filter(email=email).exists()
+        if not _check_email:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "Email belum terdaftar"
+            }
+
+            return JsonResponse(response)
+
+        check = Register.objects.get(email=email)
+
+        _token = make_token(check)
+
+        # code will be remove after, token has been migrations
+        payload = {'token': _token}
+        serializers = SentForgetSerializer(check, data=payload)
+        if serializers.is_valid():
+            serializers.save()
+
+        set_in = {
+            'user_id': check.id,
+            'key': _token,
+        }
+
+        _token_serializer = TokensSerializer(data=set_in)
+
+        if _token_serializer.is_valid():
+            _token_serializer.save()
+
+        request = {
+            'mail': email,
+            'subjects': 'Forget Password',
+            'name': check.full_name,
+            'token': _token
+        }
+
+        send_forget_email(request)
+
+        response = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': "Email sudah terkirim"
+        }
+
+        return JsonResponse(response)
+
+
 @api_view(['GET'])
 def login_token_views(request):
     token_meta = request.META.get('HTTP_AUTHORIZATION')
     _token = Vendor_api.objects.filter(token=token_meta).exists()
     if not _token:
-        return Response({'status': 'Token Vendor salah'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Token Vendor salah'
+        }
+
+        return JsonResponse(response)
 
     email = request.data.get("email")
     password = request.data.get("password")
 
     if email == ""or password == "":
-        return Response({'status': 'Password atau Email tidak bisa kosong'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Password atau Email tidak bisa kosong'
+        }
+
+        return JsonResponse(response)
 
     _check_email = Register.objects.filter(email=email).exists()
     if not _check_email:
-        return Response({"status": "Email belum terdaftar"},
-                        status=status.HTTP_404_NOT_FOUND)
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': "Email belum terdaftar"
+        }
+
+        return JsonResponse(response)
 
     _get_user_data = Register.objects.get(email=email)
     _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
@@ -507,19 +574,205 @@ def login_token_views(request):
     _check_password = check_password(_pass, _get_user_data.password)
 
     if not _check_password:
-        return Response({"status": "Password salah"},
-                        status=status.HTTP_404_NOT_FOUND)
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': "Password salah"
+        }
+
+        return JsonResponse(response)
 
     _get_phone = MultipleLogin.objects.get(id_user=_get_user_data.id)
     _get_id_company = Joincompany.objects.filter(id_user=_get_user_data.id)
 
-    response_data = {
-        "success": "True",
-        "message": "Successfully sent",
+    response = {
+        'api_status': status.HTTP_200_OK,
+        'api_message': "Successfully sent",
         "email": _get_user_data.email,
         "token_web": _get_user_data.token,
         "token_phone": _get_phone.token_phone,
         "id_company": get_json_list(_get_id_company)
     }
 
-    return JsonResponse({"data": response_data}, content_type='application/json')
+    return JsonResponse(response, content_type='application/json')
+
+
+@api_view(['POST', 'GET'])
+def cek_login_views(request):
+    response = None
+    if request.method == 'POST':
+        email = request.data['email']
+        password = request.data['password']
+
+        if email == "" or password == "":
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'email atau password tidak bisa kosong!'
+            }
+            return JsonResponse(response)
+
+        _cek_email = Register.objects.filter(email=email).exists()
+        if not _cek_email:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'email belum terdaftar'
+            }
+
+            return JsonResponse(response)
+
+        _get_user_data = Register.objects.get(email=email)
+        _cek_password = generate_pass(password, _get_user_data)
+        flag = _get_user_data.banned_type
+
+        _cek_token = set_refresh_token(_get_user_data)
+
+        _token = make_token(_get_user_data)
+
+        set_in = {
+            'user_id': _get_user_data.id,
+            'key': _token,
+        }
+
+        serializer = TokensSerializer(data=set_in)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            _update_vendor_login = update_vendor_login(_get_user_data, _token)
+
+            # code will be remove after, token has been migrations
+            handle_login_old_token(_get_user_data, _token)
+
+            response = {
+                "api_status": status.HTTP_202_ACCEPTED,
+                "api_message": 'Login Berhasil',
+                "user": {
+                    'id_user': _get_user_data.id,
+                    'email': _get_user_data.email,
+                    'flag ': flag,
+
+                },
+                "expires_in": str(expires_in(_token)),
+                "token": _token
+            }
+
+        return JsonResponse(response)
+
+    elif request.method == 'GET':
+        token = request.META.get('HTTP_AUTHORIZATION')
+        _cek_token = Tokens.objects.filter(key=token).exists()
+        if not _cek_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Anda telah logout sebelumnya'
+            }
+
+            return JsonResponse(response)
+
+        _cek_data = Tokens.objects.get(key=token)
+
+        # code will be remove after, token has been migrations
+        handle_logout_old_token(_cek_data.key)
+
+        _logout_vendor_login = logout_vendor_login(_cek_data)
+        _cek_data.delete()
+
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': 'Successfully logged out.'
+        }
+
+        return JsonResponse(response)
+
+
+def handle_login_old_token(_get_user_data, token):
+    get_in = {
+        'email': _get_user_data.email,
+        'password': _get_user_data.password,
+        'id_type': 1,
+        'banned_type': "1",
+        'token': token,
+        'attempt': 1
+    }
+
+    serializer = LoginSerializer(_get_user_data, data=get_in)
+    if serializer.is_valid():
+        serializer.save()
+
+
+def handle_logout_old_token(token):
+    _cek_data = Register.objects.get(token=token)
+    get_out = {
+        'email': _cek_data.email,
+        'password': _cek_data.password,
+        'id_type': 0,
+        'token': 'xxx',
+        'attempt': 0
+    }
+    serializer = LoginSerializer(_cek_data, data=get_out)
+    if serializer.is_valid():
+        serializer.save()
+
+
+def generate_pass(password, _get_user_data):
+    _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
+    _pass = password + _salt
+    _check_password = check_password(_pass, _get_user_data.password)
+
+    if not _check_password:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Password salah'
+        }
+
+        return JsonResponse(response)
+
+    return_value = _check_password
+
+    return return_value
+
+
+def update_vendor_login(request, _token):
+    beacon_multi = MultipleLogin.objects.get(id_user=request.id)
+    if not beacon_multi:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+        }
+
+        return JsonResponse(response)
+
+    payload_multi_login = {
+        'id_user': request.id,
+        'token_web': _token,
+        'token_phone': 'xxx'
+    }
+    serializer_multi = MultipleSerializer(beacon_multi, data=payload_multi_login)
+    if serializer_multi.is_valid():
+        serializer_multi.save()
+
+    return serializer_multi
+
+
+def logout_vendor_login(request):
+    beacon_multi = MultipleLogin.objects.get(id_user=request.user_id_id)
+    if not beacon_multi:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+        }
+
+        return JsonResponse(response)
+
+    payload = {
+        'id_user': beacon_multi.id_user,
+        'token_web': 'xxx',
+        'token_phone': 'xxx'
+    }
+
+    serializer = MultipleSerializer(beacon_multi, data=payload)
+
+    if serializer.is_valid():
+        serializer.save()
+
+    return serializer

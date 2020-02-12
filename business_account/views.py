@@ -497,3 +497,18 @@ def verfied_business(request):
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         except Business.DoesNotExist:
             return Response({'status':'Company Does Not Exist'}, status =status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_data_employee(request, pk):
+    if request.method == 'GET':
+        result = []
+        get_comp = Joincompany.objects.all().values_list('id_user', flat=True).filter(status="2", id_company=pk)
+        for user in get_comp:
+            try:
+                beacon = Register.objects.get(id=user)
+
+            except Employeesign.DoesNotExist:
+                pass
+
+        return result

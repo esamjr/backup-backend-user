@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^api/forgetbacklink/$', views.forget_backlink, name='forget_backlink'),
     url(r'^api/tes/$', views.attempt_login, name='attempt_login'),
 
+    url(r'^api/cek_login/$', views.cek_login_views, name='cek_login_views'),
     url(r'^api/cek_token/$', views.login_token_views, name='login_token_views'),
 
 ]
