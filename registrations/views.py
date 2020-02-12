@@ -461,29 +461,29 @@ def verified_acc(request):
 #             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['POST'])
-def forget_backlink(request):
-    if request.method == 'POST':
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            get_token = Register.objects.get(token=token)
-            token = make_password(str(time.time()))
-            salt = get_token.full_name
-            salt_password = ''.join(str(ord(c)) for c in salt)
-            password = request.data['password']
-            hs_pass = make_password(str(password) + str(salt_password))
-            payload = {'password': hs_pass, 'token': token}
-            serializers = ForgetSerializer(get_token, data=payload)
-            if serializers.is_valid():
-                serializers.save()
-                act = 'password is changed by '
-                update_log(request, get_token, act)
-                response = {'status': 'Password chaged'}
-                return Response(response, status=status.HTTP_201_CREATED)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Register.DoesNotExist:
-            response = {'status': 'Your token is invalid'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+# @api_view(['POST'])
+# def forget_backlink(request):
+#     if request.method == 'POST':
+#         token = request.META.get('HTTP_AUTHORIZATION')
+#         try:
+#             get_token = Register.objects.get(token=token)
+#             token = make_password(str(time.time()))
+#             salt = get_token.full_name
+#             salt_password = ''.join(str(ord(c)) for c in salt)
+#             password = request.data['password']
+#             hs_pass = make_password(str(password) + str(salt_password))
+#             payload = {'password': hs_pass, 'token': token}
+#             serializers = ForgetSerializer(get_token, data=payload)
+#             if serializers.is_valid():
+#                 serializers.save()
+#                 act = 'password is changed by '
+#                 update_log(request, get_token, act)
+#                 response = {'status': 'Password chaged'}
+#                 return Response(response, status=status.HTTP_201_CREATED)
+#             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+#         except Register.DoesNotExist:
+#             response = {'status': 'Your token is invalid'}
+#             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])
@@ -514,6 +514,8 @@ def forget(request):
             'key': _token,
         }
 
+        _cek_token = set_refresh_token(check)
+
         _token_serializer = TokensSerializer(data=set_in)
 
         if _token_serializer.is_valid():
@@ -531,6 +533,52 @@ def forget(request):
         response = {
             'api_status': status.HTTP_201_CREATED,
             'api_message': "Email sudah terkirim"
+        }
+
+        return JsonResponse(response)
+
+
+@api_view(['POST'])
+def forget_backlink(request):
+    if request.method == 'POST':
+        token = request.META.get('HTTP_AUTHORIZATION')
+
+        _get_token = Register.objects.filter(token=token).exists()
+        if not _get_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "Token sudah habis masa aktivnya"
+            }
+
+            return JsonResponse(response)
+
+        check = Register.objects.get(token=token)
+
+        _token = make_token(check)
+
+        # code will be remove after, token has been migrations
+        password = request.data['password']
+        _cek_password = generate_pass(password, check)
+        payload = {'password': _cek_password, 'token': _token}
+        serializers = ForgetSerializer(check, data=payload)
+        if serializers.is_valid():
+            serializers.save()
+
+        set_in = {
+            'user_id': check.id,
+            'key': _token,
+        }
+
+        _cek_token = set_refresh_token(check)
+
+        _token_serializer = TokensSerializer(data=set_in)
+
+        if _token_serializer.is_valid():
+            _token_serializer.save()
+
+        response = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': "Password sudah berubah"
         }
 
         return JsonResponse(response)
@@ -620,6 +668,17 @@ def cek_login_views(request):
             return JsonResponse(response)
 
         _get_user_data = Register.objects.get(email=email)
+
+        if _get_user_data.banned_type == "0":
+            response = {
+                'api_status': status.HTTP_401_UNAUTHORIZED,
+                'api_message': 'Account has not verified yet, check your email to verified'
+            }
+
+            return JsonResponse(response)
+
+        _check_banned = Register.objects.filter(email=email).values('banned_type')
+
         _cek_password = generate_pass(password, _get_user_data)
         flag = _get_user_data.banned_type
 
@@ -675,7 +734,6 @@ def cek_login_views(request):
 
         _logout_vendor_login = logout_vendor_login(_cek_data)
         _cek_data.delete()
-
 
         response = {
             'api_status': status.HTTP_200_OK,
