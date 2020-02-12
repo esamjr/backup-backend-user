@@ -28,7 +28,7 @@ def _make_token_with_timestamp(register, timestamp):
 
 
 def _make_hash_value(register, timestamp):
-    login_timestamp = '' if register.update_at is None else register.update_at.replace(microsecond=0, tzinfo=None)
+    login_timestamp = '' if register.create_at is None else register.create_at.replace(microsecond=0, tzinfo=None)
     return str(register.id) + register.password + str(login_timestamp) + str(timestamp)
 
 
@@ -41,4 +41,4 @@ def _today():
 
 
 def generate_key(token):
-        return binascii.hexlify(os.urandom(20)).decode()
+    return binascii.hexlify(os.urandom(20)).decode()

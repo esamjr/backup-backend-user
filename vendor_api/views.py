@@ -10,7 +10,7 @@ from random import randint
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import EmailMessage
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -615,10 +615,15 @@ def api_login_absensee_v2(request, pk):
 @api_view(['POST', 'PUT'])
 def api_login_absensee(request):
     try:
+        response = None
         token_vendor = request.META.get('HTTP_AUTHORIZATION')
         if token_vendor == 'xxx':
-            return Response({
-                'status': 'Vendor Token, is Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+            response = {
+                'api_status': status.HTTP_401_UNAUTHORIZED,
+                'api_message': 'Vendor Token, is Unauthorized.'
+            }
+
+            return JsonResponse(response)
 
         # check method
         if request.method == 'POST':
@@ -667,7 +672,12 @@ def api_login_absensee(request):
                     _company = Joincompany.objects.all().values_list('id_company', flat=True).filter(id_user=user.id,
                                                                                                      status='2')
                     if not _company:
-                        return Response('User tidak punya company', status=status.HTTP_400_BAD_REQUEST)
+                        response = {
+                            'api_status': status.HTTP_404_NOT_FOUND,
+                            'api_message': 'User tidak punya company'
+                        }
+
+                        return JsonResponse(response)
 
                     comp = []
                     for i in _company:
@@ -681,13 +691,13 @@ def api_login_absensee(request):
                         comp.append(data_comp)
 
                     payloads = {
-                        'api_status': 1,
-                        'api_message': 'success',
+                        'api_status': status.HTTP_201_CREATED,
+                        'api_message': 'ambil data profile user berhasil',
                         'profile': profil,
                         'companies': comp
                     }
 
-                    return Response(payloads, status=status.HTTP_201_CREATED)
+                    return JsonResponse(payloads)
 
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
