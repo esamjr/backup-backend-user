@@ -558,8 +558,13 @@ def forget_backlink(request):
 
         # code will be remove after, token has been migrations
         password = request.data['password']
-        _cek_password = generate_pass(password, check)
-        payload = {'password': _cek_password, 'token': _token}
+
+        _set_token = make_password(str(time.time()))
+        salt = check.full_name
+        salt_password = ''.join(str(ord(c)) for c in salt)
+        hs_pass = make_password(str(password) + str(salt_password))
+
+        payload = {'password': hs_pass, 'token': _token}
         serializers = ForgetSerializer(check, data=payload)
         if serializers.is_valid():
             serializers.save()
