@@ -1,7 +1,8 @@
-import datetime
 import time
-
 import requests
+
+from datetime import datetime
+
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,17 +10,16 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import authentication
 
 from email_app.views import send_email, send_forget_email, send_registration_email
-from log_app.views import update_log, read_log
+from log_app.views import read_log
 from join_company.models import Joincompany
 from vendor_api.models import MultipleLogin, Vendor_api
 from vendor_api.serializers import MultipleSerializer
 
-from .helper import get_json_list
+from .helper import get_json_list, delete_all_tokens
 from .token import make_token
-from .authentication import expires_in, set_refresh_token, token_expire_handler
+from .authentication import expires_in, set_refresh_token, cek_expire_tokens
 
 from .models import Register, Tokens
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
@@ -893,3 +893,58 @@ def logout_vendor_login(request):
         serializer.save()
 
     return serializer
+
+
+@api_view(['GET'])
+def cek_token_expire(request):
+    _token = None
+    user_id = None
+
+    if request.method == "GET":
+        """
+        function for check if token alredy expire
+        :param id:
+        :return: true or false
+        """
+
+        user_id = request.data['user_id']
+        _u = Tokens.objects.filter(user_id=user_id).exists()
+        if not _u:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User sudah logout.'
+            }
+
+            return JsonResponse(response)
+
+        _token = request.data['token']
+        _t = Tokens.objects.get(key=_token, user_id=user_id)
+        if _t == "":
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Token sudah berubah.'
+            }
+
+            return JsonResponse(response)
+
+        _c = cek_expire_tokens(_token)
+        if _c:
+            token_ven = request.META.get('HTTP_AUTHORIZATION')
+            delete_all_tokens(_token, user_id, token_ven)
+
+            response = {
+                "api_status": status.HTTP_201_CREATED,
+                "api_message": 'Token habis masa aktivnya',
+            }
+
+            return JsonResponse(response)
+
+    response = {
+        "api_status": status.HTTP_200_OK,
+        "api_message": 'Token masih aktive',
+        "user_id": user_id,
+        "token": _token,
+        "expires_in": str(expires_in(_token)),
+    }
+
+    return JsonResponse(response)
