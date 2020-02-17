@@ -1,11 +1,10 @@
-import datetime
-from django.utils.timezone import utc
-
 from .models import Tokens
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
 from django.conf import settings
+
+_d = datetime.now()
 
 
 # this return left time
@@ -40,3 +39,13 @@ def set_refresh_token(request):
     else:
         Tokens.objects.get(user_id=request.pk).delete()
         return False
+
+
+def cek_expire_tokens(token):
+    _t = Tokens.objects.get(key=token)
+    time_elapsed = timezone.now() - _t.created
+    left_time = timedelta(seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS) - time_elapsed
+
+    _cek_expire = left_time < timedelta(seconds=0)
+
+    return _cek_expire

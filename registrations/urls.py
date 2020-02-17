@@ -16,6 +16,7 @@ urlpatterns = [
     # new api for mindzzle
     url(r'^api/confirm/$', views.activate_email, name='activate_email'),
     url(r'^api/login/$', views.cek_login_views, name='cek_login_views'),
+    url(r'^api/cek_status/$', views.cek_token_expire, name='cek_token_expire'),
 
     # api for crocodic
     url(r'^api/cek_token/$', views.login_token_views, name='login_token_views'),
