@@ -204,7 +204,7 @@ def get_delete_update_registrations(request, pk):
 def search(request):
     if request.method == 'POST':
         name = request.data['name']
-        if (name == None):
+        if name == None:
             network = Register.objects.all()
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
