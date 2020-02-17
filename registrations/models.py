@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 
 class Register(models.Model):
   email = models.CharField (max_length=255, unique=True)
@@ -28,6 +30,18 @@ class Register(models.Model):
   attempt = models.IntegerField(default = 0, null=True, blank=True)
   gender = models.CharField(max_length = 10, null = True,  blank = True) 
 
+
 class Domoo(models.Model):
   id_user = models.IntegerField(unique = True)
   status_domoo = models.IntegerField()
+
+
+class Tokens(models.Model):
+    key = models.CharField (max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+    user_id = models.ForeignKey("Register",
+                                on_delete=models.CASCADE)
+
+
+class Group(models.Model):
+    name = models.CharField(_("Name"), max_length=150)

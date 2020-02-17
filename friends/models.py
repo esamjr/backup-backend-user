@@ -1,5 +1,6 @@
 from django.db import models
-from registrations.models import Register, Domoo
+from registrations.models import Register
+
 
 class Friends(models.Model):
     user_id = models.IntegerField()

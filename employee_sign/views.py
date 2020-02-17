@@ -9,13 +9,6 @@ from .serializers import EmployeesignSerializer
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_employeesign(request, pk):
     try:
-        employee_signs = Employeesign.objects.filter(pk=pk).exists()
-        if employee_signs:
-            content = {
-                'status': 'Email already exist'
-            }
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
         employee_sign = Employeesign.objects.get(pk=pk)
 
         if request.method == 'GET':

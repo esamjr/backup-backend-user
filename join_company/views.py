@@ -45,7 +45,8 @@ def get_post_joincompany(request):
         return Response(serializer.data)
     elif request.method == 'POST':
         id_user = int(request.data['id_user'])
-        id_check = Joincompany.objects.filter(id_user=id_user).exists()
+        id_company = int(request.data['id_company'])
+        id_check = Joincompany.objects.filter(id_user=id_user, id_company=id_company).exists()
         if id_check:
             content = {
                 'status': 'Email already exist'

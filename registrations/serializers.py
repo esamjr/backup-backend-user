@@ -1,12 +1,7 @@
 from rest_framework import serializers
-from .models import Register, Domoo
+from .models import Register, Tokens
+
 from django.contrib.auth.models import User
-
-
-class DomoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Domoo
-        fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -75,3 +70,21 @@ class forgetblastSerializer(serializers.ModelSerializer):
     class Meta:
         model = Register
         fields = ('banned_type', 'verfied',)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__   '
+
+
+class V2LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Register
+        fields = ('email', 'password', 'token', 'id_type', 'banned_type', 'update_at', 'attempt',)
+
+
+class TokensSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tokens
+        fields = '__all__'

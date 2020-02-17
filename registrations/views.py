@@ -1,19 +1,30 @@
 import time
 import requests
+
+from datetime import datetime
+
 from django.contrib.auth.hashers import check_password, make_password
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from email_app.views import send_email, send_forget_email, send_registration_email
-from log_app.views import update_log, delete_log, read_log
-from vendor_api.models import MultipleLogin
+from log_app.views import read_log
+from join_company.models import Joincompany
+from vendor_api.models import MultipleLogin, Vendor_api
 from vendor_api.serializers import MultipleSerializer
-from .models import Register
-from .serializers import DomoSerializer, RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
+
+from .helper import get_json_list, delete_all_tokens
+from .token import make_token
+from .authentication import expires_in, set_refresh_token, cek_expire_tokens
+
+from .models import Register, Tokens
+from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer
+    SearchSerializer, TokensSerializer, TokenSerializer
 
 
 @api_view(['POST'])
@@ -57,46 +68,6 @@ def upload_xls(request):
         return Response({'status': 'User Is Does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['GET'])
-def auto_migrate_to_domoo(request):
-    try:
-        token_su = request.META.get('HTTP_AUTHORIZATION')
-        superuser = Register.objects.get(token=token_su)
-        if superuser.id == 0:
-            # --------------------TESTING----------------------------
-            # user_id = request.data['id']
-            # user = Register.objects.get(id = user_id)
-            # payload = {
-            # 'id_user':user.id,
-            # 'status_domoo':0
-            # }
-            # serializer = DomoSerializer(data = payload)
-            # if serializer.is_valid():
-            #     serializer.save()
-            #     return Response(serializer.data, status = status.HTTP_201_CREATED)
-            # return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-            # -----------------------FINALE-----------------------
-            users = Register.objects.all().values_list('id', flat=True)
-            result = []
-            for user in users:
-                payload_domo = {
-                    'id_user': user,
-                    'status_domoo': 0
-                }
-                serializer = DomoSerializer(data=payload_domo)
-                if serializer.is_valid():
-                    serializer.save()
-                    result.append(serializer.data)
-                else:
-                    result.append('error in ' + str(user))
-            return Response(result, status=status.HTTP_201_CREATED)
-            # --------------------------------------------------------
-        else:
-            return Response({'status': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-    except Register.DoesNotExist:
-        return Response({'status': 'User does not have credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 @api_view(['POST'])
 def get_search_by_name(request):
     if request.method == 'POST':
@@ -119,29 +90,65 @@ def get_user_by_email(request, pk):
     :param request: email
     :return: if email already exist in employee, return data null
     """
-    token = request.META.get('HTTP_AUTHORIZATION', '')
-    get_token = Register.objects.get(token=token)
+    # token = request.META.get('HTTP_AUTHORIZATION')
+    # get_token = Register.objects.get(token=token)
     if request.method == "GET":
+        _token = request.META.get('HTTP_AUTHORIZATION')
+        if _token == "":
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': "Token tidak ada",
+
+            }
+
+            return JsonResponse(response)
+
+        _cek_token = Tokens.objects.filter(key=_token).exists()
+        if not _cek_token:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': "Token expire",
+            }
+
+            return JsonResponse(response)
+
+        _cek_user = Register.objects.filter(pk=pk).exists()
+        if not _cek_user:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "User tidak terdaftar",
+            }
+
+            return JsonResponse(response)
+
         registrations = Register.objects.get(pk=pk)
         serializer = SearchSerializer(registrations)
-        act = 'searching user id ' + str(pk)
-        read_log(request, get_token, act)
 
-        if not serializer.errors:
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': "Email aktivasi terkirim",
+            'data': {
+                serializer.data
+            }
+        }
+
+        return JsonResponse(response)
+
+    resp_error = {
+        'api_status': status.HTTP_400_BAD_REQUEST,
+        'api_message': "Email aktivasi error",
+    }
+
+    return JsonResponse(resp_error)
 
 
 @api_view(['GET'])
 def get_user(request, pk):
     token = request.META.get('HTTP_AUTHORIZATION', '')
-    get_token = Register.objects.get(token=token)
+    # get_token = Register.objects.get(token=token)
     if request.method == 'GET':
         registrations = Register.objects.get(pk=pk)
         serializer = SearchSerializer(registrations)
-        act = 'searching user id ' + str(pk)
-        read_log(request, get_token, act)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -155,18 +162,12 @@ def get_delete_update_registrations(request, pk):
             return Response(response, status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                token = request.META.get('HTTP_AUTHORIZATION', '')
-                get_token = Register.objects.get(token=token)
 
                 if request.method == 'GET':
                     serializer = RegisterSerializer(registrations)
-                    act = 'Read registrations by '
-                    read_log(request, get_token, act)
                     return Response(serializer.data)
 
                 elif request.method == 'DELETE':
-                    act = 'Delete registrations within name : '
-                    delete_log(request, get_token, get_token.full_name, act)
                     Register.delete()
                     content = {
                         'status': 'NO CONTENT'
@@ -176,8 +177,6 @@ def get_delete_update_registrations(request, pk):
                 elif request.method == 'PUT':
                     serializer = RegisterSerializer(registrations, data=request.data)
                     if serializer.is_valid():
-                        act = 'Update registrations by'
-                        update_log(request, get_token, act)
                         serializer.save()
                         payload = {
                             'id': serializer.data['id'],
@@ -218,7 +217,7 @@ def search(request):
 def get_post_registrations(request):
     if request.method == 'GET':
         name = request.data['name']
-        if (name == None):
+        if name == "" or name is None:
             network = Register.objects.all()
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
@@ -234,7 +233,6 @@ def get_post_registrations(request):
         salt_password = ''.join(str(ord(c)) for c in name)
         id_type = 0
         banned_type = "0"
-        token = make_password(str(time.time()))
         hs_pass = make_password(str(password) + str(salt_password))
         payload = {
             'full_name': name,
@@ -252,41 +250,53 @@ def get_post_registrations(request):
             'banned_type': banned_type,
             'birth_day': request.data['birth_day'],
             'id_city': request.data['id_city'],
-            'token': token
+            'token': 'xxx'
         }
 
         serializer = RegisterSerializer(data=payload)
         if serializer.is_valid():
             serializer.save()
-            payload_domo = {
-                'id_user': serializer.data['id'],
-                'status_domoo': 0
+
+            _get_user_data = Register.objects.get(email=email)
+            _token = make_token(_get_user_data)
+
+            set_in = {
+                    'user_id': _get_user_data.id,
+                    'key': _token,
+                }
+
+            serializer = TokensSerializer(data=set_in)
+
+            if serializer.is_valid():
+                serializer.save()
+
+            # code will be remove after token already fix for migrations
+            handle_registrasi_old_token(_get_user_data, _token)
+            # end of old code
+
+            request = {
+                'mail': email,
+                'subjects': "Activation Email!",
+                'name': name,
+                'token': _token
             }
-            serialdomo = DomoSerializer(data=payload_domo)
-            if serialdomo.is_valid():
-                serialdomo.save()
-                payload_multilogin = {
-                    'id_user': serializer.data['id'],
-                    'token_web': serializer.data['token'],
-                    'token_phone': 'xxx'
-                }
-                serializer_multi = MultipleSerializer(data=payload_multilogin)
-                if serializer_multi.is_valid():
-                    serializer_multi.save()
 
-            try:
-                request = {
-                    'mail': email,
-                    'subjects': "Activation Email!",
-                    'name': name,
-                    'token': token
-                }
+            send_registration_email(request)
 
-                send_registration_email(request)
-            except:
-                return Response({'error in here'})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            response = {
+                'api_status': status.HTTP_201_CREATED,
+                'api_message': "Email aktivasi terkirim",
+
+            }
+
+            return JsonResponse(response)
+
+        resp_error = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': "Email aktivasi tidak bisa terkirim",
+        }
+
+        return JsonResponse(resp_error)
 
 
 @csrf_exempt
@@ -443,7 +453,7 @@ def get_login(request):
                         payload_multilogin = {
                             'id_user': Registration,
                             'token_web': 'xxx',
-                            'token_phone': 'xxx'
+                            'token_phone': get_token.token
                         }
                         serializer_multi = MultipleSerializer(beacon_multi, data=payload_multilogin)
                         if serializer_multi.is_valid():
@@ -458,82 +468,483 @@ def get_login(request):
             response = {'status': 'BAD REQUEST'}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
     except Register.DoesNotExist:
-        response = {'status': 'NOT FOUND 3'}
+        response = {'status': 'NOT FOUND'}
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
-def verified_acc(request):
+def activate_email(request):
     if request.method == 'POST':
         token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            get_token = Register.objects.get(token=token)
-            payload = {
-                'banned_type': "2"
+        if token == "":
+            response = {
+                'api_status': status.HTTP_401_UNAUTHORIZED,
+                'api_message': 'Token tidak ada'
             }
-            serializer = ConfirmSerializer(get_token, data=payload)
-            if serializer.is_valid():
-                act = 'user has verified account with name : '
-                read_log(request, get_token, act)
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Register.DoesNotExist:
-            response = {'status': 'NOT FOUND'}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
+
+            return JsonResponse(response)
+
+        _token = Tokens.objects.filter(key=token).exists()
+        if not _token:
+            response = {
+                'api_status': status.HTTP_408_REQUEST_TIMEOUT,
+                'api_message': 'Token sudah berubah'
+            }
+
+            return JsonResponse(response)
+
+        _set_token = Tokens.objects.get(key=token)
+        get_token = Register.objects.get(id=_set_token.user_id_id)
+
+        payload = {
+            'banned_type': "2"
+        }
+
+        serializer = ConfirmSerializer(get_token, data=payload)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            response = {
+                'api_status': status.HTTP_201_CREATED,
+                'api_message': 'Verifikasi berhasil.'
+            }
+
+            return JsonResponse(response)
+
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': 'Verifikasi gagal dilakukan.'
+        }
+
+        return Response(response)
 
 
 @api_view(['POST'])
 def forget(request):
     if request.method == 'POST':
-        token_forget = 'usethistokenforforgetyourpassword'
-        tokenx = str(token_forget)
-        token = make_password(tokenx)
         email = request.data['email']
-        payload = {'token':token}
-        try:
-            check = Register.objects.get(email= email)
-            serializers = SentForgetSerializer(check, data = payload)
-            if serializers.is_valid():
-                serializers.save()
-            else:
-                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            request = {
-                'mail': email,
-                'subjects': 'Forget Password',
-                'name': check.full_name,
-                'token': token
+        _check_email = Register.objects.filter(email=email).exists()
+        if not _check_email:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "Email belum terdaftar"
             }
 
-            send_forget_email(request)
+            return JsonResponse(response)
 
-            return Response({'status': 'Email already sent'})
-        except Register.DoesNotExist:
-            response = {'status':'Email Does not valid'}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
+        check = Register.objects.get(email=email)
+
+        _token = make_token(check)
+
+        # code will be remove after token already fix for migrations
+        payload = {
+            'token': _token
+        }
+
+        serializers = SentForgetSerializer(check, data=payload)
+        if serializers.is_valid():
+            serializers.save()
+        # end of old code
+
+        set_in = {
+            'user_id': check.id,
+            'key': _token,
+        }
+
+        _cek_token = set_refresh_token(check)
+
+        _token_serializer = TokensSerializer(data=set_in)
+
+        if _token_serializer.is_valid():
+            _token_serializer.save()
+
+        request = {
+            'mail': email,
+            'subjects': 'Forget Password',
+            'name': check.full_name,
+            'token': _token
+        }
+
+        send_forget_email(request)
+
+        response = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': "Email sudah terkirim"
+        }
+
+        return JsonResponse(response)
 
 
 @api_view(['POST'])
 def forget_backlink(request):
     if request.method == 'POST':
         token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            get_token = Register.objects.get(token=token)
-            token = make_password(str(time.time()))
-            salt = get_token.full_name
-            salt_password = ''.join(str(ord(c)) for c in salt)
-            password = request.data['password']
-            hs_pass = make_password(str(password) + str(salt_password))
-            payload = {'password': hs_pass, 'token': token}
-            serializers = ForgetSerializer(get_token, data=payload)
-            if serializers.is_valid():
-                serializers.save()
-                act = 'password is changed by '
-                update_log(request, get_token, act)
-                response = {'status': 'Password chaged'}
-                return Response(response, status=status.HTTP_201_CREATED)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Register.DoesNotExist:
-            response = {'status': 'Your token is invalid'}
-            return Response(response, status=status.HTTP_401_UNAUTHORIZED)
+
+        _get_token = Register.objects.filter(token=token).exists()
+        if not _get_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "Token sudah habis masa aktivnya"
+            }
+
+            return JsonResponse(response)
+
+        check = Register.objects.get(token=token)
+
+        _token = make_token(check)
+
+        # code will be remove after token already fix for migrations
+        password = request.data['password']
+
+        _set_token = make_password(str(time.time()))
+        salt = check.full_name
+        salt_password = ''.join(str(ord(c)) for c in salt)
+        hs_pass = make_password(str(password) + str(salt_password))
+
+        payload = {
+            'password': hs_pass,
+            'token': _token
+        }
+
+        serializers = ForgetSerializer(check, data=payload)
+        if serializers.is_valid():
+            serializers.save()
+        # end of old code
+
+        set_in = {
+            'user_id': check.id,
+            'key': _token,
+        }
+
+        _cek_token = set_refresh_token(check)
+
+        _token_serializer = TokensSerializer(data=set_in)
+
+        if _token_serializer.is_valid():
+            _token_serializer.save()
+
+        response = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': "Password sudah berubah"
+        }
+
+        return JsonResponse(response)
+
+
+@api_view(['GET'])
+def login_token_views(request):
+    token_meta = request.META.get('HTTP_AUTHORIZATION')
+    _token = Vendor_api.objects.filter(token=token_meta).exists()
+    if not _token:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Token Vendor salah'
+        }
+
+        return JsonResponse(response)
+
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    if email == ""or password == "":
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Password atau Email tidak bisa kosong'
+        }
+
+        return JsonResponse(response)
+
+    _check_email = Register.objects.filter(email=email).exists()
+    if not _check_email:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': "Email belum terdaftar"
+        }
+
+        return JsonResponse(response)
+
+    _get_user_data = Register.objects.get(email=email)
+    _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
+    _pass = password + _salt
+    _check_password = check_password(_pass, _get_user_data.password)
+
+    if not _check_password:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': "Password salah"
+        }
+
+        return JsonResponse(response)
+
+    _get_phone = MultipleLogin.objects.get(id_user=_get_user_data.id)
+    _get_id_company = Joincompany.objects.filter(id_user=_get_user_data.id)
+
+    response = {
+        'api_status': status.HTTP_200_OK,
+        'api_message': "Successfully sent",
+        "email": _get_user_data.email,
+        "token_web": _get_user_data.token,
+        "token_phone": _get_phone.token_phone,
+        "id_company": get_json_list(_get_id_company)
+    }
+
+    return JsonResponse(response, content_type='application/json')
+
+
+@api_view(['POST', 'GET'])
+def cek_login_views(request):
+    response = None
+    if request.method == 'POST':
+        email = request.data['email']
+        password = request.data['password']
+
+        if email == "" or password == "":
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'email atau password tidak bisa kosong!'
+            }
+            return JsonResponse(response)
+
+        _cek_email = Register.objects.filter(email=email).exists()
+        if not _cek_email:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'email belum terdaftar'
+            }
+
+            return JsonResponse(response)
+
+        _get_user_data = Register.objects.get(email=email)
+
+        if _get_user_data.banned_type == "0":
+            response = {
+                'api_status': status.HTTP_401_UNAUTHORIZED,
+                'api_message': 'Account Belum diverifikasi, silahkan cek email untuk verifikasi'
+            }
+
+            return JsonResponse(response)
+
+        _check_banned = Register.objects.filter(email=email).values('banned_type')
+
+        _cek_password = generate_pass(password, _get_user_data)
+        flag = _get_user_data.banned_type
+
+        _cek_token = set_refresh_token(_get_user_data)
+
+        _token = make_token(_get_user_data)
+
+        set_in = {
+            'user_id': _get_user_data.id,
+            'key': _token,
+        }
+
+        serializer = TokensSerializer(data=set_in)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            _update_vendor_login = update_vendor_login(_get_user_data, _token)
+
+            # code will be remove after token already fix for migrations
+            handle_login_old_token(_get_user_data, _token)
+            # end of old code
+
+            response = {
+                "api_status": status.HTTP_202_ACCEPTED,
+                "api_message": 'Login Berhasil',
+                "user": {
+                    'id_user': _get_user_data.id,
+                    'email': _get_user_data.email,
+                    'flag ': flag,
+
+                },
+                "expires_in": str(expires_in(_token)),
+                "token": _token
+            }
+
+        return JsonResponse(response)
+
+    elif request.method == 'GET':
+        token = request.META.get('HTTP_AUTHORIZATION')
+        _cek_token = Tokens.objects.filter(key=token).exists()
+        if not _cek_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Anda telah logout sebelumnya'
+            }
+
+            return JsonResponse(response)
+
+        _cek_data = Tokens.objects.get(key=token)
+
+        # code will be remove after token already fix for migrations
+        handle_logout_old_token(_cek_data.key)
+
+        _logout_vendor_login = logout_vendor_login(_cek_data)
+        _cek_data.delete()
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': 'Successfully logged out.'
+        }
+
+        return JsonResponse(response)
+
+
+def handle_registrasi_old_token(_get_user_data, token):
+    get_in = {
+        'token': token,
+    }
+
+    serializer = TokenSerializer(_get_user_data, data=get_in)
+    if serializer.is_valid():
+        serializer.save()
+
+
+def handle_login_old_token(_get_user_data, token):
+    get_in = {
+        'email': _get_user_data.email,
+        'password': _get_user_data.password,
+        'id_type': 1,
+        'banned_type': "1",
+        'token': token,
+        'attempt': 1
+    }
+
+    serializer = LoginSerializer(_get_user_data, data=get_in)
+    if serializer.is_valid():
+        serializer.save()
+
+
+def handle_logout_old_token(token):
+    _cek_data = Register.objects.get(token=token)
+    get_out = {
+        'email': _cek_data.email,
+        'password': _cek_data.password,
+        'id_type': 0,
+        'token': 'xxx',
+        'attempt': 0
+    }
+    serializer = LoginSerializer(_cek_data, data=get_out)
+    if serializer.is_valid():
+        serializer.save()
+
+
+def generate_pass(password, _get_user_data):
+    _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
+    _pass = password + _salt
+    _check_password = check_password(_pass, _get_user_data.password)
+
+    if not _check_password:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Password salah'
+        }
+
+        return JsonResponse(response)
+
+    return_value = _check_password
+
+    return return_value
+
+
+def update_vendor_login(request, _token):
+    beacon_multi = MultipleLogin.objects.get(id_user=request.id)
+    if not beacon_multi:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+        }
+
+        return JsonResponse(response)
+
+    payload_multi_login = {
+        'id_user': request.id,
+        'token_web': _token,
+        'token_phone': 'xxx'
+    }
+    serializer_multi = MultipleSerializer(beacon_multi, data=payload_multi_login)
+    if serializer_multi.is_valid():
+        serializer_multi.save()
+
+    return serializer_multi
+
+
+def logout_vendor_login(request):
+    beacon_multi = MultipleLogin.objects.get(id_user=request.user_id_id)
+    if not beacon_multi:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+        }
+
+        return JsonResponse(response)
+
+    payload = {
+        'id_user': beacon_multi.id_user,
+        'token_web': 'xxx',
+        'token_phone': 'xxx'
+    }
+
+    serializer = MultipleSerializer(beacon_multi, data=payload)
+
+    if serializer.is_valid():
+        serializer.save()
+
+    return serializer
+
+
+@api_view(['GET'])
+def cek_token_expire(request):
+    _token = None
+    user_id = None
+
+    if request.method == "GET":
+        """
+        function for check if token alredy expire
+        :param id:
+        :return: true or false
+        """
+
+        user_id = request.data['user_id']
+        _u = Tokens.objects.filter(user_id=user_id).exists()
+        if not _u:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User sudah logout.'
+            }
+
+            return JsonResponse(response)
+
+        _token = request.data['token']
+        _t = Tokens.objects.get(key=_token, user_id=user_id)
+        if _t == "":
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Token sudah berubah.'
+            }
+
+            return JsonResponse(response)
+
+        _c = cek_expire_tokens(_token)
+        if _c:
+            token_ven = request.META.get('HTTP_AUTHORIZATION')
+            delete_all_tokens(_token, user_id, token_ven)
+
+            response = {
+                "api_status": status.HTTP_201_CREATED,
+                "api_message": 'Token habis masa aktivnya',
+            }
+
+            return JsonResponse(response)
+
+    response = {
+        "api_status": status.HTTP_200_OK,
+        "api_message": 'Token masih aktive',
+        "user_id": user_id,
+        "token": _token,
+        "expires_in": str(expires_in(_token)),
+    }
+
+    return JsonResponse(response)
