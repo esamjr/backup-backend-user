@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+__pycache__
 migrations/__pycache__/
 *.py[cod]
 *$py.class
@@ -168,10 +169,12 @@ fabric.properties
 search_index.whoosh/
 
 .vscode/
-node_modules
+migrations/__pycache__/
+/node_modules/
 
-<<<<<<< HEAD
-.gitignore
-=======
-.gitignore
->>>>>>> 1c578f0e9d8a349167ab7d9a992116429188258d
+.vs/
+**/.vscode-test/**
+**/.vscode test/**
+**/.vscode-smoke/**
+**/.venv*/
+.vscode-test
