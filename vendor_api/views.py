@@ -24,12 +24,16 @@ from hierarchy.serializers import HierarchySerializer
 from join_company.models import Joincompany
 from license_company.models import LicenseComp
 from log_app.views import read_log
-from registrations.models import Register
-from registrations.serializers import forgetblastSerializer
+
+from registrations.models import Register, Tokens
+from registrations.serializers import forgetblastSerializer, TokensSerializer
 from registrations.views import attempt_login, forget_attempt
+from registrations.token import make_token
+from registrations.helper import cek_password, delete_all_tokens, logout_vendor
 
 from .models import Vendor_api, MultipleLogin
 from .serializers import VendorSerializer, MultipleSerializer
+
 
 logger = logging.info(settings.GET_LOGGER_NAME)
 
@@ -1008,7 +1012,7 @@ def email_forget_blast(request):
     # akhir = request.data['akhir']
     emails = request.FILES['list_email']
     # df = pd.read_excel(emails)
-    email = df['email']
+    # email = df['email']
 
     respon = []
     # for eml in range(0,len(email)):
@@ -1147,3 +1151,141 @@ def employee_cred(request):
         return Response({'status': 'id company does not match !'})
     except Hierarchy.DoesNotExist:
         return Response({'status': 'Hierarchy Company does not exist !'})
+
+
+@api_view(['POST', 'PUT'])
+def login_absensee_views(request):
+    token_vendor = request.META.get('HTTP_AUTHORIZATION')
+    if token_vendor == 'xxx':
+        response = {
+            'api_status': status.HTTP_401_UNAUTHORIZED,
+            'api_message': 'Vendor Token, is Unauthorized.'
+        }
+
+        return JsonResponse(response)
+
+    _cek_vendor = Vendor_api.objects.filter(token=token_vendor).exists()
+    if not _cek_vendor:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': 'Vendor Token tidak sama.'
+        }
+
+        return JsonResponse(response)
+
+    # check method
+    if request.method == 'POST':
+        comp = []
+        email = request.data['email']
+        password = request.data['password']
+
+        if email == "" or password == "":
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'email atau password tidak bisa kosong!'
+            }
+            return JsonResponse(response)
+
+        _cek_email = Register.objects.filter(email=email).exists()
+        if not _cek_email:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'email belum terdaftar'
+            }
+            return JsonResponse(response)
+
+        _user = Register.objects.get(email=email)
+
+        _cek_password = cek_password(password, _user)
+        if not _cek_password:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Password tidak sesuai'
+            }
+
+            return JsonResponse(response)
+
+        delete_all_tokens(_user.id)
+
+        _token = make_token(_user)
+
+        set_in = {
+            'user_id': _user.id,
+            'key': _token,
+        }
+
+        serializer = TokensSerializer(data=set_in)
+
+        if serializer.is_valid():
+            serializer.save()
+
+        _multi_V = MultipleLogin.objects.get(id_user=_user.id)
+
+        payload_multi_login = {
+            'id_user': _user.id,
+            'token_web': 'xxx',
+            'token_phone': _token
+        }
+
+        _m_serial = MultipleSerializer(_multi_V, data=payload_multi_login)
+        if _m_serial.is_valid():
+            _m_serial.save()
+
+        profil = {
+            'id': _user.id,
+            'name': _user.full_name,
+            'photo': _user.url_photo
+        }
+
+        _company = Joincompany.objects.all().values_list('id_company', flat=True).filter(id_user=_user.id, status='2')
+
+        if not _company:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User tidak punya company'
+            }
+
+            return JsonResponse(response)
+
+        for i in _company:
+            _id_company = Business.objects.get(id=i)
+
+            data_comp = {
+                'comp_id': _id_company.id,
+                'comp_name': _id_company.company_name,
+            }
+
+            comp.append(data_comp)
+
+        payloads = {
+            'api_status': status.HTTP_201_CREATED,
+            'api_message': 'ambil data profile user berhasil',
+             'profile': profil,
+            'companies': comp,
+            'token': _token
+        }
+
+        return JsonResponse(payloads)
+
+    elif request.method == 'PUT':
+        token = request.data['token_user']
+        _cek_token = Tokens.objects.filter(key=token).exists()
+        if not _cek_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Anda telah logout sebelumnya'
+            }
+
+            return JsonResponse(response)
+
+        _cek_data = Tokens.objects.get(key=token)
+
+        _logout_vendor_login = logout_vendor(_cek_data)
+        _cek_data.delete()
+
+        response = {
+            'api_status': status.HTTP_202_ACCEPTED,
+            'api_message': 'Logout berhasil'
+        }
+
+        return JsonResponse(response)

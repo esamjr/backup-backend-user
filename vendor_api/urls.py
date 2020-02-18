@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^api/adminattendance/',  views.check_admin_attendace, name='check_admin_attendace'),
 	url(r'^api/dashboardreprime/$',  views.timesheets_absensee, name='timesheets_absensee'),
 	url(r'^api/api_login_absenseev2/(?P<pk>[0-9]+)$', views.api_login_absensee_v2, name='api_login_absensee_v2'),
-	url(r'^api/api_login_absensee/$', views.api_login_absensee, name='api_login_absensee'),
+	# url(r'^api/api_login_absensee/$', views.api_login_absensee, name='api_login_absensee'),
 	url(r'^api/api_find_company_absensee/$', views.api_find_company_absensee, name='api_find_company_absensee'),
 	url(r'^api/login_out/$',  views.login_logout_vendors, name='login_logout_vendors'),
 	url(r'^api/$',  views.generate, name='generate'),
@@ -21,6 +21,9 @@ urlpatterns = [
 	url(r'^api/empcred/$',  views.employee_cred, name='employee_cred'),
 	url(r'^api/checkhierarchy/(?P<pk>[0-9]+)$',  views.check_hierarchy, name='check_hierarchy'),
 
-	url(r'^api/get_employee_by_comp/$', views.get_data_employee, name='get_data_employee'),
+
+    # new api
+    url(r'^api/api_login_absensee/$', views.login_absensee_views, name='login_absensee_views'),
+    url(r'^api/get_employee_by_comp/$', views.get_data_employee, name='get_data_employee'),
     url(r'^api/employee_payroll/$', views.get_data_payroll, name='get_data_payroll'),
 ]

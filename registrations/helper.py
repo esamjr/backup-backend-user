@@ -1,6 +1,9 @@
 from rest_framework import status
+
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
+
 
 from vendor_api.models import MultipleLogin, Vendor_api
 from .models import Register, Tokens
@@ -25,43 +28,27 @@ def get_json_list(query_set):
     return list_objects
 
 
-def delete_all_tokens(_token, user_id, token_ven):
-    _m = MultipleLogin.objects.get(id_user=user_id)
-    _get_m = Vendor_api.objects.get(token=token_ven)
-    if _get_m.username == settings.MINDZZLE_USERNAME:
-        payload = {
-            'id_user': _m.id_user,
-            'token_web': 'xxx',
-            'token_phone': _m.token_phone
-        }
+def delete_all_tokens(id_user):
+    _m = MultipleLogin.objects.get(id_user=id_user)
 
-        serializer = MultipleSerializer(_m, data=payload)
-        if serializer.is_valid():
-            serializer.save()
-    elif _get_m.username == settings.CROCODIC_USERNAME:
-        payload = {
-            'id_user': _m.id_user,
-            'token_web': _m.token_web,
-            'token_phone': 'xxx'
-        }
+    payload = {
+        'id_user': _m.id_user,
+        'token_web': 'xxx',
+        'token_phone': 'xxx'
+    }
 
-        serializer = MultipleSerializer(_m, data=payload)
-        if serializer.is_valid():
-            serializer.save()
-    else:
-        response = {
-            "api_status": status.HTTP_404_NOT_FOUND,
-            "api_message": 'Token vendor tidak ditemukan',
-        }
+    serializer = MultipleSerializer(_m, data=payload)
+    if serializer.is_valid():
+        serializer.save()
 
-        return JsonResponse(response)
-
-    _t = Tokens.objects.get(key=_token, user_id=user_id)
-    if _t:
-        _t.delete()
+    _cek_t = Tokens.objects.filter(user_id=id_user).exists()
+    if _cek_t:
+        _t = Tokens.objects.get(user_id=id_user)
+        if _t:
+            _t.delete()
 
     # code will be remove after token already fix for migrations
-    _r = Register.objects.get(id=user_id)
+    _r = Register.objects.get(id=id_user)
     get_out = {
         'email': _r.email,
         'password': _r.password,
@@ -73,3 +60,35 @@ def delete_all_tokens(_token, user_id, token_ven):
     if serializer.is_valid():
         serializer.save()
     # end of old code
+
+
+def cek_password(password, _user):
+    _salt = ''.join(str(ord(c)) for c in _user.full_name)
+    _pass = password + _salt
+    response = check_password(_pass, _user.password)
+
+    return response
+
+
+def logout_vendor(request):
+    beacon_multi = MultipleLogin.objects.get(id_user=request.user_id_id)
+    if not beacon_multi:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+        }
+
+        return JsonResponse(response)
+
+    payload = {
+        'id_user': beacon_multi.id_user,
+        'token_web': beacon_multi.token_web,
+        'token_phone': 'xxx'
+    }
+
+    serializer = MultipleSerializer(beacon_multi, data=payload)
+
+    if serializer.is_valid():
+        serializer.save()
+
+    return serializer
