@@ -3,7 +3,7 @@ import datetime
 
 # Create your models here.
 class FeedsObj(models.Model):	
-    content = models.CharField(max_length = 140)
+    content = models.TextField()
     update_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     user_id = models.IntegerField()

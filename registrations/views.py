@@ -17,7 +17,7 @@ from join_company.models import Joincompany
 from vendor_api.models import MultipleLogin, Vendor_api
 from vendor_api.serializers import MultipleSerializer
 
-from .helper import get_json_list, delete_all_tokens
+from .helper import get_json_list, delete_all_tokens, cek_password
 from .token import make_token
 from .authentication import expires_in, set_refresh_token, cek_expire_tokens
 
@@ -203,7 +203,7 @@ def get_delete_update_registrations(request, pk):
 def search(request):
     if request.method == 'POST':
         name = request.data['name']
-        if (name == None):
+        if name == None:
             network = Register.objects.all()
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
@@ -727,7 +727,15 @@ def cek_login_views(request):
 
         _check_banned = Register.objects.filter(email=email).values('banned_type')
 
-        _cek_password = generate_pass(password, _get_user_data)
+        _cek_password = cek_password(password, _get_user_data)
+        if not _cek_password:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Password tidak sesuai'
+            }
+
+            return JsonResponse(response)
+
         flag = _get_user_data.banned_type
 
         _cek_token = set_refresh_token(_get_user_data)
@@ -831,27 +839,9 @@ def handle_logout_old_token(token):
         serializer.save()
 
 
-def generate_pass(password, _get_user_data):
-    _salt = ''.join(str(ord(c)) for c in _get_user_data.full_name)
-    _pass = password + _salt
-    _check_password = check_password(_pass, _get_user_data.password)
-
-    if not _check_password:
-        response = {
-            'api_status': status.HTTP_400_BAD_REQUEST,
-            'api_message': 'Password salah'
-        }
-
-        return JsonResponse(response)
-
-    return_value = _check_password
-
-    return return_value
-
-
 def update_vendor_login(request, _token):
     beacon_multi = MultipleLogin.objects.get(id_user=request.id)
-    if not beacon_multi:
+    if beacon_multi == "":
         response = {
             'api_status': status.HTTP_400_BAD_REQUEST,
             'api_message': 'Id User ada tidak terdaftar di Multiple Login'
@@ -864,6 +854,7 @@ def update_vendor_login(request, _token):
         'token_web': _token,
         'token_phone': 'xxx'
     }
+
     serializer_multi = MultipleSerializer(beacon_multi, data=payload_multi_login)
     if serializer_multi.is_valid():
         serializer_multi.save()
@@ -907,9 +898,9 @@ def cek_token_expire(request):
         :return: true or false
         """
 
-        user_id = request.data['user_id']
+        id_user = request.data['user_id']
         _u = Tokens.objects.filter(user_id=user_id).exists()
-        if not _u:
+        if _u:
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
                 'api_message': 'User sudah logout.'
@@ -918,7 +909,7 @@ def cek_token_expire(request):
             return JsonResponse(response)
 
         _token = request.data['token']
-        _t = Tokens.objects.get(key=_token, user_id=user_id)
+        _t = Tokens.objects.get(key=_token, user_id=id_user)
         if _t == "":
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
@@ -929,8 +920,7 @@ def cek_token_expire(request):
 
         _c = cek_expire_tokens(_token)
         if _c:
-            token_ven = request.META.get('HTTP_AUTHORIZATION')
-            delete_all_tokens(_token, user_id, token_ven)
+            delete_all_tokens(_token)
 
             response = {
                 "api_status": status.HTTP_201_CREATED,
@@ -942,7 +932,7 @@ def cek_token_expire(request):
     response = {
         "api_status": status.HTTP_200_OK,
         "api_message": 'Token masih aktive',
-        "user_id": user_id,
+        "id_user": id_user,
         "token": _token,
         "expires_in": str(expires_in(_token)),
     }
