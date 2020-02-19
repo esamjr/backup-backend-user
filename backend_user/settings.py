@@ -264,7 +264,7 @@ SITE_URL = 'https://x-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
 GET_LOGGER_NAME = 'rest'
 
-ACCESS_TOKEN_EXPIRE_SECONDS = 14400  # 2 hours
+ACCESS_TOKEN_EXPIRE_SECONDS = 7200  # 2 hours
 
 # logging
 LOGGING = {

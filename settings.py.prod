@@ -35,6 +35,9 @@ FLAG = 1
 ALLOWED_HOSTS = ['*']
 
 
+BROKER_URL = env.string('RABBIT_CONN_PASS', 'amqp://guest:guest@127.0.0.1:5672//')
+
+
 DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -245,3 +248,5 @@ STATICFILES_DIRS = (
 SITE_URL = 'https://x-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
 GET_LOGGER_NAME = 'rest'
+
+ACCESS_TOKEN_EXPIRE_SECONDS = 7200  # 2 hours

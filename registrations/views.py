@@ -888,8 +888,7 @@ def logout_vendor_login(request):
 
 @api_view(['GET'])
 def cek_token_expire(request):
-    _token = None
-    user_id = None
+    params = None
 
     if request.method == "GET":
         """
@@ -898,9 +897,13 @@ def cek_token_expire(request):
         :return: true or false
         """
 
-        id_user = request.data['user_id']
-        _u = Tokens.objects.filter(user_id=user_id).exists()
-        if _u:
+        params = {
+            'id_user': int(request.query_params['id_user']),
+            'token': request.query_params['token'],
+        }
+
+        _u = Tokens.objects.filter(user_id=params['id_user']).exists()
+        if not _u:
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
                 'api_message': 'User sudah logout.'
@@ -908,8 +911,7 @@ def cek_token_expire(request):
 
             return JsonResponse(response)
 
-        _token = request.data['token']
-        _t = Tokens.objects.get(key=_token, user_id=id_user)
+        _t = Tokens.objects.get(key=params['token'], user_id=params['id_user'])
         if _t == "":
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
@@ -918,9 +920,9 @@ def cek_token_expire(request):
 
             return JsonResponse(response)
 
-        _c = cek_expire_tokens(_token)
+        _c = cek_expire_tokens(params['token'])
         if _c:
-            delete_all_tokens(_token)
+            delete_all_tokens(params['token'])
 
             response = {
                 "api_status": status.HTTP_201_CREATED,
@@ -932,9 +934,9 @@ def cek_token_expire(request):
     response = {
         "api_status": status.HTTP_200_OK,
         "api_message": 'Token masih aktive',
-        "id_user": id_user,
-        "token": _token,
-        "expires_in": str(expires_in(_token)),
+        "id_user": params['id_user'],
+        "token": params['token'],
+        "expires_in": str(expires_in(params['token'])),
     }
 
     return JsonResponse(response)
