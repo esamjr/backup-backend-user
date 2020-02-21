@@ -216,13 +216,14 @@ def search(request):
 @api_view(['GET', 'POST'])
 def get_post_registrations(request):
     if request.method == 'GET':
-        name = request.data['name']
-        if name == "" or name is None:
+        id_user = request.query_params['id_user']
+        if id_user == "" or id_user is None:
             network = Register.objects.all()
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
         else:
-            network = Register.objects.all().filter(full_name__icontains=name)
+            # network = Register.objects.all().filter(full_name__icontains=name)
+            network = Register.objects.all().filter(id=id_user)
             serializer = RegisterSerializer(network, many=True)
             return Response(serializer.data)
     elif request.method == 'POST':
@@ -840,14 +841,18 @@ def handle_logout_old_token(token):
 
 
 def update_vendor_login(request, _token):
-    beacon_multi = MultipleLogin.objects.get(id_user=request.id)
-    if beacon_multi == "":
-        response = {
-            'api_status': status.HTTP_400_BAD_REQUEST,
-            'api_message': 'Id User ada tidak terdaftar di Multiple Login'
+    _cek_multi = MultipleLogin.objects.filter(id_user=request.id).exists()
+    if not _cek_multi:
+        payload_multilogin = {
+            'id_user': request.id,
+            'token_web': _token,
+            'token_phone': 'xxx'
         }
+        _new_multi = MultipleSerializer(data=payload_multilogin)
+        if _new_multi.is_valid():
+            _new_multi.save()
 
-        return JsonResponse(response)
+            return _new_multi
 
     payload_multi_login = {
         'id_user': request.id,
@@ -855,6 +860,7 @@ def update_vendor_login(request, _token):
         'token_phone': 'xxx'
     }
 
+    beacon_multi = MultipleLogin.objects.get(id_user=request.id)
     serializer_multi = MultipleSerializer(beacon_multi, data=payload_multi_login)
     if serializer_multi.is_valid():
         serializer_multi.save()
