@@ -1,5 +1,7 @@
 import datetime
 
+from django.http import JsonResponse
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -7,7 +9,9 @@ from rest_framework.response import Response
 from business_account.models import Business
 from email_app.views import reminder_email
 from hierarchy.models import Hierarchy
-from registrations.models import Register
+from registrations.models import Register, Tokens
+
+
 from .models import LicenseComp
 from .serializers import LicenseCompSerializer
 
@@ -128,4 +132,64 @@ def reminder_exp_date(request):
                     else:
                         pass
         return Response(resp)
+
+
+@api_view(['GET'])
+def license_company_views(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    _cek_token = Tokens.objects.filter(key=token).exists()
+    if not _cek_token:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': 'Anda telah logout sebelumnya'
+        }
+
+        return JsonResponse(response)
+
+    _id_user = int(request.query_params['id_user'])
+    _cek_id_user = Register.objects.filter(id=_id_user).exists()
+    if not _cek_id_user:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': 'User tidak terdaftar'
+        }
+
+        return JsonResponse(response)
+
+    response = None
+    if request.method == 'GET':
+        _license_company = LicenseComp.objects.all().values_list('id', flat=True).\
+            filter(id_comp=int(request.query_params['id_company']))
+
+        result = []
+        for i in _license_company:
+            _license = LicenseComp.objects.get(id=i)
+
+            user = Register.objects.get(id=_id_user)
+
+            user_data = {
+                'id_user': user.id,
+                'name': user.full_name
+            }
+
+            _serializer = LicenseCompSerializer(_license)
+
+            payload = {
+                'data': _serializer.data,
+                'user': user_data
+            }
+
+            result.append(payload)
+
+            response = {
+                "api_status": status.HTTP_202_ACCEPTED,
+                "api_message": 'ambil data company berhasil',
+                'id_user': user.id,
+                "company": payload
+            }
+
+        return JsonResponse(response)
+
+
+
 
