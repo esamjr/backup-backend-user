@@ -544,8 +544,8 @@ def get_employee_by_id_comp(request):
 
     if request.method == "GET":
 
-        _status = request.data['status']
-        id_company = int(request.data['id_company'])
+        _status = request.query_params['status']
+        id_company = int(request.query_params['id_company'])
         _cek_pk = Joincompany.objects.filter(id_company=id_company).exists()
         if not _cek_pk:
             response = {
