@@ -697,8 +697,8 @@ def login_token_views(request):
 def cek_login_views(request):
     response = None
     if request.method == 'POST':
-        email = request.query_params['email']
-        password = request.query_params['password']
+        email = request.data['email']
+        password = request.data['password']
 
         if email == "" or password == "":
             response = {
