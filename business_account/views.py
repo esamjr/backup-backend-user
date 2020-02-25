@@ -1,5 +1,8 @@
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -13,7 +16,8 @@ from job_contract.models import Jobcontract
 from join_company.models import Joincompany
 from registrations.models import Register
 from .models import Business
-from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer, VerBusSerializer
+from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer, \
+    VerBusSerializer, RegIDSerializer, HierarchyIDSerializer, EmployeeSignIDSerializer, JobContractIDSerializer
 
 
 @api_view(['GET'])
@@ -529,7 +533,7 @@ def get_data_employee(request, pk):
 
 
 @api_view(['GET'])
-def get_employee_by_id(request, pk):
+def get_employee_by_id_comp(request):
     """
     handle get all employee base on id_company
 
@@ -538,17 +542,11 @@ def get_employee_by_id(request, pk):
     :return: JsonRespoonse employee data
     """
 
-    _su = None
-    _sc = None
-    _se = None
-    _sj = None
-    _sh = None
-    _h = None
-    _e = None
-    result = []
-
     if request.method == "GET":
-        _cek_pk = Joincompany.objects.filter(id_company=pk).exists()
+
+        _status = request.data['status']
+        id_company = int(request.data['id_company'])
+        _cek_pk = Joincompany.objects.filter(id_company=id_company).exists()
         if not _cek_pk:
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
@@ -557,8 +555,10 @@ def get_employee_by_id(request, pk):
 
             return JsonResponse(response)
 
-        _data_company = Joincompany.objects.filter(id_company=pk, status="2").values('id_user')
-        if _data_company == "":
+        _join_company = Joincompany.objects.filter(id_company=id_company, status=_status).\
+            values('id_user').order_by('id_user')
+
+        if _join_company == "":
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
                 'api_message': "data employee tidak ada",
@@ -566,44 +566,65 @@ def get_employee_by_id(request, pk):
 
             return JsonResponse(response)
 
-        # for b in range(0, len(_data_company)):
-        for b in _data_company:
-            # _set_user = Register.objects.filter(id=_data_company[b]['id_user']).exists()
-            _set_user = Register.objects.filter(id=b['id_user']).exists()
-            if not _set_user:
-                continue
+        _employee_company = Employeesign.objects.filter(id_company=id_company, status=_status).\
+            values('id_user').order_by('id_user')
 
-            # _u = Register.objects.get(id=_data_company[b]['id_user'])
-            _u = Register.objects.get(id=b['id_user'])
-            _su = RegSerializer(_u)
+        result = get_current_employee(_employee_company, _join_company, id_company, _status)
 
-            _c = Joincompany.objects.get(status="2", id_user=_u.id, id_company=pk)
-            if _c == "":
-                continue
+        response = {
+            "api_status": status.HTTP_202_ACCEPTED,
+            "api_message": 'ambil data employee berhasil',
+            "status": _status,
+            "employee": result
+        }
 
-            _sc = JoincompanySerializer(_c)
+        return JsonResponse(response)
 
-            _e = Employeesign.objects.get(id_user=_c.id_user, id_company=_c.id_company)
-            if _e == "":
-                continue
 
-            _se = EmployeesignSerializer(_e)
+def get_current_employee(_employee_company, _join_company, id_company, _status):
+    result = []
+    for b in _employee_company:
+        _set_user = Register.objects.filter(id=b['id_user']).exists()
+        if not _set_user:
+            continue
 
-            _j = Jobcontract.objects.get(id=_e.id_job_contract)
-            if _j == "":
-                continue
+        _u = Register.objects.get(id=b['id_user'])
+        _su = RegIDSerializer(_u)
 
-            _sj = JobconSerializer(_j)
+        _cek_join = Joincompany.objects.filter(id_user=_u.id, id_company=id_company).exists()
+        _c = None
+        if _cek_join:
+            _c = Joincompany.objects.get(id_user=_u.id, id_company=id_company)
+        elif not _cek_join:
+            continue
 
+        _e = Employeesign.objects.get(id_user=_u.id, id_company=_c.id_company)
+        if _e == "":
+            continue
+
+        _se = EmployeeSignIDSerializer(_e)
+
+        _j = Jobcontract.objects.get(id=_e.id_job_contract)
+        if _j == "":
+            continue
+
+        _sj = JobContractIDSerializer(_j)
+
+        _sh = None
+        if _status == "1":
             _h = Hierarchy.objects.filter(id=_e.id_hirarchy).exists()
             if not _h:
                 continue
 
             _b = Hierarchy.objects.get(id=_e.id_hirarchy)
-            _sh = HierarchySerializer(_b)
+            _si = HierarchyIDSerializer(_b)
+            _sh = _si.data
+        else:
+            _sh = []
 
-            people = {'user': _su.data, 'join_company': _sc.data, 'job_contract': _sj.data, 'employee_sign': _se.data,
-                      'hierarchy': _sh.data}
-            result.append(people)
+        people = {'user': _su.data, 'employee_sign': _se.data, 'job_contract': _sj.data, 'hierarchy': _sh, }
 
-        return Response(result)
+        result.append(people)
+
+    return result
+

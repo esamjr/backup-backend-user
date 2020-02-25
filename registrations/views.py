@@ -697,8 +697,8 @@ def login_token_views(request):
 def cek_login_views(request):
     response = None
     if request.method == 'POST':
-        email = request.data['email']
-        password = request.data['password']
+        email = request.query_params['email']
+        password = request.query_params['password']
 
         if email == "" or password == "":
             response = {
@@ -760,7 +760,7 @@ def cek_login_views(request):
             # end of old code
 
             response = {
-                "api_status": status.HTTP_202_ACCEPTED,
+                "api_status": status.HTTP_200_OK,
                 "api_message": 'Login Berhasil',
                 "user": {
                     'id_user': _get_user_data.id,

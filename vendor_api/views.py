@@ -1258,7 +1258,7 @@ def login_absensee_views(request):
             comp.append(data_comp)
 
         payloads = {
-            'api_status': status.HTTP_201_CREATED,
+            'api_status': status.HTTP_200_OK,
             'api_message': 'ambil data profile user berhasil',
              'profile': profil,
             'companies': comp,
@@ -1284,7 +1284,7 @@ def login_absensee_views(request):
         _cek_data.delete()
 
         response = {
-            'api_status': status.HTTP_202_ACCEPTED,
+            'api_status': status.HTTP_200_OK,
             'api_message': 'Logout berhasil'
         }
 
