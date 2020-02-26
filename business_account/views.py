@@ -544,8 +544,8 @@ def get_employee_by_id_comp(request):
 
     if request.method == "GET":
 
-        _status = request.data['status']
-        id_company = int(request.data['id_company'])
+        _status = request.query_params['status']
+        id_company = int(request.query_params['id_company'])
         _cek_pk = Joincompany.objects.filter(id_company=id_company).exists()
         if not _cek_pk:
             response = {
@@ -572,7 +572,7 @@ def get_employee_by_id_comp(request):
         result = get_current_employee(_employee_company, _join_company, id_company, _status)
 
         response = {
-            "api_status": status.HTTP_202_ACCEPTED,
+            "api_status": status.HTTP_200_OK,
             "api_message": 'ambil data employee berhasil',
             "status": _status,
             "employee": result
@@ -610,19 +610,15 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
 
         _sj = JobContractIDSerializer(_j)
 
-        _sh = None
-        if _status == "1":
-            _h = Hierarchy.objects.filter(id=_e.id_hirarchy).exists()
-            if not _h:
-                continue
-
+        _h = Hierarchy.objects.filter(id=_e.id_hirarchy).exists()
+        if _h:
             _b = Hierarchy.objects.get(id=_e.id_hirarchy)
             _si = HierarchyIDSerializer(_b)
             _sh = _si.data
         else:
             _sh = []
 
-        people = {'user': _su.data, 'employee_sign': _se.data, 'job_contract': _sj.data, 'hierarchy': _sh, }
+        people = {'user': _su.data, 'employee_sign': _se.data, 'job_contract': _sj.data, 'hierarchy': _sh}
 
         result.append(people)
 
