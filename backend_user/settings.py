@@ -235,6 +235,7 @@ EMAIL_USE_TLS = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 CROCODIC_API_URL = env.string('CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
+CROCODIC_CREDENTIAL_TOKEN = "pbkdf2_sha256$120000$I2BCKb0Nflgy$96qeihph6v7Ibpy4st7u5WAFBIRxOUKxHB28r8NlM5U="
 
 
 LANGUAGE_CODE = 'en-us'
