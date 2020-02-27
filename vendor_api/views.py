@@ -1159,12 +1159,12 @@ def login_absensee_views(request):
     if token_vendor == 'xxx':
         response = {
             'api_status': status.HTTP_401_UNAUTHORIZED,
-            'api_message': 'Vendor Token, is Unauthorized.'
+            'api_message': 'Vendor Token kosong.'
         }
 
         return JsonResponse(response)
 
-    _cek_vendor = Vendor_api.objects.filter(token=token_vendor).exists()
+    _cek_vendor = cek_token_vendor(token_vendor)
     if not _cek_vendor:
         response = {
             'api_status': status.HTTP_404_NOT_FOUND,
@@ -1289,3 +1289,10 @@ def login_absensee_views(request):
         }
 
         return JsonResponse(response)
+
+
+def cek_token_vendor(token_vendor):
+    if token_vendor != settings.CROCODIC_CREDENTIAL_TOKEN:
+        return False
+
+    return True
