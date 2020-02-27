@@ -71,7 +71,7 @@ def cek_password(password, _user):
 
 
 def logout_vendor(request):
-    beacon_multi = MultipleLogin.objects.get(id_user=request.user_id_id)
+    beacon_multi = MultipleLogin.objects.get(id_user=request.pk)
     if not beacon_multi:
         response = {
             'api_status': status.HTTP_400_BAD_REQUEST,

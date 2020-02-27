@@ -1268,20 +1268,20 @@ def login_absensee_views(request):
         return JsonResponse(payloads)
 
     elif request.method == 'PUT':
-        token = request.data['token_user']
-        _cek_token = Tokens.objects.filter(key=token).exists()
-        if not _cek_token:
+        email = request.data['email']
+
+        _cek_d = Register.objects.filter(email=email).exists()
+        if not _cek_d:
             response = {
-                'api_status': status.HTTP_404_NOT_FOUND,
-                'api_message': 'Anda telah logout sebelumnya'
-            }
+                    'api_status': status.HTTP_404_NOT_FOUND,
+                    'api_message': 'Email tidak terdaftar'
+                }
 
             return JsonResponse(response)
 
-        _cek_data = Tokens.objects.get(key=token)
+        _cek_data = Register.objects.get(email=email)
 
         _logout_vendor_login = logout_vendor(_cek_data)
-        _cek_data.delete()
 
         response = {
             'api_status': status.HTTP_200_OK,
