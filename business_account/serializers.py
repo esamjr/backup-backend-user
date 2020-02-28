@@ -69,7 +69,7 @@ class JobContractIDSerializer(serializers.ModelSerializer):
 class EmployeeSignIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employeesign
-        fields = ('id_hirarchy', 'id_contract', 'status_type', 'status', 'create_at')
+        fields = ('id_hirarchy', 'id_hirarchy_history', 'id_contract', 'status_type', 'status', 'create_at')
 
 
 class HierarchyIDSerializer(serializers.ModelSerializer):

@@ -21,10 +21,7 @@ from email_app import views as lihat
 
 urlpatterns = [
     path('', include('pages.urls')),
-    # url(r'^sipromo/', include('sipromo_api.urls')),
     url(r'^orderlicense/', include('orderlicense.urls')),
-    # url(r'^haloarif/', include('haloarif.urls')),
-    # url(r'^catgoal/', include('category_goal.urls')),
     url(r'^warna/', include('warna_goal.urls')),
     url(r'^timeperiod/', include('time_period.urls')),
     url(r'^kpi/', include('KPI.urls')),
@@ -99,4 +96,5 @@ urlpatterns = [
     url(r'^group_user/', include('group_user.urls')),
     # url(r'^setting_approval/', include('setting_approval.urls')),
     url(r'^license_comp/', include('license_company.urls')),
+    url(r'^billing_license/', include('billing_license.urls')),
 ]

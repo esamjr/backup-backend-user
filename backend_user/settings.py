@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     'feeds',
     'friends',
     'group_user',
+    'billing_license',
 ]
 
 SITE_ID = 1
