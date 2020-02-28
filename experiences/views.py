@@ -93,17 +93,12 @@ def get_post_experiences(request):
     if request.method == 'GET':
         network = pengalaman.objects.all()
         serializer = ExperiencesSerializer(network, many=True)
-        act = 'Read all experience by '                           
-        read_log(request, registrations,act)
         return Response(serializer.data)
 
-
     elif request.method == 'POST':
-        serializer = ExperiencesSerializer(data=request.data)
+        serializer = ExperiencesSerializer(data=request.query_params)
         if serializer.is_valid():
             serializer.save()
-            act = 'Create new experience by '
-            create_log(request, registrations, act)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

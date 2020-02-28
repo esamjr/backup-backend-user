@@ -604,11 +604,19 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
 
         _se = EmployeeSignIDSerializer(_e)
 
-        _j = Jobcontract.objects.get(id=_e.id_job_contract)
-        if _j == "":
-            continue
+        _j_h = Jobcontract.objects.filter(id=_e.id_job_contract).exists()
+        if _j_h:
+            _j = Jobcontract.objects.get(id=_e.id_job_contract)
+            _sj = JobContractIDSerializer(_j)
+            _sj = _sj.data
+        else:
+            _sj = []
 
-        _sj = JobContractIDSerializer(_j)
+        # _j = Jobcontract.objects.get(id=_e.id_job_contract)
+        # if _j == "":
+        #     continue
+        #
+        # _sj = JobContractIDSerializer(_j)
 
         _h = Hierarchy.objects.filter(id=_e.id_hirarchy).exists()
         if _h:
@@ -618,7 +626,7 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
         else:
             _sh = []
 
-        people = {'user': _su.data, 'employee_sign': _se.data, 'job_contract': _sj.data, 'hierarchy': _sh}
+        people = {'user': _su.data, 'employee_sign': _se.data, 'job_contract': _sj, 'hierarchy': _sh}
 
         result.append(people)
 

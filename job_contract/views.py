@@ -1,10 +1,10 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from .models import Jobcontract as Job_contract
-from .serializers import JobcontractSerializer
+from .serializers import JobcontractSerializer, JobContractIDSerializer
+
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_delete_update_jobcontract(request, pk):
@@ -35,7 +35,8 @@ def get_delete_update_jobcontract(request, pk):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-     
+
+
 @api_view(['GET', 'POST'])
 def get_post_jobcontract(request):
     if request.method == 'GET':
@@ -50,6 +51,7 @@ def get_post_jobcontract(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 def get_all_jobcontract(request, pk1):
     try:
@@ -61,4 +63,24 @@ def get_all_jobcontract(request, pk1):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
-    
+
+
+@api_view(['POST'])
+def job_contract_views(request):
+    if request.method == 'POST':
+
+        params = {
+            'id_company': request.data['id_company'],
+            'id_user': int(request.data['id_user']),
+            'id_contract': request.data['id_contract'],
+            'salary': request.data['salary'],
+            'date_in': request.data['date_in'],
+            'date_out': request.data['date_out'],
+            'status': request.data['id_company']
+        }
+
+        serializer = JobContractIDSerializer(data=params)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

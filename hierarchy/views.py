@@ -76,7 +76,7 @@ def get_hierarchy_by_user(request, pk):
 
 
 @api_view(['GET'])
-def get_all_hierarchy(request, pk1):
+def get_all_hierarchy(request):
     # token = request.META.get('HTTP_AUTHORIZATION')
     # try:
     #     user = Register.objects.get(token = token)
@@ -88,7 +88,8 @@ def get_all_hierarchy(request, pk1):
 
     try:
         results = []
-        networks = Hierarchy_models.objects.all().values_list('id', flat=True).filter(id_company=pk1)
+        id_company = int(request.query_params['id_company'])
+        networks = Hierarchy_models.objects.all().values_list('id', flat=True).filter(id_company=id_company)
         for network in networks:
             hirarki = Hierarchy_models.objects.get(id=network)
             id_user = hirarki.id_user
