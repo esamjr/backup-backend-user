@@ -76,3 +76,9 @@ class HierarchyIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hierarchy
         fields = ('division', )
+
+
+class BusinessBannedTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        fields = ('banned_type', )

@@ -17,7 +17,8 @@ from join_company.models import Joincompany
 from registrations.models import Register
 from .models import Business
 from .serializers import BusinessSerializer, JoincompanySerializer, RegSerializer, JobconSerializer, \
-    VerBusSerializer, RegIDSerializer, HierarchyIDSerializer, EmployeeSignIDSerializer, JobContractIDSerializer
+    VerBusSerializer, RegIDSerializer, HierarchyIDSerializer, EmployeeSignIDSerializer, \
+    JobContractIDSerializer, BusinessBannedTypeSerializer
 
 
 @api_view(['GET'])
@@ -573,7 +574,7 @@ def get_employee_by_id_comp(request):
 
         response = {
             "api_status": status.HTTP_200_OK,
-            "api_message": 'ambil data employee berhasil',
+            "api_message": 'Ambil data employee berhasil',
             "status": _status,
             "employee": result
         }
@@ -631,4 +632,65 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
         result.append(people)
 
     return result
+
+
+@api_view(['PUT'])
+def activated_new_business_account(request):
+    if request.method == 'PUT':
+        id_user = request.data['id_user']
+        _id_user = Register.objects.filter(id=id_user).exists()
+        if not _id_user:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'email tidak terdaftar',
+            }
+
+            return JsonResponse(response)
+
+        id_company = request.data['id_company']
+        _cek_company = Business.objects.filter(id=id_company).exists()
+        if not _cek_company:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Company nama tidak ada'
+            }
+
+            return JsonResponse(response)
+
+        _is_mach = Business.objects.filter(id_user__gte=id_user, id=id_company).exists()
+        if not _is_mach:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Company tidak belum terdaftar menggunakan ID user '
+            }
+
+            return JsonResponse(response)
+
+        _get_data = Business.objects.get(id=id_company)
+        if _get_data.banned_type != '0':
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Company ID sudah aktif'
+            }
+
+            return JsonResponse(response)
+
+        banned_type = request.data['banned_status']
+
+        payload = {
+            'banned_type': banned_type
+        }
+
+        serializer = BusinessBannedTypeSerializer(_get_data, data=payload)
+        if serializer.is_valid():
+            serializer.save()
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': 'verifikasi company management berhasil'
+        }
+
+        return JsonResponse(response)
+
+
 
