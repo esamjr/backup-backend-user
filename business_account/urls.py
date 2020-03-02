@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^api/custom/active/(?P<pk>[0-9]+)$', views.custom_get_two, name='custom_get_two'),
 
     # new api
+    url(r'^api/activated_business_id', views.activated_new_business_account, name='activated_new_business_account'),
     url(r'^api/get_list_employee/$', views.get_employee_by_id_comp, name='get_employee_by_id'),
 
     # api for crocodic
