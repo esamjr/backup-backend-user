@@ -41,71 +41,71 @@ def search_all_div(request):
         return Response({'status': 'License Company Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', 'POST'])
-def setting_license_company(request, pk):
-    try:
-        if request.method == 'POST':
-
-            token = request.META.get('HTTP_AUTHORIZATION')
-            user = Register.objects.get(token=token)
-            company = Business.objects.get(id=pk, id_user=user.id)
-
-            hierarchy_comp = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company=company.id)
-            result = []
-            for inst in hierarchy_comp:
-                payload = {
-                    'id_hierarchy': inst,
-                    'attendance': '0',
-                    'payroll': '0',
-                    'status': '0',
-                    'id_comp': company.id
-                }
-                serializer = LicenseCompSerializer(data=payload)
-                if serializer.is_valid():
-                    serializer.save()
-                    result.append(serializer.data)
-            return Response(result, status=status.HTTP_201_CREATED)
-
-        elif request.method == 'PUT':
-            license_company = LicenseComp.objects.get(id=pk)
-            serializer = LicenseCompSerializer(license_company, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        elif request.method == 'GET':
-            try:
-
-                beacon = LicenseComp.objects.all().values_list('id', flat=True).filter(id_comp=pk)
-                result = []
-                for one in beacon:
-                    beaco = LicenseComp.objects.get(id=one)
-                    serializer = LicenseCompSerializer(beaco)
-                    dive = Hierarchy.objects.get(id=serializer.data['id_hierarchy'])
-                    user = Register.objects.get(id=dive.id_user)
-                    persona = {
-                        'id_user': user.id,
-                        'name': user.full_name
-                    }
-                    payload = {
-                        'division': dive.division,
-                        'data': serializer.data,
-                        'user': persona
-                    }
-                    result.append(payload)
-                return Response(result, status=status.HTTP_201_CREATED)
-            except LicenseComp.DoesNotExist:
-                return Response({'status': 'License Company Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
-
-    except Register.DoesNotExist:
-        return Response({'status': 'User Does Not Exist'}, status=status.HTTP_404_NOT_FOUND)
-    except Business.DoesNotExist:
-        return Response({'status': 'Company Does Not Exist'}, status=status.HTTP_404_NOT_FOUND)
-    except Hierarchy.DoesNotExist:
-        return Response({'status': 'Hierarchy Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
-    except LicenseComp.DoesNotExist:
-        return Response({'status': 'License Company Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['GET', 'PUT', 'POST'])
+# def setting_license_company(request, pk):
+#     try:
+#         if request.method == 'POST':
+#
+#             token = request.META.get('HTTP_AUTHORIZATION')
+#             user = Register.objects.get(token=token)
+#             company = Business.objects.get(id=pk, id_user=user.id)
+#
+#             hierarchy_comp = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company=company.id)
+#             result = []
+#             for inst in hierarchy_comp:
+#                 payload = {
+#                     'id_hierarchy': inst,
+#                     'attendance': '0',
+#                     'payroll': '0',
+#                     'status': '0',
+#                     'id_comp': company.id
+#                 }
+#                 serializer = LicenseCompSerializer(data=payload)
+#                 if serializer.is_valid():
+#                     serializer.save()
+#                     result.append(serializer.data)
+#             return Response(result, status=status.HTTP_201_CREATED)
+#
+#         elif request.method == 'PUT':
+#             license_company = LicenseComp.objects.get(id=pk)
+#             serializer = LicenseCompSerializer(license_company, data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#         elif request.method == 'GET':
+#             try:
+#
+#                 beacon = LicenseComp.objects.all().values_list('id', flat=True).filter(id_comp=pk)
+#                 result = []
+#                 for one in beacon:
+#                     beaco = LicenseComp.objects.get(id=one)
+#                     serializer = LicenseCompSerializer(beaco)
+#                     dive = Hierarchy.objects.get(id=serializer.data['id_hierarchy'])
+#                     user = Register.objects.get(id=dive.id_user)
+#                     persona = {
+#                         'id_user': user.id,
+#                         'name': user.full_name
+#                     }
+#                     payload = {
+#                         'division': dive.division,
+#                         'data': serializer.data,
+#                         'user': persona
+#                     }
+#                     result.append(payload)
+#                 return Response(result, status=status.HTTP_201_CREATED)
+#             except LicenseComp.DoesNotExist:
+#                 return Response({'status': 'License Company Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
+#
+#     except Register.DoesNotExist:
+#         return Response({'status': 'User Does Not Exist'}, status=status.HTTP_404_NOT_FOUND)
+#     except Business.DoesNotExist:
+#         return Response({'status': 'Company Does Not Exist'}, status=status.HTTP_404_NOT_FOUND)
+#     except Hierarchy.DoesNotExist:
+#         return Response({'status': 'Hierarchy Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
+#     except LicenseComp.DoesNotExist:
+#         return Response({'status': 'License Company Does Not Exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -191,5 +191,56 @@ def license_company_views(request):
         return JsonResponse(response)
 
 
+@api_view(['GET'])
+def get_license_by_id_company(request):
+    try:
+        if request.method == 'GET':
+            id_company = request.data['id_company']
+            _cek_comp = LicenseComp.objects.filter(id_comp=id_company).exists()
+            if not _cek_comp:
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'id company tidak terdaftar'
+                }
 
+                return JsonResponse(response)
+
+            _company = LicenseComp.objects.values_list('id', flat=True).filter(id_comp=id_company)
+            result = []
+            for c in _company:
+                beaco = LicenseComp.objects.get(id=c)
+                serializer = LicenseCompSerializer(beaco)
+                _hierarchy = Hierarchy.objects.filter(id=serializer.data['id_hierarchy']).exists()
+                dive = None
+                if not _hierarchy:
+                    continue
+                elif _hierarchy:
+                    dive = Hierarchy.objects.get(id=serializer.data['id_hierarchy'])
+                user = Register.objects.get(id=dive.id_user)
+                persona = {
+                    'id_user': user.id,
+                    'name': user.full_name
+                }
+                payload = {
+                    'division': dive.division,
+                    'data': serializer.data,
+                    'user': persona
+                }
+                result.append(payload)
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'data employee menggunakan license',
+                'data': result
+            }
+
+            return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
+        return JsonResponse(response)
 

@@ -14,7 +14,7 @@ from .serializers import BillingLicenseSerializer, BillingLicenseAllDataSerializ
 @api_view(['GET', 'POST', 'PUT'])
 def billing_license_list(request):
     """
-    API endpoint that allows Billing to be List all or create a new snippet..
+    API endpoint that allows Billing to be List all or create a new license..
     """
     id_company = request.data['id_company']
     _is_company = cek_company_id(id_company)
@@ -93,4 +93,11 @@ def billing_license_list(request):
         }
 
         return JsonResponse(response)
+
+
+@api_view(['GET'])
+def update_license_date(request):
+    """
+    API endpoint for handle expire datetime order by company_id
+    """
 
