@@ -92,3 +92,18 @@ def logout_vendor(request):
         serializer.save()
 
     return serializer
+
+
+def _cek_user(request):
+    _is_user = Register.objects.filter(id=request).exists()
+    if not _is_user:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'id company tidak terdaftar'
+        }
+
+        return JsonResponse(response)
+
+    _user = Register.objects.get(id=request)
+
+    return _user
