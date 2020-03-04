@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
+from billing_license.models import BillingLicense
 from billing_license.helper import _qty_license
 
 from business_account.models import Business
@@ -212,6 +213,16 @@ def get_license_by_id_company(request):
 
         if request.method == 'GET':
             id_company = request.data['id_company']
+
+            _data = BillingLicense.objects.filter(id_company=id_company).exists()
+            if not _data:
+                result = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': "Company belum memiliki license"
+                }
+
+                return JsonResponse(result)
+
             _qty = _qty_license(id_company)
             _company_id(id_company)
             _company = LicenseComp.objects.values_list('id', flat=True).filter(id_comp=id_company)
