@@ -212,8 +212,8 @@ def get_license_by_id_company(request):
 
         if request.method == 'GET':
             id_company = request.data['id_company']
+            _qty = _qty_license(id_company)
             _company_id(id_company)
-
             _company = LicenseComp.objects.values_list('id', flat=True).filter(id_comp=id_company)
             result = []
             for c in _company:
@@ -240,6 +240,8 @@ def get_license_by_id_company(request):
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': 'data employee menggunakan license',
+                'expire_date_license': _qty.expire_date_license,
+                'qty_license': _qty.qty_license,
                 'data': result
             }
 
