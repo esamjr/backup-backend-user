@@ -8,3 +8,9 @@ class LicenseCompSerializer(serializers.ModelSerializer):
     class Meta:
         model = LicenseComp
         fields = '__all__'
+
+
+class LicenseUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LicenseComp
+        fields = ['expr_date', 'status', ]

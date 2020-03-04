@@ -1,13 +1,10 @@
 from django.db.models import Q
 from django.http import JsonResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.conf import settings
-
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from billing_license.models import BillingLicense
 from employee_sign.models import Employeesign
 from employee_sign.serializers import EmployeesignSerializer
 from hierarchy.models import Hierarchy
@@ -572,10 +569,28 @@ def get_employee_by_id_comp(request):
 
         result = get_current_employee(_employee_company, _join_company, id_company, _status)
 
+        _l = BillingLicense.objects.filter(id_company=id_company).exists()
+        if not _l:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "Id Company tidak punya license",
+            }
+
+            return JsonResponse(response)
+
+        _ql = BillingLicense.objects.get(id_company=id_company)
+
+        _license = {
+            'qty_license': _ql.qty_license,
+            'expire_date_license': _ql.expire_date_license,
+            'status_license': _ql.status_license
+        }
+
         response = {
             "api_status": status.HTTP_200_OK,
             "api_message": 'Ambil data employee berhasil',
             "status": _status,
+            "license": _license,
             "employee": result
         }
 
@@ -612,12 +627,6 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
             _sj = _sj.data
         else:
             _sj = []
-
-        # _j = Jobcontract.objects.get(id=_e.id_job_contract)
-        # if _j == "":
-        #     continue
-        #
-        # _sj = JobContractIDSerializer(_j)
 
         _h = Hierarchy.objects.filter(id=_e.id_hirarchy).exists()
         if _h:
@@ -693,4 +702,15 @@ def activated_new_business_account(request):
         return JsonResponse(response)
 
 
+""" 
+sample case update license
 
+- update license company
+    * create by qty_license untuk 10 user
+    * update license date di company
+    
+- update license user
+    * user berubah sesuai dengan expire date dari company
+    * jika status company false, semua status user berubah jadi false
+    
+"""

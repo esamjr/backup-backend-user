@@ -97,4 +97,5 @@ urlpatterns = [
     # url(r'^setting_approval/', include('setting_approval.urls')),
     url(r'^license_comp/', include('license_company.urls')),
     url(r'^billing_license/', include('billing_license.urls')),
+    url(r'^license_company/', include('license_company.urls')),
 ]

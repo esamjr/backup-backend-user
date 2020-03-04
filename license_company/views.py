@@ -5,15 +5,22 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+
+from billing_license.helper import _qty_license
 
 from business_account.models import Business
+from business_account.helper import _company_id
+
 from email_app.views import reminder_email
 from hierarchy.models import Hierarchy
+
 from registrations.models import Register, Tokens
+from registrations.helper import _cek_user
 
 
 from .models import LicenseComp
-from .serializers import LicenseCompSerializer
+from .serializers import LicenseCompSerializer, LicenseUpdateSerializer
 
 
 @api_view(['GET'])
@@ -136,60 +143,168 @@ def reminder_exp_date(request):
 
 @api_view(['GET'])
 def license_company_views(request):
-    token = request.META.get('HTTP_AUTHORIZATION')
-    _cek_token = Tokens.objects.filter(key=token).exists()
-    if not _cek_token:
+    try:
+        token = request.META.get('HTTP_AUTHORIZATION')
+        _cek_token = Tokens.objects.filter(key=token).exists()
+        if not _cek_token:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Anda telah logout sebelumnya'
+            }
+
+            return JsonResponse(response)
+
+        _id_user = int(request.query_params['id_user'])
+        _cek_id_user = Register.objects.filter(id=_id_user).exists()
+        if not _cek_id_user:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User tidak terdaftar'
+            }
+
+            return JsonResponse(response)
+
+        response = None
+        if request.method == 'GET':
+            _license_company = LicenseComp.objects.all().values_list('id', flat=True).\
+                filter(id_comp=int(request.query_params['id_company']))
+
+            result = []
+            for i in _license_company:
+                _license = LicenseComp.objects.get(id=i)
+
+                user = Register.objects.get(id=_id_user)
+
+                user_data = {
+                    'id_user': user.id,
+                    'name': user.full_name
+                }
+
+                _serializer = LicenseCompSerializer(_license)
+
+                payload = {
+                    'data': _serializer.data,
+                    'user': user_data
+                }
+
+                result.append(payload)
+
+                response = {
+                    "api_status": status.HTTP_202_ACCEPTED,
+                    "api_message": 'ambil data company berhasil',
+                    'id_user': user.id,
+                    "company": payload
+                }
+
+            return JsonResponse(response)
+    except Exception as ex:
         response = {
-            'api_status': status.HTTP_404_NOT_FOUND,
-            'api_message': 'Anda telah logout sebelumnya'
+            'error': str(ex),
+            'status': ex.args
         }
 
         return JsonResponse(response)
 
-    _id_user = int(request.query_params['id_user'])
-    _cek_id_user = Register.objects.filter(id=_id_user).exists()
-    if not _cek_id_user:
-        response = {
-            'api_status': status.HTTP_404_NOT_FOUND,
-            'api_message': 'User tidak terdaftar'
-        }
 
-        return JsonResponse(response)
+@api_view(['GET', 'POST', 'PUT'])
+def get_license_by_id_company(request):
+    try:
 
-    response = None
-    if request.method == 'GET':
-        _license_company = LicenseComp.objects.all().values_list('id', flat=True).\
-            filter(id_comp=int(request.query_params['id_company']))
+        if request.method == 'GET':
+            id_company = request.data['id_company']
+            _company_id(id_company)
 
-        result = []
-        for i in _license_company:
-            _license = LicenseComp.objects.get(id=i)
-
-            user = Register.objects.get(id=_id_user)
-
-            user_data = {
-                'id_user': user.id,
-                'name': user.full_name
-            }
-
-            _serializer = LicenseCompSerializer(_license)
-
-            payload = {
-                'data': _serializer.data,
-                'user': user_data
-            }
-
-            result.append(payload)
+            _company = LicenseComp.objects.values_list('id', flat=True).filter(id_comp=id_company)
+            result = []
+            for c in _company:
+                beaco = LicenseComp.objects.get(id=c)
+                serializer = LicenseCompSerializer(beaco)
+                _hierarchy = Hierarchy.objects.filter(id=serializer.data['id_hierarchy']).exists()
+                dive = None
+                if not _hierarchy:
+                    continue
+                elif _hierarchy:
+                    dive = Hierarchy.objects.get(id=serializer.data['id_hierarchy'])
+                user = Register.objects.get(id=dive.id_user)
+                persona = {
+                    'id_user': user.id,
+                    'name': user.full_name
+                }
+                payload = {
+                    'division': dive.division,
+                    'data': serializer.data,
+                    'user': persona
+                }
+                result.append(payload)
 
             response = {
-                "api_status": status.HTTP_202_ACCEPTED,
-                "api_message": 'ambil data company berhasil',
-                'id_user': user.id,
-                "company": payload
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'data employee menggunakan license',
+                'data': result
             }
 
+            return JsonResponse(response)
+        elif request.method == 'POST':
+            _company = _company_id(request.data['id_company'])
+            _user = _cek_user(request.data['id_user'])
+
+            hierarchy_comp = Hierarchy.objects.all().values_list('id', flat=True).filter(id_company=_company.id)
+            result = []
+            for comp in hierarchy_comp:
+                payload = {
+                    'id_hierarchy': comp,
+                    'attendance': '0',
+                    'payroll': '0',
+                    'status': '0',
+                    'id_comp': _company.id
+                }
+                serializer = LicenseCompSerializer(data=payload)
+                if serializer.is_valid():
+                    serializer.save()
+                    result.append(serializer.data)
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'input license berhasil',
+                'data': result
+            }
+
+            return JsonResponse(response)
+        elif request.method == 'PUT':
+            _company = _company_id(request.data['id_company'])
+            _qty = _qty_license(_company.id)
+            if _qty.qty_license == 0:
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'Qty License anda sudah habis atau 0 license',
+                }
+
+                return JsonResponse(response)
+
+            license_company = LicenseComp.objects.get(id_hierarchy=request.data['id_hierarchy'])
+
+            payload = {
+                "expr_date": _qty.expire_date_license,
+                "status": '1'
+            }
+
+            serializer = LicenseUpdateSerializer(license_company, data=payload)
+            if serializer.is_valid():
+                serializer.save()
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'update license berhasil',
+                'data': serializer.data
+            }
+
+            return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
         return JsonResponse(response)
-
-
-
 
