@@ -79,13 +79,10 @@ def billing_license_list(request):
             _get_data = BillingLicense.objects.get(id=id_billing)
             old_qty = _get_data.qty_license
 
-            if old_qty == 0:
-                raise ValueError("Billing license sudah habis." % old_qty)
-
             _t = datetime.datetime.now()
 
             with transaction.atomic():
-                BillingLicense.objects.filter(id=id_billing).update(qty_license=old_qty - new_qty,
+                BillingLicense.objects.filter(id=id_billing).update(qty_license=new_qty + old_qty,
                                                                     update_date=_t)
 
             response = {
@@ -127,3 +124,53 @@ def update_license_date(request):
         }
 
         return JsonResponse(response)
+
+
+@api_view(['PUT'])
+def update_qty_license(request):
+    """
+    API endpoint for update qty base on in_company
+    """
+    try:
+        id_company = request.data['id_company']
+        _is_company = cek_company_id(id_company)
+
+        if not _is_company:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Company tidak ada',
+            }
+
+            return JsonResponse(response)
+
+        id_billing = request.data['id_billing']
+
+        _get_data = BillingLicense.objects.get(id=id_billing)
+        old_qty = _get_data.qty_license
+
+        if old_qty == 0:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'License sudah habis',
+            }
+
+            return JsonResponse(response)
+
+        with transaction.atomic():
+            BillingLicense.objects.filter(id=id_billing).update(qty_license=old_qty - 1)
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': 'Update data berhasil',
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
+        return JsonResponse(response)
+
