@@ -5,7 +5,6 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
 
 from billing_license.models import BillingLicense
 from billing_license.helper import _qty_license

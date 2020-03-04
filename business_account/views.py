@@ -539,62 +539,70 @@ def get_employee_by_id_comp(request):
     :param pk:
     :return: JsonRespoonse employee data
     """
+    try:
+        if request.method == "GET":
 
-    if request.method == "GET":
+            _status = request.query_params['status']
+            id_company = int(request.query_params['id_company'])
+            _cek_pk = Joincompany.objects.filter(id_company=id_company).exists()
+            if not _cek_pk:
+                response = {
+                    'api_status': status.HTTP_404_NOT_FOUND,
+                    'api_message': "Id Company tidak terdaftar",
+                }
 
-        _status = request.query_params['status']
-        id_company = int(request.query_params['id_company'])
-        _cek_pk = Joincompany.objects.filter(id_company=id_company).exists()
-        if not _cek_pk:
+                return JsonResponse(response)
+
+            _join_company = Joincompany.objects.filter(id_company=id_company, status=_status).\
+                values('id_user').order_by('id_user')
+
+            if _join_company == "":
+                response = {
+                    'api_status': status.HTTP_404_NOT_FOUND,
+                    'api_message': "data employee tidak ada",
+                }
+
+                return JsonResponse(response)
+
+            _employee_company = Employeesign.objects.filter(id_company=id_company, status=_status).\
+                values('id_user').order_by('id_user')
+
+            result = get_current_employee(_employee_company, _join_company, id_company, _status)
+
+            _l = BillingLicense.objects.filter(id_company=id_company).exists()
+            if not _l:
+                response = {
+                    'api_status': status.HTTP_404_NOT_FOUND,
+                    'api_message': "Id Company tidak punya license",
+                }
+
+                return JsonResponse(response)
+
+            _ql = BillingLicense.objects.get(id_company=id_company)
+
+            _license = {
+                'qty_license': _ql.qty_license,
+                'expire_date_license': _ql.expire_date_license,
+                'status_license': _ql.status_license
+            }
+
             response = {
-                'api_status': status.HTTP_404_NOT_FOUND,
-                'api_message': "Id Company tidak terdaftar",
+                "api_status": status.HTTP_200_OK,
+                "api_message": 'Ambil data employee berhasil',
+                "status": _status,
+                "license": _license,
+                "employee": result
             }
 
             return JsonResponse(response)
 
-        _join_company = Joincompany.objects.filter(id_company=id_company, status=_status).\
-            values('id_user').order_by('id_user')
-
-        if _join_company == "":
-            response = {
-                'api_status': status.HTTP_404_NOT_FOUND,
-                'api_message': "data employee tidak ada",
-            }
-
-            return JsonResponse(response)
-
-        _employee_company = Employeesign.objects.filter(id_company=id_company, status=_status).\
-            values('id_user').order_by('id_user')
-
-        result = get_current_employee(_employee_company, _join_company, id_company, _status)
-
-        _l = BillingLicense.objects.filter(id_company=id_company).exists()
-        if not _l:
-            response = {
-                'api_status': status.HTTP_404_NOT_FOUND,
-                'api_message': "Id Company tidak punya license",
-            }
-
-            return JsonResponse(response)
-
-        _ql = BillingLicense.objects.get(id_company=id_company)
-
-        _license = {
-            'qty_license': _ql.qty_license,
-            'expire_date_license': _ql.expire_date_license,
-            'status_license': _ql.status_license
+    except Exception as ex:
+        result = {
+            'error': str(ex),
+            'status': ex.args
         }
 
-        response = {
-            "api_status": status.HTTP_200_OK,
-            "api_message": 'Ambil data employee berhasil',
-            "status": _status,
-            "license": _license,
-            "employee": result
-        }
-
-        return JsonResponse(response)
+        return JsonResponse(result)
 
 
 def get_current_employee(_employee_company, _join_company, id_company, _status):
@@ -645,72 +653,67 @@ def get_current_employee(_employee_company, _join_company, id_company, _status):
 
 @api_view(['PUT'])
 def activated_new_business_account(request):
-    if request.method == 'PUT':
-        id_user = request.data['id_user']
-        _id_user = Register.objects.filter(id=id_user).exists()
-        if not _id_user:
+    try:
+        if request.method == 'PUT':
+            id_user = request.data['id_user']
+            _id_user = Register.objects.filter(id=id_user).exists()
+            if not _id_user:
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'email tidak terdaftar',
+                }
+
+                return JsonResponse(response)
+
+            id_company = request.data['id_company']
+            _cek_company = Business.objects.filter(id=id_company).exists()
+            if not _cek_company:
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'Company nama tidak ada'
+                }
+
+                return JsonResponse(response)
+
+            _is_mach = Business.objects.filter(id_user__gte=id_user, id=id_company).exists()
+            if not _is_mach:
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'Company tidak belum terdaftar menggunakan ID user '
+                }
+
+                return JsonResponse(response)
+
+            _get_data = Business.objects.get(id=id_company)
+            if _get_data.banned_type != '0':
+                response = {
+                    'api_status': status.HTTP_400_BAD_REQUEST,
+                    'api_message': 'Company ID sudah aktif'
+                }
+
+                return JsonResponse(response)
+
+            banned_type = request.data['banned_status']
+
+            payload = {
+                'banned_type': banned_type
+            }
+
+            serializer = BusinessBannedTypeSerializer(_get_data, data=payload)
+            if serializer.is_valid():
+                serializer.save()
+
             response = {
-                'api_status': status.HTTP_400_BAD_REQUEST,
-                'api_message': 'email tidak terdaftar',
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'verifikasi company management berhasil'
             }
 
             return JsonResponse(response)
 
-        id_company = request.data['id_company']
-        _cek_company = Business.objects.filter(id=id_company).exists()
-        if not _cek_company:
-            response = {
-                'api_status': status.HTTP_400_BAD_REQUEST,
-                'api_message': 'Company nama tidak ada'
-            }
-
-            return JsonResponse(response)
-
-        _is_mach = Business.objects.filter(id_user__gte=id_user, id=id_company).exists()
-        if not _is_mach:
-            response = {
-                'api_status': status.HTTP_400_BAD_REQUEST,
-                'api_message': 'Company tidak belum terdaftar menggunakan ID user '
-            }
-
-            return JsonResponse(response)
-
-        _get_data = Business.objects.get(id=id_company)
-        if _get_data.banned_type != '0':
-            response = {
-                'api_status': status.HTTP_400_BAD_REQUEST,
-                'api_message': 'Company ID sudah aktif'
-            }
-
-            return JsonResponse(response)
-
-        banned_type = request.data['banned_status']
-
-        payload = {
-            'banned_type': banned_type
+    except Exception as ex:
+        result = {
+            'error': str(ex),
+            'status': ex.args
         }
 
-        serializer = BusinessBannedTypeSerializer(_get_data, data=payload)
-        if serializer.is_valid():
-            serializer.save()
-
-        response = {
-            'api_status': status.HTTP_200_OK,
-            'api_message': 'verifikasi company management berhasil'
-        }
-
-        return JsonResponse(response)
-
-
-""" 
-sample case update license
-
-- update license company
-    * create by qty_license untuk 10 user
-    * update license date di company
-    
-- update license user
-    * user berubah sesuai dengan expire date dari company
-    * jika status company false, semua status user berubah jadi false
-    
-"""
+        return JsonResponse(result)
