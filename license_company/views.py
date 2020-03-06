@@ -211,7 +211,7 @@ def get_license_by_id_company(request):
     try:
 
         if request.method == 'GET':
-            id_company = request.data['id_company']
+            id_company = int(request.query_params['id_company'])
 
             _data = BillingLicense.objects.filter(id_company=id_company).exists()
             if not _data:

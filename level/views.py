@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -41,6 +42,7 @@ def get_delete_update_level(request, pk):
         }
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
+
 @api_view(['GET', 'POST'])
 def get_post_level(request):
     if request.method == 'GET':
@@ -55,11 +57,20 @@ def get_post_level(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def filter_comp(request, pk):
-    if request.method == 'POST':        
-        network = Level_models.objects.all().filter(id_company = pk)
-        serializer = LevelSerializer(network, many=True)
-        return Response(serializer.data)
-    return Response({'ERROR'})
 
+@api_view(['POST'])
+def filter_comp(request):
+    try:
+        if request.method == 'POST':
+            network = Level_models.objects.all().filter(id_company=int(request.data['id_company']))
+            serializer = LevelSerializer(network, many=True)
+            return Response(serializer.data)
+        return Response({'ERROR'})
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
+        return JsonResponse(response)
