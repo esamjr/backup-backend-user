@@ -28,19 +28,64 @@ def watcher(request):
         users.delete()
         return Response({'status': 'deleted all friends connection'}, status=status.HTTP_204_NO_CONTENT)
 
+
 # get friend list of the designated user
 @api_view(['GET'])
-def friendlist(request, user_id):
-    # token = request.META.get('HTTP_AUTHORIZATION')
-    user = Friends.objects.all().filter(user_id=id).first()
-    if (user is None):
+def friend_list(request, id):
+    try:
+        response = None
+        # token = request.META.get('HTTP_AUTHORIZATION')
+        user = Friends.objects.all().filter(user_id=id).first()
+        # user = Friends.objects.all().filter(user_id=id)
+        if user is None:
 
-        serializer = FriendsSerializer(data=request.data)
+            serializer = FriendsSerializer(data=request.data)
 
-        return JsonResponse({'status': 'empty'})
-    else:
-        friendlist = list(user.friend_list.values())
-        return JsonResponse(friendlist, safe=False)
+            payload = {
+                'id': serializer['id'],
+                'email': serializer,
+                'full_name': serializer,
+                'verfied': serializer,
+                'url_photo': serializer
+
+            }
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Friend list berhasil',
+                'data': payload
+            }
+
+            return JsonResponse(response)
+        else:
+            _friends = user.friend_list.values()
+
+            result = []
+            for i in _friends:
+                payload = {
+                    'id': i['id'],
+                    'email': i['email'],
+                    'full_name': i['full_name'],
+                    'verfied': i['verfied'],
+                    'url_photo': i['url_photo']
+                }
+
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Friend list berhasil',
+                    'data': result
+                }
+
+                result.append(payload)
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
+        return JsonResponse(response)
+
 
 # get friend suggestion of the designated user
 @api_view(['GET'])

@@ -9,10 +9,10 @@ urlpatterns = [
     path('search/<int:user_id>/<str:user_name>', views.search, name="search"),
 
     # get friend suggestion of the designated user
-    path('friendsuggestion/<int:user_id>', views.friendsuggestion, name='friendsuggestion'),
+    path('friendsuggestion/<int:id>', views.friendsuggestion, name='friendsuggestion'),
 
     # get friend list of the designated user
-    path('friendlist/<int:user_id>', views.friendlist, name='friendlist'),
+    path('friendlist/<int:id>', views.friend_list, name='friend_list'),
 
     # get friend request of the designated user 
     path('request/<int:user_id>', views.friend_request, name='friend_request'),
