@@ -1,11 +1,14 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from .models import Hierarchy as Hierarchy_models
-from level.models import Level
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from django.http import JsonResponse
+
+from business_account.helper import cek_company_id
+
 from registrations.models import Register
+
+from .models import Hierarchy as Hierarchy_models
 from .serializers import HierarchySerializer, UserSerializer
 
 
@@ -46,17 +49,26 @@ def get_delete_update_hierarchy(request, pk):
 
 @api_view(['GET', 'POST'])
 def get_post_hierarchy(request):
-    if request.method == 'GET':
-        network = Hierarchy_models.objects.all()
-        serializer = HierarchySerializer(network, many=True)
-        return Response(serializer.data)
+    try:
+        if request.method == 'GET':
+            network = Hierarchy_models.objects.all()
+            serializer = HierarchySerializer(network, many=True)
+            return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = HierarchySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'POST':
+            serializer = HierarchySerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+
+        return JsonResponse(response)
 
 
 @api_view(['GET'])
@@ -109,3 +121,51 @@ def get_all_hierarchy(request):
             'status': 'Not Found'
         }
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+def get_hierarchy_by_id_company(request):
+    """ API Endpoint for get all hierarchy by id_company"""
+    try:
+        id_company = request.query_params['id_company']
+        _is_company = cek_company_id(id_company)
+        if not _is_company:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Company tidak ada',
+            }
+
+            return JsonResponse(response)
+
+        # _comp = Hierarchy_models.objects.all().values_list('id', flat=True).filter(id_company=id_company)
+        networks = Hierarchy_models.objects.filter(id_company=id_company).values_list('id', flat=True)
+        results = []
+        for network in networks:
+            hirarki = Hierarchy_models.objects.get(id=network)
+            id_user = hirarki.id_user
+            if id_user == 0:
+                serializer = HierarchySerializer(hirarki)
+                dbase = {'hirarki': serializer.data, 'user': None}
+                results.append(dbase)
+            else:
+                user = Register.objects.get(id=id_user)
+                serializer = HierarchySerializer(hirarki)
+                serializer2 = UserSerializer(user)
+                dbase = {'hirarki': serializer.data, 'user': serializer2.data}
+                results.append(dbase)
+
+        response = {
+            "api_status": status.HTTP_202_ACCEPTED,
+            "api_message": 'ambil data company berhasil',
+            "hierarki": results
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+
+        return JsonResponse(response)

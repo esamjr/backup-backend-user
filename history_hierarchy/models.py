@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Historyhierarchy (models.Model):
   id_user = models.IntegerField()
   id_company = models.IntegerField()
