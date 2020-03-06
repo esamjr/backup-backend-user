@@ -65,7 +65,7 @@ def get_post_historyhierarchy(request):
 @api_view(['GET'])
 def get_all_historyhierarchy(request):
     try:
-        id_company = request.query_params['id_company']
+        id_company = int(request.query_params['id_company'])
         _is_company = cek_company_id(id_company)
         if not _is_company:
             response = {
