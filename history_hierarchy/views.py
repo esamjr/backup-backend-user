@@ -1,11 +1,12 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from business_account.helper import cek_company_id
+from registrations.models import Register
 from .models import Historyhierarchy
 from .serializers import HistoryhierarchySerializer
-from registrations.models import Register
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -62,9 +63,19 @@ def get_post_historyhierarchy(request):
 
 
 @api_view(['GET'])
-def get_all_historyhierarchy(request, pk):
+def get_all_historyhierarchy(request):
     try:
-        network = Historyhierarchy.objects.all().filter(id_company=pk)
+        id_company = int(request.query_params['id_company'])
+        _is_company = cek_company_id(id_company)
+        if not _is_company:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'Company tidak ada',
+            }
+
+            return JsonResponse(response)
+
+        network = Historyhierarchy.objects.all().filter(id_company=_is_company)
         datas = []
         for nets in network:
             serializer = HistoryhierarchySerializer(nets)
@@ -72,8 +83,11 @@ def get_all_historyhierarchy(request, pk):
             sets = {'nama': users.full_name, 'data': serializer.data}
             datas.append(sets)
         return Response(datas)
-    except Historyhierarchy.DoesNotExist:
-        content = {
-            'status': 'Not Found'
+
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
         }
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        return JsonResponse(response)

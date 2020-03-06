@@ -5,6 +5,7 @@ from hierarchy.models import Hierarchy
 from job_contract.models import Jobcontract
 from join_company.models import Joincompany
 from registrations.models import Register
+from billing_license.models import BillingLicense
 from .models import Business
 
 
@@ -82,3 +83,9 @@ class BusinessBannedTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = ('banned_type', )
+
+
+class BillingLicenseIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillingLicense
+        fields = ('qty_license', 'status_license', 'expire_date_license' )
