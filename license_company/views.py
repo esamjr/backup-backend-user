@@ -20,7 +20,7 @@ from registrations.helper import _cek_user
 
 
 from .models import LicenseComp
-from .serializers import LicenseCompSerializer, LicenseUpdateSerializer
+from .serializers import LicenseCompSerializer, LicenseUpdateSerializer, LicenseUserUpdateSerializer
 
 
 @api_view(['GET'])
@@ -320,3 +320,59 @@ def get_license_by_id_company(request):
 
         return JsonResponse(response)
 
+
+@api_view(['PUT'])
+def update_license_views(request):
+    try:
+        id_company = int(request.query_params['id_company'])
+        _company = _company_id(id_company)
+        _qty = _qty_license(_company.id)
+        if _qty.qty_license == 0:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'Qty License anda sudah habis atau 0 license',
+            }
+
+            return JsonResponse(response)
+
+        id_hierarchy = int(request.query_params['id_hierarchy'])
+        _id_hierarchy = LicenseComp.objects.filter(id_hierarchy=id_hierarchy).exists()
+        if not _id_hierarchy:
+            response = {
+                'api_status': status.HTTP_400_BAD_REQUEST,
+                'api_message': 'id_hierarchy tidak ada ',
+            }
+
+            return JsonResponse(response)
+
+        _license = LicenseComp.objects.get(id_hierarchy=id_hierarchy)
+        _billing = BillingLicense.objects.get(id_company=id_company)
+
+        _attendance = int(request.query_params['attendance'])
+        _payroll = int(request.query_params['payroll'])
+
+        payload = {
+            'attendance': _attendance,
+            'payroll': _payroll,
+            'expr_date': _billing.expire_date_license,
+            'status': 1,
+        }
+
+        serializer = LicenseUserUpdateSerializer(_license, data=payload)
+        if serializer.is_valid():
+            serializer.save()
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': 'update license by id user berhasil',
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+
+        return JsonResponse(response)

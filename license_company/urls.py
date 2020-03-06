@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^api/period/$', views.reminder_exp_date, name='reminder_exp_date'),
 
     # new api setting company
+    url(r'^api/update/$', views.update_license_views, name='update_license_views'),
     url(r'^api/$', views.get_license_by_id_company, name='get_license_by_id_company'),
     url(r'^api/id_user/$', views.license_company_views, name='license_company_views'),
 
