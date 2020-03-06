@@ -35,8 +35,8 @@ def friend_list(request, id):
     try:
         response = None
         # token = request.META.get('HTTP_AUTHORIZATION')
-        # user = Friends.objects.all().filter(user_id=id).first()
-        user = Friends.objects.get(user_id=id)
+        user = Friends.objects.all().filter(user_id=id).first()
+        # user = Friends.objects.all().filter(user_id=id)
         if user is None:
 
             serializer = FriendsSerializer(data=request.data)
@@ -58,7 +58,6 @@ def friend_list(request, id):
 
             return JsonResponse(response)
         else:
-            # _friends = list(user.friend_list.values())
             _friends = user.friend_list.values()
 
             result = []
@@ -71,14 +70,13 @@ def friend_list(request, id):
                     'url_photo': i['url_photo']
                 }
 
-                result.append(payload)
-
                 response = {
                     'api_status': status.HTTP_200_OK,
                     'api_message': 'Friend list berhasil',
-                    'data': payload
+                    'data': result
                 }
 
+                result.append(payload)
             return JsonResponse(response)
     except Exception as ex:
         response = {
