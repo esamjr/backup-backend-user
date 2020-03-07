@@ -5,7 +5,7 @@ import datetime
 
 
 class FeedsObj(models.Model):
-    user_id = models.IntegerField()
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=60)
     content = models.TextField()
     likes_count = models.IntegerField(default=0)
@@ -16,7 +16,8 @@ class FeedsObj(models.Model):
 
 
 class Comments(models.Model):
-    user_id = models.IntegerField()
+    # user_id = models.IntegerField()
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     feeds_id = models.ForeignKey(FeedsObj, blank=True,
                                  null=True, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=60, blank=False)
@@ -26,7 +27,8 @@ class Comments(models.Model):
 
 
 class Likes(models.Model):
-    user_id = models.IntegerField()
+    # user_id = models.IntegerField()
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=60)
     feeds = models.ManyToManyField(FeedsObj, related_name='user', blank=True)
 
