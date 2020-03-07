@@ -99,27 +99,6 @@ def put_delete_feed(request, feed_id):
         return JsonResponse(response)
 
 
-@api_view(['POST'])
-def create_user_like(request):
-    try:
-        serializer = LikesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            response = {
-                'api_status': status.HTTP_201_CREATED,
-                'api_message': 'Success create user-like!',
-                'data': serializer.data
-            }
-            return JsonResponse(response)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except Exception as ex:
-        response = {
-            'api_error': str(ex),
-            'api_message': ex.args
-        }
-        return JsonResponse(response)
-
-
 @api_view(['GET'])
 def show_likes(request):
     """
