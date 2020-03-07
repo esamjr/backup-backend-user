@@ -1,37 +1,27 @@
-from django.conf.urls import url
+from django.urls import path
 from . import views
 
 urlpatterns = [
-    # url(r'^api/(?P<pk>[0-9]+)$', views.get_delete_update_experiences, name='get_delete_update_experiences'),
-    url(r'^api/$', views.get_post_delete_feeds, name='get_post_delete_feeds_api'),
-    url(r'^api/put/(?P<pk>[0-9]+)$', views.put_feeds, name='put_feeds_api'),
-
-    # likes watcher
-    url(r'^api/likes/$', views.likes, name="likes"),
-
-    # likes specific watcher
-    url(r'^api/likes/(?P<pk>[0-9]+)$', views.likes_specific, name="likes_specific"),
-
-    # create new likes object
-    url(r'^api/likes/create/$', views.likes_create, name="likes_create"),
-
-    # add new feeds you like
-    url(r'^api/likes/like/(?P<user_pk>[0-9]+)/(?P<feeds_pk>[0-9]+)$', views.likes_like, name="likes_like"),
-
-    # unfo feeds you like
-    url(r'^api/likes/unlike/(?P<user_pk>[0-9]+)/(?P<feeds_pk>[0-9]+)$', views.likes_unlike, name="likes_unlike"),
-
-    # see how many likes in feeds
-    url(r'^api/likes/count/(?P<feeds_pk>[0-9]+)$', views.likes_count, name="likes_count"),
-
-    # comments watcher
-    url(r'^api/comments/$', views.comments, name='comments'),
-
-    # comments specific watcher
-    url(r'^api/comments/(?P<pk>[0-9]+)$', views.comments_specific, name='comments_specific'),
-
-    # see how many comments in feeds
-    url(r'^api/comments/count/(?P<feeds_pk>[0-9]+)$', views.comments_count, name="comments_count"),
-
-
+    # show-create feed
+    path('', views.get_post_feeds),
+    # edit-delete feed
+    path('<int:feed_id>', views.put_delete_feed),
+    # show likes
+    path('likes/', views.show_likes),
+    # show specific-likes
+    path('likes/<int:user_id>', views.specific_user_like),
+    # show feed-likes-count
+    path('likes/count/<int:feed_id>', views.liked_feed),
+    # edit: like
+    path('likes/<int:user_id>/<int:feed_id>', views.like),
+    # edit: unlike
+    path('unlike/<int:user_id>/<int:feed_id>', views.unlike),
+    # show-create comment
+    path('comments/', views.get_post_comments),
+    # show specific-feed-comment
+    path('<int:feed_id>/comments/', views.specific_feed_comment),
+    # show specific feeds-comment-count
+    path('comments/count/<int:feed_id>', views.comments_count),
+    # delete comment
+    path('comments/<int:comment_id>', views.delete_comment),
 ]

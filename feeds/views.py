@@ -3,123 +3,348 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import JSONParser
-from django.shortcuts import render
-from .models import FeedsObj, Comments, Likes
-from .serializers import FeedsObjSerializer, CommentsSerializer, LikesSerializer
-# Create your views here.
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import FeedsObj, Comments, Likes, Feed
+from .serializers import (
+    FeedsObjSerializer,
+    FeedSerializer,
+    CommentsSerializer,
+    LikesSerializer)
+import json
 
 
-@api_view(['GET', 'POST', 'DELETE'])
-def get_post_delete_feeds(request):
-    if request.method == 'GET':
-        beacon = FeedsObj.objects.all()
-        serializer = FeedsObjSerializer(beacon, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        serializer = FeedsObjSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        beacon = FeedsObj.objects.all()
-        beacon.delete()
-        return Response({'status': 'Delete succesful!'}, status=status.HTTP_204_NO_CONTENT)
+@api_view(['GET', 'POST'])
+def get_post_feeds(request):
+    """
+    API Endpoint that allows user to view-feeds or create-feed
 
-@api_view(['PUT'])
-def put_feeds(request, pk):
-    if request.method == 'PUT':
-        beacon = FeedsObj.objects.get(id=pk)
-        serializer = FeedsObjSerializer(beacon, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({'status': 'bad request'}, status=status.HTTP_400_BAD_REQUEST)
-
-# likes watcher
-@api_view(['GET'])
-def likes(request):
-    if (request.method == 'GET'):
-        likes = Likes.objects.all()
-        serializer = LikesSerializer(likes, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-# likes specific watcher
-@api_view(['GET'])
-def likes_specific(request, pk):
-    if (request.method == 'GET'):
-        user = Likes.objects.all().filter(user=pk).first()
-        serializer = LikesSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-# create new likes object
-@api_view(['POST'])
-def likes_create(request):
-    if request.method == 'POST':
-        serializer = LikesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# add new feeds you like
-@api_view(['PUT'])
-def likes_like(request, user_pk, feeds_pk):
-    if (request.method == 'PUT'):
-        user = Likes.objects.all().filter(user=user_pk).first()
-        user.feeds.add(feeds_pk)
-        return Response({'status': user.name + ' like post ' + feeds_pk}, status=status.HTTP_200_OK)
-
-# undo feeds you like
-@api_view(['PUT'])
-def likes_unlike(request, user_pk, feeds_pk):
-    if (request.method == 'PUT'):
-        user = Likes.objects.all().filter(user=user_pk).first()
-        user.feeds.remove(feeds_pk)
-        return Response({'status': user.name + ' unlike post ' + feeds_pk}, status=status.HTTP_200_OK)
-
-# see how many likes in feeds
-@api_view(['GET'])
-def likes_count(request, feeds_pk):
-    if (request.method == 'GET'):
-        likes = FeedsObj.objects.get(id=feeds_pk).user.all()
-        serializer = LikesSerializer(likes, many=True)
-        return Response({'likes_count': len(serializer.data)}, status=status.HTTP_200_OK)
-
-# comments watcher
-@api_view(['GET', 'POST', 'DELETE'])
-def comments(request):
-    if (request.method == 'GET'):
-        comments = Comments.objects.all()
-        serializer = CommentsSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif (request.method == 'POST'):
-        serializer = CommentsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif (request.method == 'DELETE'):
-        comments = Comments.objects.all()
-        comments.delete()
-        return Response({'status': 'Delete all comments!'}, status=status.HTTP_204_NO_CONTENT)
-
-# comments specific watcher
-@api_view(['POST', 'GET'])
-def comments_specific(request, pk):
+    :param request:
+        :request user-id:
+        :request user-name:
+        :request content:
+    """
     try:
-        feeds = FeedsObj.objects.get(id=pk)
-    except:
-        return Response({'status': 'feeds tidak ketemu :('}, status=status.HTTP_404_NOT_FOUND)
-    if (request.method == 'GET'):
-        comments = Comments.objects.filter(feeds__pk=pk)
-        serializer = CommentsSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == 'GET':
+            feeds = FeedsObj.objects.all()
+            serializer = FeedsObjSerializer(feeds, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing feeds!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
 
-# see how many comments in feeds
+        if request.method == 'POST':
+            serializer = FeedsObjSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                # Bug, does not support list :but, dict
+                Feed.instantiate_feeds()
+                # end-bug
+                response = {
+                    'api_status': status.HTTP_201_CREATED,
+                    'api_message': 'Success create feed!',
+                    'data': serializer.data
+                }
+                return JsonResponse(response)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['PUT', 'DELETE'])
+def put_delete_feed(request, feed_id):
+    """
+    API Endpoint that allows user to edit-feed or delete-feed
+
+    :param request:
+        :request user-id:
+        :request user-name:
+        :request content:
+    :param feed-id:
+    """
+    try:
+        if request.method == 'PUT':
+            feed = FeedsObj.objects.get(id=feed_id)
+            serializer = FeedsObjSerializer(feed, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Success update feed!',
+                    'data': serializer.data
+                }
+                return JsonResponse(response)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == "DELETE":
+            feed = FeedsObj.objects.filter(id=feed_id)
+            feed.delete()
+            response = {
+                'api_status': status.HTTP_204_NO_CONTENT,
+                'api_message': 'Success delete feed!',
+                'data': None
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
 @api_view(['GET'])
-def comments_count(request, feeds_pk):
-    if (request.method == 'GET'):
-        comments = comments = Comments.objects.filter(feeds__pk=feeds_pk)
-        serializer = CommentsSerializer(comments, many=True)
-        return Response({'comments_count':len(serializer.data)}, status=status.HTTP_200_OK)
+def show_likes(request):
+    """
+    API Endpoint that allows user to view user-likes
+    """
+    try:
+        if request.method == 'GET':
+            likes = Likes.objects.all()
+            serializer = LikesSerializer(likes, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing likes!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['GET'])
+def specific_user_like(request, user_id):
+    """
+    API Endpoint that allows user to view specific-users-feeds-likes
+
+    :param request:
+    :param user-id:
+    """
+    try:
+        if request.method == 'GET':
+            user = Likes.objects.get(user_id=user_id)
+            serializer = LikesSerializer(user)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing user feed likes!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['GET'])
+def liked_feed(request, feed_id):
+    """
+    API Endpoint that allows user to view specific-feed-likes
+
+    :param request:
+    :param feed-id:
+    """
+    try:
+        if request.method == 'GET':
+            likes = FeedsObj.objects.get(id=feed_id).user.all()
+            serializer = LikesSerializer(likes, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing likes-count : {}'.format(len(serializer.data)),
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['PUT'])
+def like(request, user_id, feed_id):
+    """
+    API Endpoint that allows user to like-feed
+
+    :param request:
+    :param user-id:
+    :param feed-id:
+    """
+    try:
+        user = Likes.objects.all().filter(user_id=user_id).first()
+        if request.method == 'PUT':
+            user.feeds.add(feed_id)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': user.user_name + ' like post ' + feed_id,
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['PUT'])
+def unlike(request, user_id, feed_id):
+    """
+    API Endpoint that allows user to unlike-feed
+
+    :param request:
+    :param user-id:
+    :param feed-id:
+    """
+    try:
+        user = Likes.objects.all().filter(user_id=user_id).first()
+        if request.method == 'PUT':
+            user.feeds.remove(feed_id)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': user.name + ' unlike post ' + feed_id,
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['GET', 'POST'])
+def get_post_comments(request):
+    """
+    API Endpoint that allows user to view-comments and create-comment
+
+    :param request:
+        :request user-id:
+        :request feeds-id:
+        :request user-name:
+        :request content:
+    """
+    try:
+        if request.method == 'GET':
+            comments = Comments.objects.all()
+            serializer = CommentsSerializer(comments, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing comments!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+
+        if request.method == 'POST':
+            serializer = CommentsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                # Bug, does not support dict nor list
+                Feed.instantiate_comment(request.data['feeds_id'])
+                # end-bug
+                response = {
+                    'api_status': status.HTTP_201_CREATED,
+                    'api_message': 'Success creating comments!',
+                    'data': serializer.data
+                }
+                return JsonResponse(response)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['GET'])
+def specific_feed_comment(request, feed_id):
+    """
+    API Endpoint that allows user to view-specific-comment
+
+    :param request:
+    :param feeds-id:
+    """
+    try:
+        # Bug, feeds doesn't show the comment-object, just show comment-id.
+        if request.method == 'GET':
+            feed = Feed.objects.filter(feed_id=feed_id)
+            serializer = FeedSerializer(feed, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing specific feed comments!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['GET'])
+def comments_count(request, feed_id):
+    """
+    API Endpoint that allows user to view-feed-comments-count
+
+    :param request:
+    :param feeds-id:
+    """
+    try:
+        if (request.method == 'GET'):
+            comments = Comments.objects.filter(feeds_id__id=feed_id)
+            serializer = CommentsSerializer(comments, many=True)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Success viewing comments-count {}'.format(len(serializer.data)),
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
+@api_view(['DELETE'])
+def delete_comment(request, comment_id):
+    """
+    API Endpoint that allows user to delete-comment
+
+    :param request:
+    :param feeds-id:
+    """
+    try:
+        if request.method == "DELETE":
+            Comments.objects.filter(id=comment_id).delete()
+            response = {
+                'api_status': status.HTTP_204_NO_CONTENT,
+                'api_message': 'Success delete comment',
+                'data': None
+            }
+            return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
