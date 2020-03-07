@@ -24,7 +24,4 @@ urlpatterns = [
     path('comments/count/<int:feed_id>', views.comments_count),
     # delete comment
     path('comments/<int:comment_id>', views.edit_delete_comment),
-
-    # dump
-    path('create-user-like/', views.create_user_like),
 ]
