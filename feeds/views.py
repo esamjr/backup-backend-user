@@ -99,6 +99,27 @@ def put_delete_feed(request, feed_id):
         return JsonResponse(response)
 
 
+@api_view(['POST'])
+def create_user_like(request):
+    try:
+        serializer = LikesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            response = {
+                'api_status': status.HTTP_201_CREATED,
+                'api_message': 'Success create user-like!',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as ex:
+        response = {
+            'api_error': str(ex),
+            'api_message': ex.args
+        }
+        return JsonResponse(response)
+
+
 @api_view(['GET'])
 def show_likes(request):
     """
@@ -151,7 +172,7 @@ def specific_user_like(request, user_id):
 @api_view(['GET'])
 def liked_feed(request, feed_id):
     """
-    API Endpoint that allows user to view specific-feed-likes
+    API Endpoint that allows user to view specific-feed-likes-count
 
     :param request:
     :param feed-id:
@@ -162,7 +183,7 @@ def liked_feed(request, feed_id):
             serializer = LikesSerializer(likes, many=True)
             response = {
                 'api_status': status.HTTP_200_OK,
-                'api_message': 'Success viewing likes-count : {}'.format(len(serializer.data)),
+                'api_message': 'Success viewing feed likes count',
                 'data': serializer.data
             }
             return JsonResponse(response)
@@ -187,9 +208,11 @@ def like(request, user_id, feed_id):
         user = Likes.objects.all().filter(user_id=user_id).first()
         if request.method == 'PUT':
             user.feeds.add(feed_id)
+            likes = FeedsObj.objects.get(id=feed_id).user.all()
+            serializer = LikesSerializer(likes, many=True)
             response = {
                 'api_status': status.HTTP_200_OK,
-                'api_message': user.user_name + ' like post ' + feed_id,
+                'api_message': str(user.user_name)+' like post '+str(feed_id),
                 'data': serializer.data
             }
             return JsonResponse(response)
@@ -214,9 +237,11 @@ def unlike(request, user_id, feed_id):
         user = Likes.objects.all().filter(user_id=user_id).first()
         if request.method == 'PUT':
             user.feeds.remove(feed_id)
+            likes = FeedsObj.objects.get(id=feed_id).user.all()
+            serializer = LikesSerializer(likes, many=True)
             response = {
                 'api_status': status.HTTP_200_OK,
-                'api_message': user.name + ' unlike post ' + feed_id,
+                'api_message': str(user.user_name)+' unlike post '+str(feed_id),
                 'data': serializer.data
             }
             return JsonResponse(response)
@@ -325,15 +350,31 @@ def comments_count(request, feed_id):
         return JsonResponse(response)
 
 
-@api_view(['DELETE'])
-def delete_comment(request, comment_id):
+@api_view(['PUT', 'DELETE'])
+def edit_delete_comment(request, comment_id):
     """
     API Endpoint that allows user to delete-comment
 
     :param request:
-    :param feeds-id:
+        :request user-id:
+        :request user-name:
+        :request content:
+    :param comment-id:
     """
     try:
+        if request.method == 'PUT':
+            comment = Comments.objects.get(id=comment_id)
+            serializer = CommentsSerializer(comment, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Success edit comment',
+                    'data': serializer.data
+                }
+                return JsonResponse(response)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         if request.method == "DELETE":
             Comments.objects.filter(id=comment_id).delete()
             response = {
