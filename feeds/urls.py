@@ -1,27 +1,30 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
-    # show-create feed
-    path('', views.get_post_feeds),
-    # edit-delete feed
-    path('<int:feed_id>', views.put_delete_feed),
-    # show likes
-    path('likes/', views.show_likes),
-    # show specific-likes
-    path('likes/<int:user_id>', views.specific_user_like),
-    # show feed-likes-count
-    path('likes/count/<int:feed_id>', views.liked_feed),
-    # edit: like
-    path('likes/<int:user_id>/<int:feed_id>', views.like),
-    # edit: unlike
-    path('unlike/<int:user_id>/<int:feed_id>', views.unlike),
-    # show-create comment
-    path('comments/', views.get_post_comments),
-    # show specific-feed-comment
-    path('<int:feed_id>/comments/', views.specific_feed_comment),
-    # show specific feeds-comment-count
-    path('comments/count/<int:feed_id>', views.comments_count),
-    # delete comment
-    path('comments/<int:comment_id>', views.edit_delete_comment),
+    # get-post feed
+    path('', views.get_post_feed),
+    # put-delete feed
+    path('<int:id>', views.put_delete_feed),
+    # get all-likes
+    path('likes', views.likes),
+    # get specific-user-like
+    path('likes/<int:user_id>', views.user_feed_likes),
+    # get feed-like-count
+    path('<int:id>/likes/count', views.feed_likes_count),
+    # put like
+    # path('likes/<int:id>/feed/<int:feed_id>', views.like),
+    path('<int:id>/likes/<int:user_id>', views.like),
+    # put unlike
+    # path('unlike/<int:id>/feed/<int:feed_id>', views.unlike),
+    path('<int:id>/unlike/<int:user_id>', views.unlike),
+    # get all-comment
+    path('comments', views.get_post_comment),
+    # get feed-comment count
+    path('<int:id>/comments/count', views.comment_feed_count),
+    # put-delete comment
+    path('comments/<int:id>', views.put_delete_comment),
+
+    path('object', views.feed_object),
 ]
