@@ -1,10 +1,16 @@
 from rest_framework import serializers
-from .models import FeedsObj, Comments, Likes, Feed
+from feeds.models import Feeds, Comments, Likes, FeedObject
 
 
-class FeedsObjSerializer(serializers.ModelSerializer):
+class FeedsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FeedsObj
+        model = Feeds
+        fields = '__all__'
+
+
+class FeedObjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedObject
         fields = '__all__'
 
 
@@ -17,10 +23,4 @@ class CommentsSerializer(serializers.ModelSerializer):
 class LikesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Likes
-        fields = '__all__'
-
-
-class FeedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Feed
         fields = '__all__'
