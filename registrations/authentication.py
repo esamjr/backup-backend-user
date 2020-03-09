@@ -1,3 +1,6 @@
+from django.http import JsonResponse
+from rest_framework import status
+
 from .models import Tokens
 
 from datetime import timedelta, datetime
@@ -49,3 +52,29 @@ def cek_expire_tokens(token):
     _cek_expire = left_time < timedelta(seconds=0)
 
     return _cek_expire
+
+
+def is_authentication(token):
+
+    _data = token
+
+    if _data == '' or _data is None:
+        response = {
+            'api_status': status.HTTP_401_UNAUTHORIZED,
+            'api_message': 'Token user tidak ada'
+        }
+
+        return JsonResponse(response)
+
+    _cek_token = Tokens.objects.filter(key=_data).exists()
+    if not _cek_token:
+        response = {
+            'api_status': status.HTTP_404_NOT_FOUND,
+            'api_message': 'Token tidak sama atau sudah logout sebelumnya'
+        }
+
+        return JsonResponse(response)
+
+    _is_token = Tokens.objects.get(key=_data)
+
+    return _is_token
