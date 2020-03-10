@@ -1,5 +1,7 @@
 from feeds.models import *
 from .serializers import *
+from django.http import JsonResponse
+from rest_framework.response import Response
 import json
 
 
@@ -61,3 +63,18 @@ def likes_payload(_feed):
         likes_payload.append(user_likes_payload)
     # print(json.dumps(likes_payload, indent=4))
     return likes_payload
+
+
+def like_feed(id, user_id):
+    like = Likes.objects.filter(user_id=user_id).first()
+    like.feeds.add(id)
+    FeedObject.like_feed(u_id=user_id, f_id=id)
+
+    serializer = LikesSerializer(
+        Feeds.objects.get(id=id).user.all(), many=True)
+    response = {
+        'api_status': status.HTTP_200_OK,
+        'api_message': f'you like post {id}',
+        'data': serializer.data
+    }
+    return JsonResponse(response)
