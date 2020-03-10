@@ -168,7 +168,6 @@ def friend_request(request, id):
 
         return JsonResponse(response)
 
-
 # @api_view(['GET'])
 # def friend_request_list(request, user_id):
 #     """
