@@ -6,7 +6,7 @@ urlpatterns = [
     path('', views.watcher, name='watcher'),
 
     # search base on name
-    path('search/<int:user_id>/<str:user_name>', views.search, name="search"),
+    path('search/<int:user_id>/<str:name>', views.search, name="search"),
 
     # get friend suggestion of the designated user
     path('friendsuggestion/<int:id>', views.friendsuggestion, name='friendsuggestion'),
@@ -15,7 +15,7 @@ urlpatterns = [
     path('friendlist/<int:id>', views.friend_list, name='friend_list'),
 
     # get friend request of the designated user 
-    path('request/<int:user_id>', views.friend_request, name='friend_request'),
+    path('request/<int:id>', views.friend_request, name='friend_request'),
 
     # User Cancelled friend request
     path('request/cancel/<int:user_id>', views.cancel_friend_request, name='cancel_friend_request'),
