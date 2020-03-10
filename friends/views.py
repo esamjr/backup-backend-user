@@ -168,20 +168,28 @@ def friend_request(request, id):
 
         return JsonResponse(response)
 
+
 @api_view(['POST'])
 def cancel_friend_request(request, user_id):
     try:
-        if (request.method == 'POST'):
-            friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
-            friend_request.cancel()
+        response = None
+        if request.method == 'POST':
+            _friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
+            _friend_request.cancel()
 
-        return JsonResponse({'status':'cancel friend request'}, status=status.HTTP_200_OK)
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'cancel friend request'
+            }
 
-     except Exception as ex:
+        return JsonResponse(response)
+
+    except Exception as ex:
         response = {
             'error': str(ex),
             'status': ex.args
         }
+
         return JsonResponse(response)
     
  # request for a new friend
