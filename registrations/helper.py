@@ -95,6 +95,15 @@ def logout_vendor(request):
 
 
 def _cek_user(request):
+
+    if request == '' or request is None:
+        response = {
+            'api_status': status.HTTP_400_BAD_REQUEST,
+            'api_message': 'id user tidak ada'
+        }
+
+        return JsonResponse(response)
+
     _is_user = Register.objects.filter(id=request).exists()
     if not _is_user:
         response = {
