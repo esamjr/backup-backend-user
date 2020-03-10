@@ -21,7 +21,7 @@ APP_ENV_PREFIX = os.getenv('APP_ENV_PREFIX', 'REST')
 env = EnvConfig(APP_ENV_PREFIX)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 FLAG = 3
 ALLOWED_HOSTS = ['*']
 
@@ -166,28 +166,18 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-     'ENGINE': 'django.db.backends.postgresql',
-    #  'HOST': '35.198.248.235',
-     'HOST': '127.0.0.1',
-     'PORT': '5432',
-     'NAME': 'backend_user',
-     'USER': 'postgres',
-     'PASSWORD': '!23qweAsd',
-    }
-}
 
-# DATABASES = {
-#      'default': {
-#       'ENGINE': 'django.db.backends.postgresql',
-#       'HOST': '35.247.162.159',
-#       'PORT': '5432',
-#       'NAME': 'userprod',
-#       'USER': 'agildimasjr',
-#       'PASSWORD': '!23qweAsd'
-#      }
-# }
+
+DATABASES = {
+     'default': {
+      'ENGINE': 'django.db.backends.postgresql',
+      'HOST': '35.247.162.159',
+      'PORT': '5432',
+      'NAME': 'userprod',
+      'USER': 'user',
+      'PASSWORD': 'U53rDB2016'
+     }
+}
 
 # DATABASES = {
 #     'default': {
