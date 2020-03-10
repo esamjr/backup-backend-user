@@ -172,8 +172,8 @@ def friend_request(request, id):
 def cancel_friend_request(request, user_id):
     try:
         if (request.method == 'POST'):
-        friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
-        friend_request.cancel()
+            friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
+            friend_request.cancel()
 
         return JsonResponse({'status':'cancel friend request'}, status=status.HTTP_200_OK)
 
