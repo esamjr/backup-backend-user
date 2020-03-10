@@ -18,7 +18,7 @@ urlpatterns = [
     path('request/<int:id>', views.friend_request, name='friend_request'),
 
     # User Cancelled friend request
-    path('request/cancel/<int:user_id>', views.cancel_friend_request, name='cancel_friend_request'),
+    # path('request/cancel/<int:user_id>', views.cancel_friend_request, name='cancel_friend_request'),
 
     # request for a new friend
     path('request/add/<int:user_id>/<int:friend_id>', views.add_friend, name='add_friend'),

@@ -168,43 +168,52 @@ def friend_request(request, id):
 
         return JsonResponse(response)
 
+# @api_view(['GET'])
+# def friend_request_list(request, user_id):
+#     """
+#     API Endpoint that allows user to see friend request 
+#     """
+#     try:
+#         friend_request = Friends.objects.all().filter(user_id=user_id).first()
 
-@api_view(['POST'])
-def cancel_friend_request(request, user_id):
-    try:
-        response = None
-        if request.method == 'POST':
-            _friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
-            _friend_request.cancel()
+#         return JsonResponse()
+#     except Exception as ex:
+#         response = {
+#             'error':str(ex),
+#             'status':ex.args
+#         }
+#         return JsonResponse(response)
 
-            response = {
-                'api_status': status.HTTP_200_OK,
-                'api_message': 'cancel friend request'
-            }
 
-        return JsonResponse(response)
+# @api_view(['PUT'])
+# def cancel_friend_request(request, user_id):
+#     try:
+#         if (request.method == 'PUT'):
+#             friend_request = get_object_or_404(request.user.friend_request, user_id=user_id)
+#             friend_request.remove()
 
-    except Exception as ex:
-        response = {
-            'error': str(ex),
-            'status': ex.args
-        }
+#         return JsonResponse({'status':'cancel friend request'}, status=status.HTTP_200_OK)
 
-        return JsonResponse(response)
+#     except Exception as ex:
+#         response = {
+#             'error': str(ex),
+#             'status': ex.args
+#         }
+#         return JsonResponse(response)
     
  # request for a new friend
 @api_view(['PUT'])
 def add_friend(request, user_id, friend_id):
     try:
-        if (request.method == 'PUT'):
+        if request.method == 'PUT':
             user = Friends.objects.all().filter(user_id=user_id).first()
             user_friend = Friends.objects.all().filter(user_id=friend_id).first()
             user.waiting_for_response.add(Register.objects.get(id=friend_id))
             user_friend.friend_request.add(Register.objects.get(id=user_id))
             return Response({'status': user.user_name + ' Send friend request to ' + user_friend.user_name + ', waiting for response now..'}, status=status.HTTP_200_OK)
-        else:
-            if Friends.objects.filter(user_id=user_id).exists():
-                return Response({'status': user_friend.user_name + ', Friend Already Exists'}, status=status.HTTP_200_OK)
+        # else:
+        #     if Friends.objects.filter(user_id=user_id).exists():
+        #         return Response({'status': user_friend.user_name + ', Friend Already Exists'}, status=status.HTTP_200_OK)
     
     except Exception as ex:
         response = {
