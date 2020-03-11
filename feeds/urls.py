@@ -5,25 +5,23 @@ urlpatterns = [
     # get-post feed
     path('', views.get_post_feed),
     # put-delete feed
-    path('<int:id>', views.put_delete_feed),
+    path('update/', views.put_delete_feed),
     # get all-likes
-    path('likes', views.likes),
-    # get specific-user-like
-    path('likes/<int:user_id>', views.user_feed_likes),
+    path('likes/', views.likes),
     # get feed-like-count
     path('likes/count/', views.feed_likes_count),
     # put like
-    # path('likes/<int:id>/feed/<int:feed_id>', views.like),
-    path('likes/<int:user_id>', views.like),
+    # path('<int:id>/likes/<int:user_id>', views.like),
+    path('like/', views.like),
     # put unlike
-    # path('unlike/<int:id>/feed/<int:feed_id>', views.unlike),
-    path('<int:id>/unlike/<int:user_id>', views.unlike),
+    # path('<int:id>/unlike/<int:user_id>', views.unlike),
+    path('unlike/', views.unlike),
     # get all-comment
-    path('comments', views.get_post_comment),
+    path('comments/', views.get_post_comment),
     # get feed-comment count
     path('comments/count/', views.comment_feed_count),
     # put-delete comment
-    path('comments/<int:id>', views.put_delete_comment),
+    path('comments/update/', views.put_delete_comment),
 
-    path('object', views.feed_object),
+    path('object/', views.feed_object),
 ]

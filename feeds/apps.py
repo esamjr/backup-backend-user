@@ -8,4 +8,4 @@ class FeedsConfig(AppConfig):
         """
         override to perform initialization for creating signals
         """
-        import .signals
+        import feeds.signals
