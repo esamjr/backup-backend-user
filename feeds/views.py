@@ -47,8 +47,8 @@ def get_post_feed(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 
@@ -77,8 +77,8 @@ def feed_object(request):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 
@@ -121,8 +121,8 @@ def put_delete_feed(request, id):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 
@@ -143,8 +143,8 @@ def likes(request):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 
@@ -166,17 +166,19 @@ def user_feed_likes(request, user_id):
                 'api_message': 'viewing user feed likes',
                 'data': serializer.data
             }
+
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
+
         return JsonResponse(response)
 
 
 @api_view(['GET'])
-def feed_likes_count(request, id):
+def feed_likes_count(request):
     """
     API Endpoint that allows user to view specific-feed-likes-count
 
@@ -185,6 +187,7 @@ def feed_likes_count(request, id):
     """
     try:
         if request.method == 'GET':
+            id = int(request.query_params['feed_id'])
             feed = Feeds.objects.get(id=id)
             feed_likes = Likes.objects.filter(feeds__pk=id)
             serializer = LikesSerializer(feed_likes, many=True)
@@ -199,12 +202,14 @@ def feed_likes_count(request, id):
                     }
                 ]
             }
+
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
+
         return JsonResponse(response)
 
 
@@ -298,14 +303,14 @@ def get_post_comment(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 
 
 @api_view(['GET'])
-def comment_feed_count(request, id):
+def comment_feed_count(request):
     """
     API Endpoint that allows user to view feeds-comments count
 
@@ -314,6 +319,7 @@ def comment_feed_count(request, id):
     """
     try:
         if request.method == 'GET':
+            id = int(request.query_params['feed_id'])
             feed = Feeds.objects.get(id=id)
             comments = Comments.objects.filter(feed_id__pk=id)
             serializer = CommentsSerializer(comments, many=True)
@@ -331,8 +337,8 @@ def comment_feed_count(request, id):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'api_error': str(ex),
-            'api_message': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
         }
         return JsonResponse(response)
 

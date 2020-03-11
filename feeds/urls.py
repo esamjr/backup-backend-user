@@ -11,17 +11,17 @@ urlpatterns = [
     # get specific-user-like
     path('likes/<int:user_id>', views.user_feed_likes),
     # get feed-like-count
-    path('<int:id>/likes/count', views.feed_likes_count),
+    path('likes/count/', views.feed_likes_count),
     # put like
     # path('likes/<int:id>/feed/<int:feed_id>', views.like),
-    path('<int:id>/likes/<int:user_id>', views.like),
+    path('likes/<int:user_id>', views.like),
     # put unlike
     # path('unlike/<int:id>/feed/<int:feed_id>', views.unlike),
     path('<int:id>/unlike/<int:user_id>', views.unlike),
     # get all-comment
     path('comments', views.get_post_comment),
     # get feed-comment count
-    path('<int:id>/comments/count', views.comment_feed_count),
+    path('comments/count/', views.comment_feed_count),
     # put-delete comment
     path('comments/<int:id>', views.put_delete_comment),
 
