@@ -1,6 +1,4 @@
 from django.db import models
-from django.shortcuts import reverse
-from django.http import HttpResponseRedirect, HttpResponse
 
 from rest_framework import status
 from registrations.models import Register
@@ -35,11 +33,11 @@ class Likes(models.Model):
 
     @classmethod
     def instantiate_like_obj(cls, id, user_id):
-        from feeds.services import like_feed
-
+        from .services import like_feed
         user = Register.objects.filter(id=user_id).first()
         Likes.objects.create(user_id=user, user_name=user.full_name).save()
-        like_feed(id=id, user_id=user_id)
+        return like_feed(id=id, user_id=user_id)
+
 
 class FeedObject(models.Model):
     feed_id = models.ForeignKey(Feeds, on_delete=models.CASCADE, blank=False)
@@ -48,8 +46,10 @@ class FeedObject(models.Model):
 
     @classmethod
     def like_feed(cls, u_id, f_id):
-        feed = FeedObject.objects.filter(feed_id=f_id).first()
-        feed.likes.add(u_id)
+        feedobj = FeedObject.objects.filter(feed_id=f_id).first()
+        like = Likes.objects.filter(feeds__pk=f_id).first()
+        if like:
+            feedobj.likes.add(like)
 
     @classmethod
     def unlike_feed(cls, u_id, f_id):

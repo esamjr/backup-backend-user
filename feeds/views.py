@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Feeds, Comments, Likes, FeedObject
-from feeds.services import feed_as_object, like_feed
+from .services import feed_as_object, like_feed, unlike_feed
 from .serializers import (
     FeedsSerializer,
     FeedObjectSerializer,
@@ -220,9 +220,16 @@ def like(request, id, user_id):
     try:
         if request.method == 'PUT':
             if Likes.objects.filter(user_id=user_id):
-                like_feed(id=id, user_id=user_id)
+                serializer = like_feed(id=id, user_id=user_id)
             else:
-                Likes.instantiate_like_obj(id=id, user_id=user_id)
+                serializer = Likes.instantiate_like_obj(id=id, user_id=user_id)
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': f'you like post {id}',
+                'data': serializer.data
+            }
+            return JsonResponse(response)
     except Exception as ex:
         response = {
             'api_error': str(ex),
@@ -242,13 +249,7 @@ def unlike(request, id, user_id):
     """
     try:
         if request.method == 'PUT':
-            like = Likes.objects.all().filter(user_id=user_id).first()
-            like.feeds.remove(id)
-            FeedObject.unlike_feed(u_id=user_id, f_id=id)
-
-            feed = Feeds.objects.get(id=id)
-            feed_likes = Likes.objects.filter(feeds__pk=id)
-            serializer = LikesSerializer(feed_likes, many=True)
+            serializer = unlike_feed(id=id, user_id=user_id)
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': f'you unlike post {id}',

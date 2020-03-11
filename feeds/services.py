@@ -6,10 +6,9 @@ import json
 
 
 def feed_as_object(data, feed_data_len):
-    if data and feed_data_len:
-        feeds_id = get_feeds_id()
-
     x = 0
+
+    feeds_id = get_feeds_id()
     feeds_payload = []
     if x <= len(feeds_id):
         for id in feeds_id:
@@ -41,7 +40,6 @@ def comments_payload(_feed):
     comments = Comments.objects.filter(feed_id=_feed)
     for i in comments:
         user_comment_payload = {
-            "id": i.id,
             "user_id": i.user_id.id,
             "user_name": i.user_name,
             "content": i.content,
@@ -56,7 +54,6 @@ def likes_payload(_feed):
     likes = Likes.objects.filter(feeds__pk=_feed)
     for i in likes:
         user_likes_payload = {
-            "id": i.id,
             "user_id": i.user_id.id,
             "user_name": i.user_name,
         }
@@ -72,9 +69,21 @@ def like_feed(id, user_id):
 
     serializer = LikesSerializer(
         Feeds.objects.get(id=id).user.all(), many=True)
-    response = {
-        'api_status': status.HTTP_200_OK,
-        'api_message': f'you like post {id}',
-        'data': serializer.data
-    }
-    return JsonResponse(response)
+
+    return serializer
+
+
+def unlike_feed(id, user_id):
+    like = Likes.objects.all().filter(user_id=user_id).first()
+    like.feeds.remove(id)
+    FeedObject.unlike_feed(u_id=user_id, f_id=id)
+    x = Likes.objects.filter(
+        user_id=user_id, feeds__pk=id).first()
+
+    if x is None:
+        Likes.objects.filter(user_id=user_id).delete()
+    else:
+        feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
+        serializer = LikesSerializer(feed, many=True)
+
+        return serializer
