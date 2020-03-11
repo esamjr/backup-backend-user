@@ -78,12 +78,12 @@ def unlike_feed(id, user_id):
     like.feeds.remove(id)
     FeedObject.unlike_feed(u_id=user_id, f_id=id)
     x = Likes.objects.filter(
-        user_id=user_id, feeds__pk=id).first()
+        user_id=user_id).first()
 
-    if x is None:
+    if x.feeds.all() is None:
         Likes.objects.filter(user_id=user_id).delete()
-    else:
-        feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
-        serializer = LikesSerializer(feed, many=True)
 
-        return serializer
+    feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
+    serializer = LikesSerializer(feed, many=True)
+
+    return serializer
