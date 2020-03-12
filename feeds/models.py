@@ -34,8 +34,11 @@ class Likes(models.Model):
     @classmethod
     def instantiate_like_obj(cls, id, user_id):
         from .services import like_feed
-        user = Register.objects.filter(id=user_id).first()
-        Likes.objects.create(user_id=user, user_name=user.full_name).save()
+
+        user = Register.objects.filter(id=user_id)
+        if user.exists():
+            Likes.objects.create(user_id=user.first(),
+                                 user_name=user.first().full_name).save()
         return like_feed(id=id, user_id=user_id)
 
 
@@ -45,13 +48,17 @@ class FeedObject(models.Model):
     likes = models.ManyToManyField(Likes, blank=True)
 
     @classmethod
-    def like_feed(cls, u_id, f_id):
-        feedobj = FeedObject.objects.filter(feed_id=f_id).first()
-        like = Likes.objects.filter(feeds__pk=f_id).first()
-        if like:
-            feedobj.likes.add(like)
+    def add_like(cls, u_id, f_id):
+        feed = FeedObject.objects.filter(feed_id=f_id)
+        if feed.exists():
+            like = Likes.objects.filter(feeds__pk=f_id).first()
+            feed.first().likes.add(like)
+        return False
 
     @classmethod
-    def unlike_feed(cls, u_id, f_id):
-        feed = FeedObject.objects.filter(feed_id=f_id).first()
-        feed.likes.remove(u_id)
+    def remove_like(cls, u_id, f_id):
+        feed = FeedObject.objects.filter(feed_id=f_id)
+        if feed.exists():
+            like = Likes.objects.filter(feeds__pk=f_id).first()
+            feed.first().likes.remove(like)
+        return False

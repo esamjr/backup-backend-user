@@ -100,6 +100,7 @@ def put_delete_feed(request):
     """
     try:
         id = int(request.query_params['id'])
+
         if request.method == 'PUT':
             feed = Feeds.objects.filter(
                 id=id, user_name=request.data['user_name']).first()
