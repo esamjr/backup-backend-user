@@ -1,24 +1,11 @@
 from django.db import models
 
-from django.http import JsonResponse
 from rest_framework import status
-
 from registrations.models import Register
 
 
-class CustomUser(models.Model):
-    user_id = models.ForeignKey(
-        Register, on_delete=models.CASCADE, blank=False)
-    user_name = models.CharField(max_length=255)
-
-    @classmethod
-    def instantiate_like_obj(cls, u_id, u_name):
-        user = CustomUser.objects.filter(user_id=u_id).first()
-        Likes.objects.create(user_id=user, user_name=u_name).save()
-
-
 class Feeds(models.Model):
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=255)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -30,7 +17,7 @@ class Feeds(models.Model):
 
 
 class Comments(models.Model):
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     feed_id = models.ForeignKey(
         Feeds, blank=True, null=True, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=255, blank=False)
@@ -40,9 +27,16 @@ class Comments(models.Model):
 
 
 class Likes(models.Model):
-    user_id = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Register, on_delete=models.CASCADE)
     user_name = models.CharField(max_length=255)
     feeds = models.ManyToManyField(Feeds, related_name='user', blank=True)
+
+    @classmethod
+    def instantiate_like_obj(cls, id, user_id):
+        from .services import like_feed
+        user = Register.objects.filter(id=user_id).first()
+        Likes.objects.create(user_id=user, user_name=user.full_name).save()
+        return like_feed(id=id, user_id=user_id)
 
 
 class FeedObject(models.Model):
@@ -52,12 +46,12 @@ class FeedObject(models.Model):
 
     @classmethod
     def like_feed(cls, u_id, f_id):
-        feed = FeedObject.objects.filter(feed_id=f_id).first()
-        feed_likes = Likes.objects.filter(user_id=u_id)
-        feed.likes.add(u_id)
+        feedobj = FeedObject.objects.filter(feed_id=f_id).first()
+        like = Likes.objects.filter(feeds__pk=f_id).first()
+        if like:
+            feedobj.likes.add(like)
 
     @classmethod
     def unlike_feed(cls, u_id, f_id):
         feed = FeedObject.objects.filter(feed_id=f_id).first()
-        feed_likes = Likes.objects.filter(user_id=u_id)
         feed.likes.remove(u_id)

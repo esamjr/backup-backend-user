@@ -27,7 +27,8 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
-BROKER_URL = env.string('RABBIT_CONN_PASS', 'amqp://guest:guest@127.0.0.1:5672//')
+BROKER_URL = env.string(
+    'RABBIT_CONN_PASS', 'amqp://guest:guest@127.0.0.1:5672//')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -112,7 +113,7 @@ INSTALLED_APPS = [
     'milestone',
     'task_comment',
     'task_follower',
-    'feeds',
+    'feeds.apps.FeedsConfig',
     'friends',
     'group_user',
     'billing_license',
@@ -166,17 +167,15 @@ WSGI_APPLICATION = 'backend_user.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-
-
 DATABASES = {
-     'default': {
-      'ENGINE': 'django.db.backends.postgresql',
-      'HOST': '35.247.162.159',
-      'PORT': '5432',
-      'NAME': 'userprod',
-      'USER': 'user',
-      'PASSWORD': 'U53rDB2016'
-     }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': '35.247.162.159',
+        'PORT': '5432',
+        'NAME': 'userprod',
+        'USER': 'user',
+        'PASSWORD': 'U53rDB2016'
+    }
 }
 
 # DATABASES = {
@@ -226,7 +225,8 @@ EMAIL_USE_TLS = True
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-CROCODIC_API_URL = env.string('CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
+CROCODIC_API_URL = env.string(
+    'CROCODIC_API_URL', ' http://attandance.mindzzle.com/api/grab/')
 CROCODIC_CREDENTIAL_TOKEN = "pbkdf2_sha256$120000$I2BCKb0Nflgy$96qeihph6v7Ibpy4st7u5WAFBIRxOUKxHB28r8NlM5U="
 
 
@@ -280,7 +280,7 @@ LOGGING = {
         'stderr': {
             'level': 'ERROR',
             'formatter': 'verbose',
-            'class':'logging.StreamHandler',
+            'class': 'logging.StreamHandler',
             'stream': sys.stderr,
         },
         'stdout': {
