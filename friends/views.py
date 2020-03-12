@@ -335,7 +335,7 @@ def suggestions(request):
     try:
         id = int(request.query_params['user_id'])
         exclude_all = []
-        if (request.method == 'GET'):
+        if request.method == 'GET':
             user = Friends.objects.all().filter(user_id=id).first()
             exclude_friend = list(user.friend_list.all().values_list(
                 'id', flat=True).order_by('id'))
