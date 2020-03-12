@@ -11,12 +11,12 @@ def create_feed_object(sender, update_fields, created, instance, **kwargs):
     auto create feed-object after user create-feed
 
     :param sender:
-    :param instance => FeedObject:
+    :param instance => Feed:
     :param created:
     """
     if created:
         if update_fields:
-            pass
+            return False
         Feeds.instantiate_feed_object(feed_instance=instance)
 
 
