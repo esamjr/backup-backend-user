@@ -40,6 +40,7 @@ def comments_payload(_feed):
     comments = Comments.objects.filter(feed_id=_feed)
     for i in comments:
         user_comment_payload = {
+            "comment_id": i.id,
             "user_id": i.user_id.id,
             "user_name": i.user_name,
             "content": i.content,
@@ -54,6 +55,7 @@ def likes_payload(_feed):
     likes = Likes.objects.filter(feeds__pk=_feed)
     for i in likes:
         user_likes_payload = {
+            "like_id": i.id,
             "user_id": i.user_id.id,
             "user_name": i.user_name,
         }
@@ -65,7 +67,7 @@ def likes_payload(_feed):
 def like_feed(id, user_id):
     like = Likes.objects.filter(user_id=user_id).first()
     like.feeds.add(id)
-    FeedObject.like_feed(u_id=user_id, f_id=id)
+    FeedObject.add_like(u_id=user_id, f_id=id)
 
     serializer = LikesSerializer(
         Feeds.objects.get(id=id).user.all(), many=True)
@@ -76,12 +78,12 @@ def like_feed(id, user_id):
 def unlike_feed(id, user_id):
     like = Likes.objects.all().filter(user_id=user_id).first()
     like.feeds.remove(id)
-    FeedObject.unlike_feed(u_id=user_id, f_id=id)
-    x = Likes.objects.filter(
-        user_id=user_id).first()
+    FeedObject.remove_like(u_id=user_id, f_id=id)
 
-    if x.feeds.all() is None:
+    x = Likes.objects.filter(user_id=user_id).first().feeds.all().exists()
+    if not x:
         Likes.objects.filter(user_id=user_id).delete()
+        serializer = ''
 
     feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
     serializer = LikesSerializer(feed, many=True)
