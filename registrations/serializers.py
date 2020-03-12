@@ -88,3 +88,9 @@ class TokensSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tokens
         fields = '__all__'
+
+
+class SuggestionsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Register
+        fields = ('id', 'email', 'full_name', 'url_photo')
