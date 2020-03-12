@@ -14,11 +14,14 @@ def feed_as_object(data, feed_data_len):
         for id in feeds_id:
             user_comments = comments_payload(_feed=id)
             user_likes = likes_payload(_feed=id)
+            feed = Feeds.objects.get(id=id)
             payload_result = {
                 "feed_id": id,
-                "user_id": Feeds.objects.get(id=id).user_id.id,
-                "user_name": Feeds.objects.get(id=id).user_name,
-                "content": Feeds.objects.get(id=id).content,
+                "user_id": feed.user_id.id,
+                "user_name": feed.user_name,
+                "content": feed.content,
+                "created_at": feed.created_at,
+                "update_at": feed.update_at,
                 "comments": user_comments,
                 "likes": user_likes,
             }
@@ -44,6 +47,8 @@ def comments_payload(_feed):
             "user_id": i.user_id.id,
             "user_name": i.user_name,
             "content": i.content,
+            "created_at": i.created_at,
+            "update_at": i.update_at,
         }
         comments_payload.append(user_comment_payload)
     # print(json.dumps(comments_payload, indent=4))
