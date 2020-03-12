@@ -10,61 +10,84 @@ from registrations.models import Register
 from .serializers import FriendsSerializer
 from registrations.serializers import RegisterSerializer
 
-# watcher!
+
 @api_view(['GET', 'POST'])
 def watcher(request):
-    if request.method == 'GET':
-        users = Friends.objects.all()
-        serializer = FriendsSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        serializer = FriendsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-
-# get friend list of the designated user
-@api_view(['GET'])
-def friend_list(request):
+    """
+    API Endpoint that allows user to view-user-friend and post-user-friend
+    """
     try:
-        response = None
-        # token = request.META.get('HTTP_AUTHORIZATION')
-        id = int(request.query_params['user_id'])
-        user = Friends.objects.all().filter(user_id=id).first()
-        # user = Friends.objects.all().filter(user_id=id)
-        if user is None:
-
+        if request.method == 'GET':
+            users = Friends.objects.all()
+            serializer = FriendsSerializer(users, many=True)
             response = {
-                'api_status': status.HTTP_404_NOT_FOUND,
-                'api_message': 'Friend list Tidak Ada'
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'viewing user-friend-datas',
+                'data': serializer.data
             }
-
             return JsonResponse(response)
-        else:
-            _friends = user.friend_list.values()
 
-            result = []
-            for i in _friends:
-                payload = {
-                    'id': i['id'],
-                    'email': i['email'],
-                    'full_name': i['full_name'],
-                    'verfied': i['verfied'],
-                    'url_photo': i['url_photo']
+        if request.method == 'POST':
+            serializer = FriendsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                response = {
+                    'api_status': status.HTTP_201_CREATED,
+                    'api_message': 'user-friend-data created',
+                    'data': serializer.data
                 }
+                return JsonResponse(response)
+            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+    except Exception as ex:
+        response = {
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_message': str(ex.args)
+        }
+        return JsonResponse(response)
 
+
+@api_view(['GET'])
+def user_friends_list(request):
+    """
+    API Endpoint that allows user to specific user-friends-list
+    """
+    try:
+        id = int(request.query_params['user_id'])
+        if request.method == 'GET':
+            user = Friends.objects.all().filter(user_id=id).first()
+            if user:
+                user_register = Register.objects.get(id=id)
+                _friends = user.friend_list.values()
+                result = []
+                for i in _friends:
+                    payload = {
+                        'id': i['id'],
+                        'email': i['email'],
+                        'full_name': i['full_name'],
+                        'verfied': i['verfied'],
+                        'url_photo': i['url_photo']
+                    }
+                    result.append(payload)
                 response = {
                     'api_status': status.HTTP_200_OK,
                     'api_message': 'Friend list berhasil',
-                    'data': result
+                    'data': {
+                        'user_id': id,
+                        'user_name': user_register.full_name,
+                        'friends_list': result
+                    }
                 }
-
-                result.append(payload)
-            return JsonResponse(response, safe=False)
+                return JsonResponse(response)
+            else:
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'User tidak ada',
+                    'data': None
+                }
+                return JsonResponse(response)
     except Exception as ex:
         response = {
-            'error': str(ex),
+            'error': status.HTTP_400_BAD_REQUEST,
             'status': ex.args
         }
         return JsonResponse(response)
@@ -74,16 +97,17 @@ def friend_list(request):
 @api_view(['GET'])
 def friendsuggestion(request):
     try:
+        id = int(request.query_params['user_id'])
+        exclude_all = []
         if (request.method == 'GET'):
-            id = int(request.query_params['user_id'])
             user = Friends.objects.all().filter(user_id=id).first()
-            exclude_all = [int(id)]
             exclude_friend = list(user.friend_list.all().values_list(
                 'id', flat=True).order_by('id'))
             exclude_friend_request = list(
                 user.friend_request.all().values_list('id', flat=True).order_by('id'))
             exclude_waiting_for_response = list(
                 user.waiting_for_response.all().values_list('id', flat=True).order_by('id'))
+
             for item in exclude_friend:
                 exclude_all.append(int(item))
             for item in exclude_friend_request:
@@ -183,13 +207,13 @@ def friend_request(request):
 @api_view(['GET'])
 def friend_request_list(request):
     """
-    API Endpoint that allows user can see history send friend request 
+    API Endpoint that allows user can see history send friend request
     """
     try:
         response = None
         id = int(request.query_params['user_id'])
         user = Friends.objects.all().filter(user_id=id).first()
-        
+
         if user is None:
             response = {
                 'api_status': status.HTTP_404_NOT_FOUND,
@@ -274,9 +298,7 @@ def cancel_friend_request(request):
         }
         return JsonResponse(response)
 
- # ignore friend request
-
-
+# ignore friend request
 @api_view(['PUT'])
 def ignore_friend(request):
     try:
@@ -295,6 +317,7 @@ def ignore_friend(request):
             'status': ex.args
         }
         return JsonResponse(response)
+
 # accept friend request
 @api_view(['PUT'])
 def accept_friend(request):
@@ -317,6 +340,7 @@ def accept_friend(request):
         }
 
         return JsonResponse(response)
+
 # unfriend
 @api_view(['PUT'])
 def unfriend(request):
