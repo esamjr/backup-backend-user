@@ -13,8 +13,7 @@ urlpatterns = [
     # put add-friend
     path('request/add/', views.add_friend, name='add_friend'),
     # put user cancelled-friend-request
-    path('request/cancel/', views.cancel_friend_request,
-         name='cancel_friend_request'),
+    path('request/cancel/', views.cancel_friend_request, name='cancel_friend_request'),
     # put user ignore-friend-request
     path('request/ignore/', views.ignore_request, name='ignore_request'),
     # put user accept-friend-request
@@ -25,6 +24,6 @@ urlpatterns = [
     # get friend-suggestion for specific-user
     path('suggestions/', views.suggestions, name='suggestions'),
     # search base on name
-    path('search/<int:user_id>/<str:name>', views.search, name="search"),
+    path('search/<int:id>/<str:name>', views.search, name="search"),
 ]
 
