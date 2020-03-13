@@ -1,14 +1,12 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.parsers import JSONParser
-from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Friends
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from registrations.models import Register
+from registrations.serializers import RegisterSerializer, RegisterFriendsSerializers
+from .models import Friends
 from .serializers import FriendsSerializer
-from registrations.serializers import RegisterSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -332,37 +330,41 @@ def suggestions(request):
     """
     API Endpoint that allows user to see friends-suggestion
     """
-    try:
-        id = int(request.query_params['user_id'])
-        exclude_all = []
-        if request.method == 'GET':
-            user = Friends.objects.all().filter(user_id=id).first()
-            exclude_friend = list(user.friend_list.all().values_list(
-                'id', flat=True).order_by('id'))
-            exclude_friend_request = list(
-                user.friend_request.all().values_list('id', flat=True).order_by('id'))
-            exclude_waiting_for_response = list(
-                user.waiting_for_response.all().values_list('id', flat=True).order_by('id'))
 
-            for item in exclude_friend:
-                exclude_all.append(int(item))
-            for item in exclude_friend_request:
-                exclude_all.append(int(item))
-            for item in exclude_waiting_for_response:
-                exclude_all.append(int(item))
-            friend_suggestion = Register.objects.all().exclude(id__in=exclude_all)
-            serializer = RegisterSerializer(friend_suggestion, many=True)
+    # user = Friends.objects.all().filter(user_id=id).first()
+    # exclude_all = [int(id)]
+    # exclude_friend = list(user.friend_list.all().values_list('id', flat=True).order_by('id'))
+    # exclude_friend_request = list(user.friend_request.all().values_list('id', flat=True).order_by('id'))
+    # exclude_waiting_for_response = list(user.waiting_for_response.all().values_list('id', flat=True).order_by('id'))
+    # for item in exclude_friend:
+    #     exclude_all.append(int(item))
+    # for item in exclude_friend_request:
+    #     exclude_all.append(int(item))
+    # for item in exclude_waiting_for_response:
+    #     exclude_all.append(int(item))
+    # friend_suggestion = Register.objects.all().exclude(id__in=exclude_all)
+    # serializer = RegisterSerializer(friend_suggestion, many=True)
+    # return Response(serializer.data, status=status.HTTP_200_OK)
+
+    try:
+        if request.method == 'GET':
+            # _friend = Friends.objects.all()
+
+            _user = Register.objects.all()
+            serializer = RegisterFriendsSerializers(_user, many=True)
+            # queryset = Friends.objects.filter(user_friends_list).all()
 
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_messages': 'Friend suggestion for you',
                 'data': serializer.data
             }
+
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'error': str(ex),
-            'status': ex.args
+            'error': status.HTTP_400_BAD_REQUEST,
+            'status': str(ex.args)
         }
         return JsonResponse(response)
 
