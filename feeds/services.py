@@ -29,9 +29,6 @@ def feed_as_object(data, feed_data_len, page):
             feeds_payload.append(payload_result)
             x += 1
 
-        if page == 'all':
-            return feeds_payload
-
         # paginate feed-object
         result = []
         paginate_by = 10
