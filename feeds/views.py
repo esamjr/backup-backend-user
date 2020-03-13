@@ -65,15 +65,22 @@ def feed_object(request):
     :request likes *MtMf:
     """
     try:
+        page = request.GET.get('page')
         if request.method == 'GET':
             serializer = FeedObjectSerializer(
                 FeedObject.objects.all(), many=True)
             feeds_ = len(Feeds.objects.all())
+            if page:
+                paginated_feed = feed_as_object(serializer.data,
+                                                feed_data_len=feeds_, page=page)
+            else:
+                paginated_feed = feed_as_object(serializer.data,
+                                                feed_data_len=feeds_, page='all')
 
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': 'viewing feeds-object',
-                'data': feed_as_object(serializer.data, feed_data_len=feeds_)
+                'data': paginated_feed
             }
             return JsonResponse(response)
     except Exception as ex:
@@ -114,7 +121,6 @@ def put_delete_feed(request):
                     'data': serializer.data
                 }
                 return JsonResponse(response)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'DELETE':
             Feeds.objects.filter(id=id).delete()
