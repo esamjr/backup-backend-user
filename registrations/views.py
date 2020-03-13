@@ -24,7 +24,7 @@ from .authentication import expires_in, set_refresh_token, cek_expire_tokens
 from .models import Register, Tokens
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer, TokensSerializer, TokenSerializer
+    SearchSerializer, TokensSerializer, TokenSerializer, RegisterlandingSerializers
 
 
 @api_view(['POST'])
@@ -48,8 +48,7 @@ def upload_xls(request):
                         'token_web': serializer.data['token'],
                         'token_phone': 'xxx'
                     }
-                    serializer_multi = MultipleSerializer(
-                        data=payload_multilogin)
+                    serializer_multi = MultipleSerializer(data=payload_multilogin)
                     if serializer_multi.is_valid():
                         serializer_multi.save()
                         subjects = 'Activation account'
@@ -264,9 +263,9 @@ def get_post_registrations(request):
             _token = make_token(_get_user_data)
 
             set_in = {
-                'user_id': _get_user_data.id,
-                'key': _token,
-            }
+                    'user_id': _get_user_data.id,
+                    'key': _token,
+                }
 
             serializer = TokensSerializer(data=set_in)
 
@@ -338,7 +337,6 @@ def forget_attempt(request, email):
             read_log(request, check, act)
             response = {'status': '1'}
             return Response(response)
-            # return Response({'status':'Your password is incorrect, please check your email to make new password'})
         except Register.DoesNotExist:
             response = {'status': 'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
@@ -963,9 +961,60 @@ def cek_token_expire(request):
 @api_view(['GET'])
 def countries(request):
     from .country import countries
+
     response = {
         "api_status": status.HTTP_200_OK,
         "api_message": 'countries',
         "data": [countries]
     }
+
     return JsonResponse(response)
+
+
+@api_view(['GET'])
+def data_info_landing(request):
+    """
+    API Endpoint for get data register landing page
+    """
+    try:
+        params = {
+            'id_user': int(request.query_params['id_user']),
+            'token': request.query_params['token'],
+        }
+
+        _u = Tokens.objects.filter(user_id=params['id_user']).exists()
+        if not _u:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User sudah logout.'
+            }
+
+            return JsonResponse(response)
+
+        _cek_user = Register.objects.filter(pk=params['id_user']).exists()
+        if not _cek_user:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "User tidak terdaftar",
+            }
+
+            return JsonResponse(response)
+
+        user_login = Register.objects.filter(pk=params['id_user'])
+        serializer = RegisterlandingSerializers(user_login, many=True)
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_messages': 'data landing user',
+            'data': serializer.data
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'api_status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+            'api_message': str(ex.args)
+        }
+
+        return JsonResponse(response)

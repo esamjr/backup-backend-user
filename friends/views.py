@@ -331,28 +331,10 @@ def suggestions(request):
     API Endpoint that allows user to see friends-suggestion
     """
 
-    # user = Friends.objects.all().filter(user_id=id).first()
-    # exclude_all = [int(id)]
-    # exclude_friend = list(user.friend_list.all().values_list('id', flat=True).order_by('id'))
-    # exclude_friend_request = list(user.friend_request.all().values_list('id', flat=True).order_by('id'))
-    # exclude_waiting_for_response = list(user.waiting_for_response.all().values_list('id', flat=True).order_by('id'))
-    # for item in exclude_friend:
-    #     exclude_all.append(int(item))
-    # for item in exclude_friend_request:
-    #     exclude_all.append(int(item))
-    # for item in exclude_waiting_for_response:
-    #     exclude_all.append(int(item))
-    # friend_suggestion = Register.objects.all().exclude(id__in=exclude_all)
-    # serializer = RegisterSerializer(friend_suggestion, many=True)
-    # return Response(serializer.data, status=status.HTTP_200_OK)
-
     try:
         if request.method == 'GET':
-            # _friend = Friends.objects.all()
-
             _user = Register.objects.all()
             serializer = RegisterFriendsSerializers(_user, many=True)
-            # queryset = Friends.objects.filter(user_friends_list).all()
 
             response = {
                 'api_status': status.HTTP_200_OK,
