@@ -93,7 +93,7 @@ def user_friends_list(request):
 @api_view(['GET'])
 def friend_request(request):
     """
-    API Endpoint that allows user to friend-request to specific-user
+    API Endpoint that allows user to see list-friend-request
     """
     try:
         id = int(request.query_params['user_id'])

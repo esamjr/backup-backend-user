@@ -65,15 +65,18 @@ def feed_object(request):
     :request likes *MtMf:
     """
     try:
+        page = request.GET.get('page')
         if request.method == 'GET':
             serializer = FeedObjectSerializer(
                 FeedObject.objects.all(), many=True)
             feeds_ = len(Feeds.objects.all())
+            paginated_feed = feed_as_object(serializer.data,
+                                            feed_data_len=feeds_, page=page)
 
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': 'viewing feeds-object',
-                'data': feed_as_object(serializer.data, feed_data_len=feeds_)
+                'data': paginated_feed
             }
             return JsonResponse(response)
     except Exception as ex:
@@ -100,11 +103,9 @@ def put_delete_feed(request):
     """
     try:
         id = int(request.query_params['id'])
-
         if request.method == 'PUT':
             feed = Feeds.objects.filter(
                 id=id, user_name=request.data['user_name']).first()
-
             serializer = FeedsSerializer(feed, data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -114,7 +115,6 @@ def put_delete_feed(request):
                     'data': serializer.data
                 }
                 return JsonResponse(response)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'DELETE':
             Feeds.objects.filter(id=id).delete()
@@ -163,12 +163,12 @@ def feed_likes_count(request):
     :param feed-id:
     """
     try:
+        id = int(request.query_params['feed_id'])
         if request.method == 'GET':
-            id = int(request.query_params['feed_id'])
-
             feed = Feeds.objects.get(id=id)
             feed_likes = Likes.objects.filter(feeds__pk=id)
             serializer = LikesSerializer(feed_likes, many=True)
+
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': 'viewing feed likes count',
@@ -201,10 +201,9 @@ def like(request):
     :param user-id:
     """
     try:
+        id = int(request.query_params['id'])
+        user_id = int(request.query_params['user_id'])
         if request.method == 'PUT':
-            id = int(request.query_params['id'])
-            user_id = int(request.query_params['user_id'])
-
             if Likes.objects.filter(user_id=user_id):
                 serializer = like_feed(id=id, user_id=user_id)
             else:
@@ -234,11 +233,11 @@ def unlike(request):
     :param feed-id:
     """
     try:
+        id = int(request.query_params['id'])
+        user_id = int(request.query_params['user_id'])
         if request.method == 'PUT':
-            id = int(request.query_params['id'])
-            user_id = int(request.query_params['user_id'])
-
             serializer = unlike_feed(id=id, user_id=user_id)
+
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': f'you unlike post {id}',
@@ -303,22 +302,16 @@ def comment_feed_count(request):
     :param feed-id:
     """
     try:
+        id = int(request.query_params['feed_id'])
         if request.method == 'GET':
-            id = int(request.query_params['feed_id'])
-
             feed = Feeds.objects.get(id=id)
             comments = Comments.objects.filter(feed_id__pk=id)
             serializer = CommentsSerializer(comments, many=True)
+
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': f'comment counts',
-                'data': [
-                    {
-                        "feed_id": feed.id,
-                        "feed_content": feed.content,
-                        "comments_count": len(serializer.data)
-                    }
-                ]
+                'data': len(serializer.data)
             }
             return JsonResponse(response)
     except Exception as ex:
@@ -344,8 +337,7 @@ def put_delete_comment(request):
     ::param comment-id:
     """
     try:
-        id = request.query_params['id']
-
+        id = int(request.query_params['id'])
         if request.method == 'PUT':
             comment = Comments.objects.get(id=id)
             serializer = CommentsSerializer(comment, data=request.data)
@@ -357,7 +349,6 @@ def put_delete_comment(request):
                     'data': serializer.data
                 }
                 return JsonResponse(response)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'DELETE':
             Comments.objects.filter(id=id).delete()

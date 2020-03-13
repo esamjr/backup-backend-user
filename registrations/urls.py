@@ -21,5 +21,7 @@ urlpatterns = [
 
     # api for crocodic
     url(r'^api/cek_token/$', views.login_token_views, name='login_token_views'),
+    # countries
+    url(r'^api/countries/$', views.countries),
 
 ]

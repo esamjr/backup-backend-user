@@ -175,7 +175,8 @@ def get_delete_update_registrations(request, pk):
                     return Response(content, status=status.HTTP_204_NO_CONTENT)
 
                 elif request.method == 'PUT':
-                    serializer = RegisterSerializer(registrations, data=request.data)
+                    serializer = RegisterSerializer(
+                        registrations, data=request.data)
                     if serializer.is_valid():
                         serializer.save()
                         payload = {
@@ -314,7 +315,8 @@ def forget_attempt(request, email):
             if (check.attempt >= 25):
                 token_max_attempt = make_password(
                     'this is the maximum reach token, unfortunately we must banned this account temporarly')
-                payload = {'token': token_max_attempt, 'password': token_max_attempt, 'attempt': 0}
+                payload = {'token': token_max_attempt,
+                           'password': token_max_attempt, 'attempt': 0}
                 serializers = MaxAttemptReachSerializer(check, data=payload)
                 if serializers.is_valid():
                     serializers.save()
@@ -335,7 +337,6 @@ def forget_attempt(request, email):
             read_log(request, check, act)
             response = {'status': '1'}
             return Response(response)
-            # return Response({'status':'Your password is incorrect, please check your email to make new password'})
         except Register.DoesNotExist:
             response = {'status': 'Email Does not valid'}
             return Response(response, status=status.HTTP_404_NOT_FOUND)
@@ -370,10 +371,12 @@ def get_login(request):
             get_login = Register.objects.get(email=email)
             attempt = get_login.attempt
             if (check_password(tokenx, get_login.token)):
-                response = {'status': 'you request to change your password, please check your email'}
+                response = {
+                    'status': 'you request to change your password, please check your email'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
             elif (get_login.banned_type == "0"):
-                response = {'status': 'Account has not verified yet, check your email to verified'}
+                response = {
+                    'status': 'Account has not verified yet, check your email to verified'}
                 return Response(response, status=status.HTTP_401_UNAUTHORIZED)
             elif (check_password(password, get_login.password)):
                 flag = beacon.banned_type
@@ -398,13 +401,15 @@ def get_login(request):
                         'flag ': flag
                     }
                     try:
-                        beacon_multi = MultipleLogin.objects.get(id_user=get_login.id)
+                        beacon_multi = MultipleLogin.objects.get(
+                            id_user=get_login.id)
                         payload_multilogin = {
                             'id_user': get_login.id,
                             'token_web': serializer.data['token'],
                             'token_phone': 'xxx'
                         }
-                        serializer_multi = MultipleSerializer(beacon_multi, data=payload_multilogin)
+                        serializer_multi = MultipleSerializer(
+                            beacon_multi, data=payload_multilogin)
                         if serializer_multi.is_valid():
                             serializer_multi.save()
                     except MultipleLogin.DoesNotExist:
@@ -413,7 +418,8 @@ def get_login(request):
                             'token_web': serializer.data['token'],
                             'token_phone': 'xxx'
                         }
-                        serializer_multi = MultipleSerializer(data=payload_multilogin)
+                        serializer_multi = MultipleSerializer(
+                            data=payload_multilogin)
                         if serializer_multi.is_valid():
                             serializer_multi.save()
                     return Response(response, status=status.HTTP_201_CREATED)
@@ -450,13 +456,15 @@ def get_login(request):
                     serializer.save()
                     response = {'status': 'SUCCESSFULLY LOGOUT'}
                     try:
-                        beacon_multi = MultipleLogin.objects.get(id_user=get_token.id)
+                        beacon_multi = MultipleLogin.objects.get(
+                            id_user=get_token.id)
                         payload_multilogin = {
                             'id_user': Registration,
                             'token_web': 'xxx',
                             'token_phone': get_token.token
                         }
-                        serializer_multi = MultipleSerializer(beacon_multi, data=payload_multilogin)
+                        serializer_multi = MultipleSerializer(
+                            beacon_multi, data=payload_multilogin)
                         if serializer_multi.is_valid():
                             serializer_multi.save()
                     except MultipleLogin.DoesNotExist:
@@ -726,7 +734,8 @@ def cek_login_views(request):
 
             return JsonResponse(response)
 
-        _check_banned = Register.objects.filter(email=email).values('banned_type')
+        _check_banned = Register.objects.filter(
+            email=email).values('banned_type')
 
         _cek_password = cek_password(password, _get_user_data)
         if not _cek_password:
@@ -861,7 +870,8 @@ def update_vendor_login(request, _token):
     }
 
     beacon_multi = MultipleLogin.objects.get(id_user=request.id)
-    serializer_multi = MultipleSerializer(beacon_multi, data=payload_multi_login)
+    serializer_multi = MultipleSerializer(
+        beacon_multi, data=payload_multi_login)
     if serializer_multi.is_valid():
         serializer_multi.save()
 
@@ -943,6 +953,19 @@ def cek_token_expire(request):
         "id_user": params['id_user'],
         "token": params['token'],
         "expires_in": str(expires_in(params['token'])),
+    }
+
+    return JsonResponse(response)
+
+
+@api_view(['GET'])
+def countries(request):
+    from .country import countries
+
+    response = {
+        "api_status": status.HTTP_200_OK,
+        "api_message": 'countries',
+        "data": [countries]
     }
 
     return JsonResponse(response)
