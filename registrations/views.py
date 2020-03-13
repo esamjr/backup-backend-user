@@ -24,7 +24,7 @@ from .authentication import expires_in, set_refresh_token, cek_expire_tokens
 from .models import Register, Tokens
 from .serializers import RegisterSerializer, LoginSerializer, MaxAttemptReachSerializer, \
     ConfirmSerializer, PassingAttemptSerializer, ForgetSerializer, AttemptSerializer, SentForgetSerializer, \
-    SearchSerializer, TokensSerializer, TokenSerializer
+    SearchSerializer, TokensSerializer, TokenSerializer, RegisterlandingSerializers
 
 
 @api_view(['POST'])
@@ -946,3 +946,52 @@ def cek_token_expire(request):
     }
 
     return JsonResponse(response)
+
+
+@api_view(['GET'])
+def data_info_landing(request):
+    """
+    API Endpoint for get data register landing page
+    """
+    try:
+        params = {
+            'id_user': int(request.query_params['id_user']),
+            'token': request.query_params['token'],
+        }
+
+        _u = Tokens.objects.filter(user_id=params['id_user']).exists()
+        if not _u:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': 'User sudah logout.'
+            }
+
+            return JsonResponse(response)
+
+        _cek_user = Register.objects.filter(pk=params['id_user']).exists()
+        if not _cek_user:
+            response = {
+                'api_status': status.HTTP_404_NOT_FOUND,
+                'api_message': "User tidak terdaftar",
+            }
+
+            return JsonResponse(response)
+
+        user_login = Register.objects.filter(pk=params['id_user'])
+        serializer = RegisterlandingSerializers(user_login, many=True)
+
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_messages': 'data landing user',
+            'data': serializer.data
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'api_status': status.HTTP_500_INTERNAL_SERVER_ERROR,
+            'api_message': str(ex.args)
+        }
+
+        return JsonResponse(response)
