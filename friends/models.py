@@ -1,9 +1,6 @@
 from django.db import models
+
 from registrations.models import Register
-from django.db import IntegrityError
-from django.http import JsonResponse
-from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
 
 
 class Friends(models.Model):
