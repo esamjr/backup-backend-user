@@ -2,10 +2,11 @@ from feeds.models import *
 from .serializers import *
 from django.http import JsonResponse
 from rest_framework.response import Response
+from django.core.paginator import Paginator
 import json
 
 
-def feed_as_object(data, feed_data_len):
+def feed_as_object(data, feed_data_len, page):
     x = 0
 
     feeds_id = get_feeds_id()
@@ -27,7 +28,15 @@ def feed_as_object(data, feed_data_len):
             }
             feeds_payload.append(payload_result)
             x += 1
-        return feeds_payload
+
+        # paginate feed-object
+        result = []
+        paginate_by = 10
+        paginator = Paginator(feeds_payload, paginate_by)
+        paginated_feed = paginator.get_page(page)
+        for i in paginated_feed:
+            result.append(i)
+        return result
 
 
 def get_feeds_id():
@@ -92,5 +101,4 @@ def unlike_feed(id, user_id):
 
     feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
     serializer = LikesSerializer(feed, many=True)
-
     return serializer

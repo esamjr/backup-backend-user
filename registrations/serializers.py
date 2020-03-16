@@ -90,7 +90,13 @@ class TokensSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SuggestionsSerializers(serializers.ModelSerializer):
+class RegisterFriendsSerializers(serializers.ModelSerializer):
     class Meta:
         model = Register
-        fields = ('id', 'email', 'full_name', 'url_photo')
+        fields = ('id', 'email', 'full_name', 'url_photo', 'verfied')
+
+
+class RegisterlandingSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Register
+        fields = ('id', 'url_photo', 'ssn_num', 'tax_num', 'primary_phone', 'primary_address')

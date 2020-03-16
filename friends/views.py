@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from registrations.models import Register
-from registrations.serializers import RegisterSerializer, SuggestionsSerializers
+from registrations.serializers import RegisterSerializer, RegisterFriendsSerializers
 from .models import Friends
 from .serializers import FriendsSerializer
 
@@ -132,7 +132,7 @@ def user_friends_list(request):
 @cache_page(CACHE_TTL)
 def friend_request(request):
     """
-    API Endpoint that allows user to friend-request to specific-user
+    API Endpoint that allows user to see list-friend-request
     """
     try:
         id = int(request.query_params['user_id'])
@@ -392,10 +392,11 @@ def suggestions(request):
     """
     API Endpoint that allows user to see friends-suggestion
     """
+
     try:
         if request.method == 'GET':
             _user = Register.objects.all()
-            serializer = SuggestionsSerializers(_user, many=True)
+            serializer = RegisterFriendsSerializers(_user, many=True)
 
             response = {
                 'api_status': status.HTTP_200_OK,
@@ -406,8 +407,8 @@ def suggestions(request):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'error': str(ex),
-            'status': ex.args
+            'error': status.HTTP_400_BAD_REQUEST,
+            'status': str(ex.args)
         }
         return JsonResponse(response)
 
