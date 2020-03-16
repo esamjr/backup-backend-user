@@ -1,9 +1,4 @@
 from django.http import JsonResponse
-# from django.core.cache import cache
-# from django.core import serializers
-# from django.conf import settings
-# from django.core.cache.backends.base import DEFAULT_TIMEOUT
-# from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -48,8 +43,8 @@ def watcher(request):
         }
         return JsonResponse(response)
 
+
 @api_view(['GET'])
-@cache_page(CACHE_TTL)
 def user_friends_list(request):
     """
     API Endpoint that allows user to specific user-friends-list
