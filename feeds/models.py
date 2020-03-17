@@ -11,9 +11,11 @@ class Feeds(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
-    @classmethod
-    def instantiate_feed_object(cls, feed_instance):
-        FeedObject.objects.create(feed_id=feed_instance).save()
+    def abs_created_at(self):
+        return self.created_at.strftime('%B %d, %Y. %H:%M:%S %p')
+
+    def abs_update_at(self):
+        return self.update_at.strftime('%B %d, %Y. %H:%M:%S %p')
 
 
 class Comments(models.Model):
@@ -24,6 +26,12 @@ class Comments(models.Model):
     content = models.CharField(max_length=255, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
+
+    def abs_created_at(self):
+        return self.created_at.strftime('%B %d, %Y. %H:%M:%S %p')
+
+    def abs_update_at(self):
+        return self.update_at.strftime('%B %d, %Y. %H:%M:%S %p')
 
 
 class Likes(models.Model):
@@ -40,25 +48,3 @@ class Likes(models.Model):
             Likes.objects.create(user_id=user.first(),
                                  user_name=user.first().full_name).save()
         return like_feed(id=id, user_id=user_id)
-
-
-class FeedObject(models.Model):
-    feed_id = models.ForeignKey(Feeds, on_delete=models.CASCADE, blank=False)
-    comments = models.ManyToManyField(Comments, blank=True)
-    likes = models.ManyToManyField(Likes, blank=True)
-
-    @classmethod
-    def add_like(cls, u_id, f_id):
-        feed = FeedObject.objects.filter(feed_id=f_id)
-        if feed.exists():
-            like = Likes.objects.filter(feeds__pk=f_id).first()
-            feed.first().likes.add(like)
-        return False
-
-    @classmethod
-    def remove_like(cls, u_id, f_id):
-        feed = FeedObject.objects.filter(feed_id=f_id)
-        if feed.exists():
-            like = Likes.objects.filter(feeds__pk=f_id).first()
-            feed.first().likes.remove(like)
-        return False

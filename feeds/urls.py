@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     # get-post feed
     path('', views.get_post_feed),
@@ -11,10 +12,8 @@ urlpatterns = [
     # get feed-like-count
     path('likes/count/', views.feed_likes_count),
     # put like
-    # path('<int:id>/likes/<int:user_id>', views.like),
     path('like/', views.like),
     # put unlike
-    # path('<int:id>/unlike/<int:user_id>', views.unlike),
     path('unlike/', views.unlike),
     # get all-comment
     path('comments/', views.get_post_comment),

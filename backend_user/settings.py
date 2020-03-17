@@ -202,12 +202,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Auth
+#
 # REST_FRAMEWORK = {
-#     # 'DEFAULT_AUTHENTICATION_CLASSES': (
-#     #     'rest_framework.authentication.TokenAuthentication',
-#     # ),
-#     # 'DEFAULT_PERMISSION_CLASSES': (
-#     #     'rest_framework.permissions.IsAuthenticated', )
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated', )
 # }
 
 
@@ -299,5 +300,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+    }
+}
+
+CACHE_TTL = 60 * 10 # 10 minutes
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
     }
 }
