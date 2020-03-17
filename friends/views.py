@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import status
+from django.core.paginator import Paginator
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -336,12 +337,23 @@ def suggestions(request):
             _user = Register.objects.all()
             serializer = RegisterFriendsSerializers(_user, many=True)
 
+            # paginate friends
+            result_pagination = []
+            paginate_by = 30
+            paginator = Paginator(serializer.data, paginate_by)
+            # page length
+            page = request.GET.get('page')
+            paginated_friends = paginator.get_page(page)
+            page_len = paginated_friends.paginator.num_pages
+            for i in paginated_friends:
+                result_pagination.append(i)
+
             response = {
                 'api_status': status.HTTP_200_OK,
-                'api_messages': 'Friend suggestion for you',
-                'data': serializer.data
+                'api_messages': 'Friend suggestions',
+                'page_length': page_len,
+                'data': result_pagination
             }
-
             return JsonResponse(response)
     except Exception as ex:
         response = {
