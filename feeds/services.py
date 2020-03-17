@@ -4,8 +4,6 @@ import json
 
 from .models import *
 from .serializers import *
-from django.db.models.signals import post_save
-from .signals import delete_cache
 
 
 def feed_as_object(page):
