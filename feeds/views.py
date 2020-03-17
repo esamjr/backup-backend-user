@@ -60,7 +60,6 @@ def feed_object(request):
     """
     try:
         page = request.GET.get('page')
-        page = 1 if page else page
         if request.method == 'GET':
             paginated_feed, page_len = feed_as_object(page=page)
             response = {
