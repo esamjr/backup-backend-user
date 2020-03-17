@@ -1,28 +1,26 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.core.cache import cache
 
-from .models import Feeds, FeedObject, Likes, Comments
+from .models import Feeds, Likes, Comments
 
-
-@receiver(post_save, sender=Feeds)
-def create_feed_object(sender, update_fields, created, instance, **kwargs):
-    """
-    after an objects have been save => [post_save],
-    auto create feed-object after user create-feed
-
-    :param sender:
-    :param instance => Feed:
-    :param created:
-    """
-    if created:
-        if update_fields:
-            return False
-        Feeds.instantiate_feed_object(feed_instance=instance)
+from django.core.cache import cache
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.conf import settings
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
-@receiver(post_save, sender=Comments)
-def update_comments(sender, instance, created, **kwargs):
-    if created:
-        feed = FeedObject.objects.filter(feed_id=instance.feed_id).first()
-        feed_comments = Comments.objects.filter(feed_id=instance.feed_id)
-        feed.comments.add(feed_comments.latest('user_id'))
+@receiver([post_save, post_delete], sender=Feeds)
+@receiver([post_save, post_delete], sender=Comments)
+@receiver([post_save, post_delete], sender=Likes)
+def delete_cache(sender, **kwargs):
+    from .services import feed_as_object
+    if sender:
+        cache.delete_pattern("*")
+
+        # create new cache
+        page = 1
+        feed_page_x = f'feed_page_{page}'
+        paginated_feed, page_len = feed_as_object(page=page)
+        cache.set(feed_page_x, paginated_feed, timeout=CACHE_TTL)
+        cache.set('page_len', page_len, timeout=CACHE_TTL)
