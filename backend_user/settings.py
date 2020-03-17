@@ -302,11 +302,3 @@ LOGGING = {
         },
     }
 }
-
-CACHE_TTL = 60 * 10 # 10 minutes
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-    }
-}

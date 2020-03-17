@@ -13,12 +13,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-# cache
-from django.core.cache import cache
-from django.core.cache.backends.base import DEFAULT_TIMEOUT
-from django.conf import settings
-CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
-
 
 @api_view(['GET', 'POST'])
 def get_post_feed(request):
@@ -68,15 +62,7 @@ def feed_object(request):
         page = request.GET.get('page')
         page = 1 if page else page
         if request.method == 'GET':
-            feed_page_x = f'feed_page_{page}'
-            if feed_page_x in cache:
-                paginated_feed = cache.get(feed_page_x)
-                page_len = cache.get('page_len')
-            else:
-                paginated_feed, page_len = feed_as_object(page=page)
-                cache.set(feed_page_x, paginated_feed, timeout=CACHE_TTL)
-                cache.set('page_len', page_len, timeout=CACHE_TTL)
-
+            paginated_feed, page_len = feed_as_object(page=page)
             response = {
                 'api_status': status.HTTP_200_OK,
                 'api_message': 'viewing feeds-object',

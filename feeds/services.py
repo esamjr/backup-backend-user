@@ -90,7 +90,6 @@ def like_feed(id, user_id):
 
     serializer = LikesSerializer(
         Feeds.objects.get(id=id).user.all(), many=True)
-    delete_cache(sender=Likes)
     return serializer
 
 
@@ -104,5 +103,4 @@ def unlike_feed(id, user_id):
 
     feed = Feeds.objects.get(id=id).user.filter(feeds__pk=id)
     serializer = LikesSerializer(feed, many=True)
-    delete_cache(sender=Likes)
     return serializer
