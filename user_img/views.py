@@ -17,8 +17,8 @@ def get_all_doc(request):
     API endpoint for get npwp and ktp order by id_user
     """
     try:
-        _user = _cek_user(request.query_params['id_user'])
-        data = User_img.objects.filter(id_user=_user.id).values()
+        _user = _cek_user(int(request.query_params['id_user']))
+        data = User_img.objects.filter(id_user=int(_user.id)).values()
         result = []
         for i in data:
             payload = {
