@@ -20,6 +20,10 @@ urlpatterns = [
     path('request/accept/', views.accept_request, name='accept_request'),
     # put user unfriend user-friend
     path('unfriend/', views.unfriend, name='unfriend'),
+    # get user blocked-user-list
+    path('block/list/', views.blocked_list, name='blocked_list'),
+    # put user block-friend-request
+    path('block/add/', views.block_user, name='block_user'),
 
     # get friend-suggestion for specific-user
     path('suggestions/', views.suggestions, name='suggestions'),

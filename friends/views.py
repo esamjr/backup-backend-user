@@ -235,6 +235,50 @@ def friend_request_list(request):
         }
         return JsonResponse(response)
 
+@api_view(['GET'])
+def blocked_list(request):
+    try:
+        id = int(request.query_params['user_id'])
+        if request.method == 'GET':
+            user = Friends.objects.all().filter(user_id=id).first()
+            if user:
+                _friends = user.blocker_to.values()
+                result = []
+                for i in _friends:
+                    payload = {
+                        'id': i['id'],
+                        'email': i['email'],
+                         'full_name': i['full_name'],
+                        'verfied': i['verfied'],
+                        'url_photo': i['url_photo']
+                    }
+                    result.append(payload)
+
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Blocked list berhasil',
+                    'data': {
+                        'user_id': id,
+                        'user_name': user.user_name,
+                        'blocked_list': result
+                    }
+                }
+                return JsonResponse(response)
+
+            else:
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Blocked List tidak ada',
+                }
+                return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': status.HTTP_400_BAD_REQUEST,
+            'status': ex.args
+        }
+        return JsonResponse(response)
+
 @api_view(['PUT'])
 def add_friend(request):
     """
@@ -387,6 +431,34 @@ def unfriend(request):
         return JsonResponse(response)
 
 
+# User Can block another user
+@api_view(['PUT'])
+def block_user(request):
+    try:
+        user_id = int(request.query_params['user_id'])
+        friend_id = int(request.query_params['friend_id'])
+        if request.method == 'PUT':
+            user = Friends.objects.all().filter(user_id=user_id).first()
+            user_friend = Friends.objects.all().filter(user_id=friend_id).first()
+
+            user.blocker_to.add(friend_id)
+            user_friend.blocked_by.add(user_id)
+            user_friend.friend_list.remove(user_id)
+
+            msg = user.user_name + ' block ' + user_friend.user_name
+            response = {
+                'api_status': status.HTTP_201_CREATED,
+                'api_messages': msg
+            }
+            return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'error': str(ex),
+            'status': ex.args
+        }
+        return JsonResponse(response)
+
 @api_view(['GET'])
 def suggestions(request):
     """
@@ -405,6 +477,7 @@ def suggestions(request):
             }
 
             return JsonResponse(response)
+
     except Exception as ex:
         response = {
             'error': status.HTTP_400_BAD_REQUEST,
@@ -425,11 +498,15 @@ def search(request, id, name):
                 user.friend_request.all().values_list('id', flat=True).order_by('id'))
             exclude_waiting_for_response = list(
                 user.waiting_for_response.all().values_list('id', flat=True).order_by('id'))
+            exclude_blocker_to = list(user.blocker_to.all().values_list('id', flat=True).order_by('id'))
+
             for item in exclude_friend:
                 exclude_all.append(int(item))
             for item in exclude_friend_request:
                 exclude_all.append(int(item))
             for item in exclude_waiting_for_response:
+                exclude_all.append(int(item))
+            for item in exclude_blocker_to:
                 exclude_all.append(int(item))
 
             friend_suggestion = Register.objects.all().exclude(id__in=exclude_all)
