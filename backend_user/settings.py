@@ -253,7 +253,7 @@ FIXTURE_DIRS = (
     os.path.join(BASE_DIR, '../../fixtures'),
 )
 
-SITE_URL = 'https://x-user.mindzzle.com/'
+SITE_URL = 'https://dev-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
 GET_LOGGER_NAME = 'rest'
 
