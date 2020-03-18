@@ -93,8 +93,8 @@ def billing_license_list(request):
             return JsonResponse(response)
     except Exception as ex:
         response = {
-            'error': str(ex),
-            'status': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
         }
 
         return JsonResponse(response)
@@ -119,8 +119,8 @@ def update_license_date(request):
 
     except Exception as ex:
         response = {
-            'error': str(ex),
-            'status': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
         }
 
         return JsonResponse(response)
@@ -168,8 +168,8 @@ def update_qty_license(request):
 
     except Exception as ex:
         response = {
-            'error': str(ex),
-            'status': ex.args
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
         }
 
         return JsonResponse(response)

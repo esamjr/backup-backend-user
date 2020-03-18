@@ -1,19 +1,18 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from business_account.models import Business
+from log_app.views import read_log, update_log, delete_log
+from registrations.models import Register
+from registrations.authentication import is_authentication
+
 from .models import Experiences as pengalaman
 from .serializers import ExperiencesSerializer
-from registrations.models import Register
-from log_app.views import create_log, read_log, update_log, delete_log
-from log_app.serializers import LoggingSerializer
-from log_app.models import Logging
-from business_account.models import Business
-import time
+
 
 @api_view(['GET','DELETE', 'PUT'])
-
 def get_delete_update_experiences(request, pk):
     if request.method == 'DELETE':
         Experiences = pengalaman.objects.get(id=pk)
@@ -47,19 +46,6 @@ def get_delete_update_experiences(request, pk):
                             act = 'Read experience by '                           
                             read_log(request, registrations,act)
                             return Response(serializer.data)
-
-                        # elif request.method == 'DELETE':
-                        #     if (Experiences.verified == "0"):                    
-                        #         Experiences.delete()
-                        #         act = 'Delete experience by id : '                           
-                        #         delete_log(request, registrations, Experiences.position, act)
-                        #         content = {
-                        #             'status' : 'NO CONTENT'
-                        #         }
-                        #         return Response(content, status=status.HTTP_204_NO_CONTENT)
-                        #     else:
-                        #         content = {'status':'Cannot touch this, because your experience already verified'}
-                        #         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
                         elif request.method == 'PUT':                
                             serializer = ExperiencesSerializer(Experiences, data=request.data)
                             if serializer.is_valid():
@@ -86,35 +72,73 @@ def get_delete_update_experiences(request, pk):
             }
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET', 'POST'])
 def get_post_experiences(request):
-    token = request.META.get('HTTP_AUTHORIZATION')
-    registrations = Register.objects.get(token =token)
-    if request.method == 'GET':
-        network = pengalaman.objects.all()
-        serializer = ExperiencesSerializer(network, many=True)
-        return Response(serializer.data)
+    try:
+        token = request.META.get('HTTP_AUTHORIZATION')
+        is_authentication(token)
 
-    elif request.method == 'POST':
-        serializer = ExperiencesSerializer(data=request.query_params)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'GET':
+            network = pengalaman.objects.all()
+            serializer = ExperiencesSerializer(network, many=True)
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Update data experience berhasil',
+                'data': serializer.data
+            }
+
+            return JsonResponse(response)
+
+        elif request.method == 'POST':
+            serializer = ExperiencesSerializer(data=request.query_params)
+            if serializer.is_valid():
+                serializer.save()
+
+                response = {
+                    'api_status': status.HTTP_200_OK,
+                    'api_message': 'Update data berhasil',
+                    'data': serializer.data
+                }
+
+                return JsonResponse(response)
+    except Exception as ex:
+        response = {
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
+        }
+
+        return JsonResponse(response)
 
 
 @api_view(['GET'])
-def get_post_experiences_user(request,pk):
+def get_post_experiences_user(request):
     try:
+        token = request.META.get('HTTP_AUTHORIZATION')
+        is_authentication(token)
+
         if request.method == 'GET':
-            network = pengalaman.objects.all().filter(id_user=pk)
+            network = pengalaman.objects.all().filter(id_user=int(request.query_params['id_user']))
             serializer = ExperiencesSerializer(network, many=True)
-            return Response(serializer.data)
-    except pengalaman.DoesNotExist:
-        content = {
-            'status': 'Not Found'
+
+            response = {
+                'api_status': status.HTTP_200_OK,
+                'api_message': 'Update data berhasil',
+                'data': serializer.data
+            }
+
+            return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
         }
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+        return JsonResponse(response)
+
+
 
 
 
