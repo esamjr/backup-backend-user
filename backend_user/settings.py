@@ -201,29 +201,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Auth
+#
 # REST_FRAMEWORK = {
-#     # 'DEFAULT_AUTHENTICATION_CLASSES': (
-#     #     'rest_framework.authentication.TokenAuthentication',
-#     # ),
-#     # 'DEFAULT_PERMISSION_CLASSES': (
-#     #     'rest_framework.permissions.IsAuthenticated', )
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated', )
 # }
 
-# Caches
-CACHE_TTL = 60 * 15
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
 
 # Email setting
+
 DEFAULT_FROM_EMAIL = 'admin@mindzzle.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -263,7 +253,7 @@ FIXTURE_DIRS = (
     os.path.join(BASE_DIR, '../../fixtures'),
 )
 
-SITE_URL = 'https://x-user.mindzzle.com/'
+SITE_URL = 'https://dev-user.mindzzle.com/'
 API_URL = 'x-user-api.mindzzle.com'
 GET_LOGGER_NAME = 'rest'
 

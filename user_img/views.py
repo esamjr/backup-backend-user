@@ -1,24 +1,52 @@
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from OCR_Reader.serializers import UserImgSerializer
 from registrations.models import Register
+from registrations.helper import _cek_user
+
 from .models import User_img
 from .serializers import ValidSerializer, ExpTaxnumSerializer
 
 
 @api_view(['GET'])
-def get_all_doc(request, pk):
-	user = Register.objects.get(id=pk)
-	if user.id == int(pk):
-		datas = User_img.objects.all()
-		serializer = UserImgSerializer(datas, many=True)
-		return Response(serializer.data, status=status.HTTP_200_OK)
-	else:
-		content = {'status': 'User Not exist'}
-		return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+def get_all_doc(request):
+    """'
+    API endpoint for get npwp and ktp order by id_user
+    """
+    try:
+        _user = _cek_user(int(request.query_params['id_user']))
+        data = User_img.objects.filter(id_user=int(_user.id)).values()
+        result = []
+        for i in data:
+            payload = {
+                'id': i['id'],
+                'id_user': i['id_user'],
+                'type_name': i['type_name'],
+                'url_ktp': i['url_ktp'],
+                'no_ktp': i['no_ktp'],
+                'url_npwp': i['url_npwp'],
+                'no_npwp': i['no_npwp'],
+            }
+            result.append(payload)
 
+        response = {
+            'api_status': status.HTTP_200_OK,
+            'api_message': "documents user bisa diambil",
+            'data': result
+        }
+
+        return JsonResponse(response)
+
+    except Exception as ex:
+        response = {
+            'api_error': status.HTTP_400_BAD_REQUEST,
+            'api_status': str(ex.args)
+        }
+
+        return JsonResponse(response)
 
 @api_view(['GET','PUT'])
 def get_doc(request):
